@@ -272,6 +272,11 @@ h3 {
   border-left: 1px dashed var(--rule-strong);
 }
 .flow-row:last-child::before { background: var(--cobalt); }
+/* A card row has no label: its dot sits level with the card's action tag,
+   and the rail runs from the row above into that dot and on from below it. */
+.flow-row.is-card::before { top: 21px; }
+.flow-row.is-card::after { top: 36px; }
+.flow-row:has(+ .flow-row.is-card)::after { bottom: -47px; }
 .flow-label {
   margin-bottom: 8px;
   font-size: 0.6875rem;
@@ -310,11 +315,28 @@ h3 {
 }
 .flow-hold-top {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 8px 12px;
 }
 .flow-title { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.action-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: var(--cobalt-wash);
+  color: var(--cobalt-deep);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.action-tag svg { flex: 0 0 auto; }
+.action-tag + .flow-title,
+.flow-hold-top + .flow-title { margin-top: 10px; }
 .flow-when { margin-top: 2px; font-size: 0.8125rem; color: var(--muted); }
 .flow-hold-card .source { margin-top: 12px; }
 
@@ -1116,8 +1138,6 @@ h3 {
   .brand { font-size: 1rem; gap: 8px; }
   .button-small { padding: 0.5rem 0.7rem; font-size: 0.8125rem; }
   .q-card { padding-inline: 13px; }
-  .flow-hold-top { flex-direction: column; gap: 8px; }
-  .flow-hold-top .state { justify-items: start; }
   .chapter { font-size: 0.6875rem; white-space: nowrap; }
   .pick { --pick-gutter: 38px; }
   .blk { padding-inline: 4px; }
