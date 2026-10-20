@@ -1,6 +1,6 @@
-# Calfluent
+# ZipSched
 
-Static landing page for [calfluent.com](https://calfluent.com), published with GitHub Pages from `main`.
+Static landing page for [zipsched.com](https://zipsched.com), published with GitHub Pages from `main`.
 
 - `index.html`: the landing page; `privacy.html`: the privacy note.
 - `styles.css`: the whole design system (tokens at the top of the file).
