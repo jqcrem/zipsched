@@ -185,17 +185,41 @@ h3 {
   gap: 16px;
   min-height: 68px;
 }
-.brand {
-  display: inline-flex;
+/* Wordmark lockup: the mark spans two lines, the name on the first and a
+   grey "by Beans" on the second. The mark repeats the home link for the
+   pointer only (no tab stop), and each line is a full 24px tap target. */
+.brand-block {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 10px;
   align-items: center;
-  gap: 10px;
   margin-right: auto;
+}
+.brand-mark-link { grid-row: 1 / span 2; display: block; }
+.brand-mark { display: block; }
+.brand {
+  grid-column: 2;
+  justify-self: start;
   font-weight: 650;
   font-size: 1.0625rem;
+  line-height: 24px;
   letter-spacing: -0.015em;
   text-decoration: none;
 }
-.brand-mark { flex: 0 0 auto; }
+.brand-by {
+  grid-column: 2;
+  font-size: 0.75rem;
+  line-height: 24px;
+  color: var(--muted);
+}
+.brand-by a {
+  display: inline-block;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 2px;
+}
+.brand-by a:hover { color: var(--ink); text-decoration-color: currentColor; }
 .nav-links {
   display: flex;
   gap: 28px;
@@ -1173,7 +1197,8 @@ h3 {
 }
 
 @media (max-width: 400px) {
-  .brand { font-size: 1rem; gap: 8px; }
+  .brand { font-size: 1rem; }
+  .brand-block { column-gap: 8px; }
   .button-small { padding: 0.5rem 0.7rem; font-size: 0.8125rem; }
   .q-card { padding-inline: 13px; }
   .chapter { font-size: 0.6875rem; white-space: nowrap; }
