@@ -272,7 +272,7 @@ h3 {
   left: 5px; top: 20px; bottom: -22px;
   border-left: 1px dashed var(--rule-strong);
 }
-.flow-cal::before { background: var(--cobalt); }
+.flow-row:last-child::before { background: var(--cobalt); }
 .flow-label {
   margin-bottom: 8px;
   font-size: 0.6875rem;
@@ -354,6 +354,251 @@ h3 {
   color: var(--cobalt-deep);
   font-weight: 600;
 }
+
+/* Hero demo: four scenes stacked in one cell, so the card keeps the height of
+   the tallest and never shifts the page as scenes change. */
+.demo-stage { display: grid; overflow: hidden; }
+.scene {
+  grid-area: 1 / 1;
+  align-self: center;
+  min-width: 0;
+}
+.scene:not(.is-active) { visibility: hidden; opacity: 0; }
+
+.flow-to {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+.flow-thread {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.flow-thread svg { flex: 0 0 auto; color: var(--cobalt); }
+
+.email-text {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--ivory);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.email-text ul,
+.email-bullets { display: grid; gap: 4px; margin-top: 6px; }
+.email-text li,
+.email-bullets li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 0.8125rem;
+  color: var(--ink);
+}
+.email-text li::before,
+.email-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 2px; top: 0.6em;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.email-bullets { margin-top: 10px; }
+.email-bullets .bullet-new {
+  margin-inline: -6px;
+  padding: 1px 6px 1px 20px;
+  border-radius: 4px;
+  background: var(--cobalt-wash);
+  color: var(--cobalt-deep);
+  font-weight: 600;
+}
+.email-bullets .bullet-new::before { left: 8px; background: var(--cobalt); }
+
+/* Drag-to-add calendar */
+.pick { --pick-gutter: 44px; --pick-row: 24px; }
+.pick-days {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-left: var(--pick-gutter);
+  padding-bottom: 6px;
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+.pick-days span { padding-left: 4px; }
+.pick-body { display: grid; grid-template-columns: var(--pick-gutter) minmax(0, 1fr); }
+.pick-hours {
+  display: grid;
+  grid-template-rows: repeat(2, calc(var(--pick-row) * 2));
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+.pick-hours span { margin-top: -6px; }
+.pick-grid {
+  position: relative;
+  height: calc(var(--pick-row) * 4);
+  border-left: 1px solid var(--rule);
+  background-image:
+    linear-gradient(to bottom, var(--rule) 1px, transparent 1px),
+    linear-gradient(to right, var(--rule) 1px, transparent 1px);
+  background-size: 100% calc(var(--pick-row) * 2), calc(100% / 3) 100%;
+  box-shadow: inset 0 -1px 0 var(--rule);
+}
+.blk {
+  position: absolute;
+  left: calc(var(--col) * 100% / 3 + 3px);
+  width: calc(100% / 3 - 6px);
+  top: calc(var(--from) * var(--pick-row) + 2px);
+  height: calc(var(--len) * var(--pick-row) - 3px);
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  line-height: 21px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.blk-busy {
+  background: rgb(15 27 45 / 0.06);
+  box-shadow: inset 2px 0 0 rgb(15 27 45 / 0.3);
+  color: var(--muted);
+}
+.blk-pick {
+  background: var(--cobalt);
+  box-shadow: inset 0 0 0 1px var(--cobalt-deep);
+}
+.blk-new {
+  padding-top: 3px;
+  transform-origin: top;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.625rem;
+  line-height: 1.3;
+  white-space: normal;
+}
+.cursor {
+  position: absolute;
+  z-index: 3;
+  left: calc(250% / 3);
+  top: var(--pick-row);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
+}
+
+/* Invitees */
+.invitee-add { margin-top: 12px; }
+.invitees { display: flex; flex-wrap: wrap; gap: 6px; }
+.invitee {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 0.8125rem;
+}
+.invitee-new {
+  border-color: rgb(31 79 209 / 0.35);
+  background: var(--cobalt-wash);
+  color: var(--cobalt-deep);
+  font-weight: 600;
+}
+
+/* Controls */
+.demo-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+}
+.demo-controls[hidden] { display: none; }
+.demo-chapters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.chapter {
+  display: grid;
+  gap: 7px;
+  min-height: 40px;
+  padding: 6px 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: 500 0.75rem/1.2 var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+.chapter:hover,
+.chapter[aria-pressed="true"] { color: var(--ink); }
+.chapter-bar {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.chapter-bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--cobalt);
+}
+.chapter.is-done .chapter-bar span,
+.chapter[aria-pressed="true"] .chapter-bar span { width: 100%; }
+.demo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 0.8125rem/1 var(--sans);
+  cursor: pointer;
+}
+.demo-toggle:hover { border-color: var(--ink); }
+.demo-toggle svg { display: none; }
+.demo[data-state="playing"] .icon-pause,
+.demo[data-state="paused"] .icon-play,
+.demo[data-state="ready"] .icon-play,
+.demo[data-state="ended"] .icon-replay { display: block; }
+
+/* Steps. Without JavaScript every element is shown, so the first scene is a
+   complete static frame. With it, script.js adds s1…sN to the active scene as
+   the sequence plays; [data-at="n"] appears at step n, [data-until="n"] leaves. */
+.js .scene [data-at] { opacity: 0; transform: translateY(8px); }
+.js .scene .land[data-at] { transform: translateY(-8px); }
+.js .scene.s1 [data-at="1"],
+.js .scene.s2 [data-at="2"],
+.js .scene.s3 [data-at="3"],
+.js .scene.s4 [data-at="4"],
+.js .scene.s5 [data-at="5"] { opacity: 1; transform: none; }
+.js .scene.s3 [data-until="3"],
+.js .scene.s5 [data-until="5"] { opacity: 0; }
+.js .scene .state-approved[data-at] { transform: scale(0.9); }
+.js .scene mark { background-size: 0% 100%; }
+.js .scene.s1 mark { background-size: 100% 100%; }
+
+.js .scene .blk-new { transform: scaleY(0); }
+.js .scene.s3 .blk-new { transform: scaleY(1); }
+.js .scene.s2 .cursor { opacity: 1; transform: none; }
+.js .scene .cursor { transform: translate(56px, 64px); }
+.js .scene.s3 .cursor { transform: translateY(calc(var(--pick-row) * 2)) scale(0.92); }
+.js .scene.s4 .cursor { transform: translateY(calc(var(--pick-row) * 2)); }
+.js .scene.s5 .cursor { opacity: 0; }
 
 /* Review-queue cards and the pieces they share with the hero */
 .q-card {
@@ -804,6 +1049,7 @@ h3 {
   .flow-card { padding: 22px 18px 24px; }
   .flow-row { padding-left: 26px; }
   .flow-quote { font-size: 1rem; }
+  .flow-to { display: block; margin: 2px 0 0; }
   .day { grid-template-columns: 40px minmax(0, 1fr); }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
@@ -815,32 +1061,39 @@ h3 {
   .q-card { padding-inline: 13px; }
   .flow-hold-top { flex-direction: column; gap: 8px; }
   .flow-hold-top .state { justify-items: start; }
+  .demo-controls { flex-direction: column; align-items: stretch; }
+  .demo-toggle { align-self: flex-start; }
+  .chapter { font-size: 0.6875rem; white-space: nowrap; }
+  .pick { --pick-gutter: 38px; }
+  .blk { padding-inline: 4px; }
 }
 
-/* Motion: the hero sequence plays once, in about four seconds, when the
-   illustration first scrolls into view (script.js adds .is-playing), and rests
-   on the same frame shown without JavaScript or with reduced motion. */
+@media (max-width: 340px) {
+  .demo-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Motion: transitions only when the viewer allows them. With reduced motion
+   the demo still changes scenes when asked, without movement. */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
   .button { transition: background-color 0.15s ease; }
 
-  .js .flow:not(.is-playing) :is(.flow-mail, .flow-suggestion, .flow-cal, .day-hold) { opacity: 0; }
-  .js .flow.is-playing .flow-mail { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both; }
-  .js .flow.is-playing .flow-quote mark { animation: highlight 0.7s ease-out 0.85s both; }
-  .js .flow.is-playing .flow-suggestion { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 1.5s both; }
-  .js .flow.is-playing .state-pending { animation: pending 1.3s linear 1.5s both; }
-  .js .flow.is-playing .state-approved { animation: pop 0.35s ease-out 2.8s both; }
-  .js .flow.is-playing .flow-cal { animation: fade 0.4s ease 3s both; }
-  .js .flow.is-playing .day-hold { animation: land 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) 3.35s both, ring 0.9s ease-out 3.85s both; }
-
-  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
-  @keyframes fade { from { opacity: 0; } }
-  @keyframes highlight { from { background-size: 0% 100%; } }
-  @keyframes pending { 0%, 82% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes pop { from { opacity: 0; transform: scale(0.9); } }
-  @keyframes land { from { opacity: 0; transform: translateY(-8px); } }
-  @keyframes ring {
-    from { box-shadow: inset 3px 0 0 var(--cobalt), 0 0 0 1px rgb(31 79 209 / 0.3), 0 0 0 0 rgb(31 79 209 / 0.35); }
-    to { box-shadow: inset 3px 0 0 var(--cobalt), 0 0 0 1px rgb(31 79 209 / 0.3), 0 0 0 8px rgb(31 79 209 / 0); }
+  .scene { transition: opacity 0.35s ease, visibility 0s linear 0.35s; }
+  .scene.is-active { transition: opacity 0.35s ease 0.1s; }
+  .js .scene [data-at],
+  .js .scene [data-until] {
+    transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
+  .js .scene mark { transition: background-size 0.7s ease-out 0.5s; }
+  .js .scene .blk-new { transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+  .js .scene .cursor { transition: opacity 0.3s ease, transform 0.8s cubic-bezier(0.45, 0, 0.25, 1); }
+  .js .scene.s3 .cursor { transition: opacity 0.3s ease, transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+
+  .demo[data-state="playing"] .chapter[aria-pressed="true"] .chapter-bar span {
+    animation: chapter-progress var(--chapter-ms, 5000ms) linear both;
+  }
+  .demo[data-state="paused"] .chapter[aria-pressed="true"] .chapter-bar span {
+    animation: chapter-progress var(--chapter-ms, 5000ms) linear both paused;
+  }
+  @keyframes chapter-progress { from { width: 0; } to { width: 100%; } }
 }
