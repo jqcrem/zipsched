@@ -399,8 +399,8 @@ h3 {
 .scene:not(.is-active) { visibility: hidden; opacity: 0; }
 
 .flow-to {
-  display: block;
-  margin-top: 2px;
+  display: inline-block;
+  margin-left: 8px;
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--muted);
@@ -452,7 +452,7 @@ h3 {
 .email-bullets .bullets-empty::before { content: none; }
 
 /* Drag-to-add calendar */
-.pick { --pick-gutter: 44px; --pick-row: 22px; }
+.pick { --pick-gutter: 44px; --pick-row: 19px; }
 .pick-days {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -481,7 +481,7 @@ h3 {
   padding: 0 6px;
   border-radius: 4px;
   font-size: 0.6875rem;
-  line-height: 19px;
+  line-height: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1129,6 +1129,7 @@ h3 {
   .flow-card { padding: 22px 18px 24px; }
   .flow-row { padding-left: 26px; }
   .flow-quote { font-size: 1rem; }
+  .flow-to { display: block; margin: 2px 0 0; }
   .day { grid-template-columns: 40px minmax(0, 1fr); }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
