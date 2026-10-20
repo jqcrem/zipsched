@@ -54,7 +54,7 @@
       </div>
 
       <figure class="flow demo" aria-label="ZipSched example">
-        <p class="visually-hidden">Animated illustration in four parts. One: an email asks for 45 minutes on Thursday afternoon, and ZipSched suggests a hold for Thursday, 2:00 to 2:45 PM, and Approve is clicked, and the hold lands on the calendar. Two: a principal emails a new contact and cc’s their executive assistant to find a time, and ZipSched drafts a reply in that thread. Three: on a small calendar below it, three times are dragged out one after another, Tuesday 10:00 to 10:30, Wednesday 11:00 to 11:30 and Thursday 10:30 to 11:30 AM, and each joins the reply’s list as a bullet; the reply is then sent in the thread. Four: an email asks to add Tim to Thursday’s call, and ZipSched suggests adding Tim Okafor as an invitee to the investor call; Approve is clicked, and Tim joins the invite. Names and times are fictional.</p>
+        <p class="visually-hidden">Animated illustration in four parts. One: an email asks for 45 minutes on Thursday afternoon, and ZipSched suggests a hold for Thursday, 2:00 to 2:45 PM, and Approve is clicked, and the hold lands on the calendar. Two: a principal emails a new contact and cc’s their executive assistant to find a time, and ZipSched drafts a reply in that thread. Three: on a small calendar below it, three times are dragged out one after another, Tuesday 10:00 to 10:30, Wednesday 11:00 to 11:30 and Thursday 10:30 to 11:30 AM, and each joins the reply’s list as a bullet; then Send is clicked and the reply goes out in the thread. Four: an email asks to add Tim to Thursday’s call, and ZipSched suggests adding Tim Okafor as an invitee to the investor call; Approve is clicked, and Tim joins the invite. Names and times are fictional.</p>
         <div class="flow-card demo-stage" aria-hidden="true">
 
           <div class="scene is-active" data-steps="200,1300,2100,2900,3150,3500,3900" data-end="6200">
@@ -88,21 +88,15 @@
             </div>
           </div>
 
-          <div class="scene" data-steps="200,1400,2600,3200,3900,4500,4900,5600,6200,6600,7300,8200,9100" data-end="11000">
+          <div class="scene" data-steps="200,1400,2600,3200,3900,4500,4900,5600,6200,6600,7300,8200,8900,9600,9850,10200" data-end="12000">
             <div class="flow-row" data-at="1">
               <p class="flow-label mono">Email</p>
               <p class="flow-from">Alex Rivera <span class="flow-to mono">to Jordan Lee · cc Sam (EA)</span></p>
               <p class="flow-quote">“<mark>Cc’ing my EA</mark> to find us a time next week.”</p>
             </div>
             <div class="flow-row is-card" data-at="2">
-              <div class="flow-hold-card">
-                <div class="flow-hold-top">
-                  <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M14 2L7 9M14 2l-4.5 12-2.5-5-5-2.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Send times</p>
-                  <span class="state">
-                    <span class="pill" data-at="2" data-until="13">Draft</span>
-                    <span class="state-approved" data-at="13"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sent in thread</span>
-                  </span>
-                </div>
+              <div class="flow-hold-card reply-card">
+                <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M14 2L7 9M14 2l-4.5 12-2.5-5-5-2.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Send times</p>
                 <p class="flow-title flow-thread"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M6.5 4L3 7.5 6.5 11M3.5 7.5H9a4 4 0 0 1 4 4v.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Re: Intro, Alex / Jordan</p>
                 <ul class="email-bullets mono">
                   <li class="bullets-empty" data-until="5">No times yet. Drag on the calendar to add them.</li>
@@ -110,6 +104,11 @@
                   <li class="bullet-2" data-at="9">Wed · 11:00–11:30 AM</li>
                   <li class="bullet-3" data-at="12">Thu · 10:30–11:30 AM</li>
                 </ul>
+                <span class="approve">
+                  <span class="send-btn" data-until="15">Send</span>
+                  <span class="state-approved" data-at="15"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sent in thread</span>
+                  <svg class="cursor cursor-send" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </span>
               </div>
             </div>
             <div class="flow-row" data-at="3">

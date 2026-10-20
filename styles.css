@@ -437,6 +437,18 @@ h3 {
   background: var(--ink);
 }
 .email-bullets { position: relative; margin-top: 10px; }
+/* The reply card's Send button sits beside its times, bottom right, so it
+   adds no height; on a phone it moves to the top row, opposite the tag. */
+.reply-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "tag tag" "title title" "list send";
+  column-gap: 16px;
+}
+.reply-card .action-tag { grid-area: tag; justify-self: start; }
+.reply-card .flow-title { grid-area: title; }
+.reply-card .email-bullets { grid-area: list; }
+.reply-card .approve { grid-area: send; align-self: end; }
 .email-bullets li {
   margin-inline: -6px;
   padding: 1px 6px 1px 20px;
@@ -505,7 +517,8 @@ h3 {
   filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
 }
 .cursor-drag { left: 100%; top: calc(var(--pick-row) * 4); }
-.cursor-click { left: 58%; top: 52%; }
+.cursor-click,
+.cursor-send { left: 58%; top: 52%; }
 
 /* Approve: a card's action, which a click turns into its Approved tag */
 .flow-actions {
@@ -521,7 +534,8 @@ h3 {
   min-height: 34px;
 }
 .approve > span { grid-area: 1 / 1; }
-.approve-btn {
+.approve-btn,
+.send-btn {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
@@ -639,9 +653,12 @@ h3 {
 .js .scene.s10 [data-at="10"],
 .js .scene.s11 [data-at="11"],
 .js .scene.s12 [data-at="12"],
-.js .scene.s13 [data-at="13"] { opacity: 1; transform: none; }
+.js .scene.s13 [data-at="13"],
+.js .scene.s14 [data-at="14"],
+.js .scene.s15 [data-at="15"],
+.js .scene.s16 [data-at="16"] { opacity: 1; transform: none; }
 .js .scene.s5 [data-until="5"],
-.js .scene.s13 [data-until="13"] { opacity: 0; }
+.js .scene.s15 [data-until="15"] { opacity: 0; }
 .js .scene .state-approved[data-at] { transform: scale(0.9); }
 .js .scene mark { background-size: 0% 100%; }
 .js .scene.s1 mark { background-size: 100% 100%; }
@@ -674,12 +691,25 @@ h3 {
 .js .scene.s4 .cursor-click { transform: scale(0.88); }
 .js .scene.s5 .cursor-click { transform: none; }
 .js .scene.s6 .cursor-click { opacity: 0; }
+
+/* The send: once the times are in, the cursor comes up from the calendar to
+   Send at s13, presses it at s14, the button becomes the Sent tag at s15,
+   and the cursor leaves at s16. */
+.js .scene .send-btn { opacity: 1; }
+.js .scene.s14 .send-btn { transform: scale(0.95); background: #000; }
+.js .scene.s15 .send-btn { transform: scale(0.9); }
+.js .scene .cursor-send { transform: translate(-30px, 150px); }
+.js .scene.s13 .cursor-send { opacity: 1; transform: none; }
+.js .scene.s14 .cursor-send { transform: scale(0.88); }
+.js .scene.s15 .cursor-send { transform: none; }
+.js .scene.s16 .cursor-send { opacity: 0; }
 .scene.instant [data-at],
 .scene.instant [data-until],
 .scene.instant mark,
 .scene.instant .cursor,
 .scene.instant .blk-pick,
-.scene.instant .approve-btn { transition: none !important; }
+.scene.instant .approve-btn,
+.scene.instant .send-btn { transition: none !important; }
 
 /* Review-queue cards and the pieces they share with the hero */
 .q-card {
@@ -1131,6 +1161,9 @@ h3 {
   .flow-row { padding-left: 26px; }
   .flow-quote { font-size: 1rem; }
   .flow-to { display: block; margin: 2px 0 0; }
+  .reply-card { grid-template-areas: "tag send" "title title" "list list"; }
+  .reply-card .approve { align-self: center; }
+  .js .scene .cursor-send { transform: translate(-20px, 250px); }
   .day { grid-template-columns: 40px minmax(0, 1fr); }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
@@ -1181,8 +1214,10 @@ h3 {
   .js .scene.s9 .bullet-2,
   .js .scene.s12 .bullet-3 { animation: bullet-added 1.4s ease-out; }
   @keyframes bullet-added { from { background-color: var(--cobalt-wash); } to { background-color: transparent; } }
-  .js .scene.s4 .cursor-click { transition: transform 0.12s ease-out; }
-  .js .scene .approve-btn { transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.15s ease; }
+  .js .scene.s4 .cursor-click,
+  .js .scene.s14 .cursor-send { transition: transform 0.12s ease-out; }
+  .js .scene .approve-btn,
+  .js .scene .send-btn { transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.15s ease; }
 
   .demo[data-state="playing"] .chapter[aria-pressed="true"] .chapter-bar span {
     animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both;
