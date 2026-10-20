@@ -13,7 +13,6 @@ if (demo) {
   const scenes = [...demo.querySelectorAll(".scene")];
   const buttons = [...demo.querySelectorAll(".chapter")];
   const toggle = demo.querySelector("[data-toggle]");
-  const toggleLabel = demo.querySelector("[data-toggle-label]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const plans = scenes.map((scene) => ({
     steps: scene.dataset.steps.split(",").map(Number),
@@ -47,8 +46,14 @@ if (demo) {
 
   const setState = (state) => {
     demo.dataset.state = state;
-    const labels = { playing: "Pause", paused: "Play", ready: "Play", ended: "Replay" };
-    toggleLabel.textContent = labels[state];
+    const labels = {
+      playing: "Pause animation",
+      paused: "Play animation",
+      ready: "Play animation",
+      ended: "Replay animation",
+    };
+    toggle.setAttribute("aria-label", labels[state]);
+    toggle.title = labels[state];
   };
 
   // Activate a scene with its first `steps` steps already applied, without
