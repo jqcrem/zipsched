@@ -55,39 +55,37 @@
       </div>
 
       <figure class="flow demo" aria-labelledby="flow-caption">
-        <p class="visually-hidden">Animated illustration in four parts. One: an email asks for 45 minutes on Thursday afternoon, and ZipSched suggests a hold for Thursday, 2:00 to 2:45 PM, with the email attached as its source; the hold is approved and lands on the calendar. Two: a principal emails a new contact and cc’s their executive assistant to find a time, and ZipSched suggests a reply in that thread offering two times. Three: on a small calendar below it, a third time, Thursday 10:30 to 11:30 AM, is dragged out and joins the reply’s list, and the reply is sent in the thread. Four: an email asks to add Tim to Thursday’s call, and ZipSched suggests adding Tim Okafor as an invitee to the investor call; it is approved and Tim joins the invite.</p>
+        <p class="visually-hidden">Animated illustration in four parts. One: an email asks for 45 minutes on Thursday afternoon, and ZipSched suggests a hold for Thursday, 2:00 to 2:45 PM, with the email attached as its source; Approve is clicked, and the hold lands on the calendar. Two: a principal emails a new contact and cc’s their executive assistant to find a time, and ZipSched suggests a reply in that thread offering two times. Three: on a small calendar below it, a third time, Thursday 10:30 to 11:30 AM, is dragged out and joins the reply’s list, and the reply is sent in the thread. Four: an email asks to add Tim to Thursday’s call, and ZipSched suggests adding Tim Okafor as an invitee to the investor call; Approve is clicked, and Tim joins the invite.</p>
         <div class="flow-card demo-stage" aria-hidden="true">
 
-          <div class="scene is-active" data-steps="200,1300,2600,2900,3300" data-end="5600">
+          <div class="scene is-active" data-steps="200,1300,2100,2900,3150,3500,3900" data-end="6200">
             <div class="flow-row" data-at="1">
               <p class="flow-label mono">Email</p>
               <p class="flow-from">Dana Whitfield</p>
-              <p class="flow-quote">“Could Alex and I find <mark>45 minutes Thursday afternoon</mark>?”</p>
+              <p class="flow-quote">“Can we find <mark>45 minutes Thursday afternoon</mark>?”</p>
             </div>
             <div class="flow-row" data-at="2">
               <p class="flow-label mono">Suggestion · New hold</p>
               <div class="flow-hold-card">
-                <div class="flow-hold-top">
-                  <div>
-                    <p class="flow-title">Board deck review</p>
-                    <p class="flow-when mono">Thu · 2:00–2:45 PM</p>
-                  </div>
-                  <span class="state">
-                    <span class="state-pending" data-at="2" data-until="3">Awaiting review</span>
-                    <span class="state-approved" data-at="3"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Approved</span>
+                <p class="flow-title">Board deck review</p>
+                <p class="flow-when mono">Thu · 2:00–2:45 PM</p>
+                <p class="source"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M10.5 4.5l-5 5a1.4 1.4 0 0 0 2 2l5.5-5.5a2.8 2.8 0 0 0-4-4L3.5 7.5a4.2 4.2 0 0 0 6 6l4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Source: Dana’s email</span></p>
+                <div class="flow-actions">
+                  <span class="approve">
+                    <span class="approve-btn" data-until="5">Approve</span>
+                    <span class="state-approved" data-at="5"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Approved</span>
+                    <svg class="cursor cursor-click" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
                   </span>
                 </div>
-                <p class="source"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M10.5 4.5l-5 5a1.4 1.4 0 0 0 2 2l5.5-5.5a2.8 2.8 0 0 0-4-4L3.5 7.5a4.2 4.2 0 0 0 6 6l4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Source: Dana’s email</span></p>
               </div>
             </div>
-            <div class="flow-row" data-at="4">
+            <div class="flow-row" data-at="6">
               <p class="flow-label mono">Calendar · Thu</p>
               <div class="day">
                 <span class="day-hour mono" style="--row:1">1 PM</span>
                 <span class="day-hour mono" style="--row:5">2 PM</span>
-                <span class="day-hour mono" style="--row:9">3 PM</span>
                 <span class="day-event" style="--start:1;--end:4">Product review</span>
-                <span class="day-event day-hold land" data-at="5" style="--start:5;--end:8">Board deck review</span>
+                <span class="day-event day-hold land" data-at="7" style="--start:5;--end:8">Board deck review</span>
               </div>
             </div>
           </div>
@@ -128,42 +126,41 @@
                     <span class="blk blk-pick" style="--col:0;--from:0;--len:1"></span>
                     <span class="blk blk-pick" style="--col:1;--from:2;--len:1"></span>
                     <span class="blk blk-pick blk-new" style="--col:2;--from:1;--len:2"><span data-at="8">10:30–11:30</span></span>
-                    <svg class="cursor" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    <svg class="cursor cursor-drag" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="scene" data-steps="200,1300,2600,3000" data-end="5600">
+          <div class="scene" data-steps="200,1300,2100,2900,3150,3500,3900" data-end="6200">
             <div class="flow-row" data-at="1">
               <p class="flow-label mono">Email</p>
               <p class="flow-from">Alex Rivera</p>
-              <p class="flow-quote">“Can you <mark>add Tim to Thursday’s call</mark>?”</p>
+              <p class="flow-quote">“Can you <mark>add Tim to Thursday’s call</mark>? He’s joining from the fund.”</p>
             </div>
             <div class="flow-row" data-at="2">
               <p class="flow-label mono">Suggestion · Add invitee</p>
               <div class="flow-hold-card">
-                <div class="flow-hold-top">
-                  <div>
-                    <p class="flow-title">Investor call</p>
-                    <p class="flow-when mono">Thu · 3:30–4:00 PM</p>
-                  </div>
-                  <span class="state">
-                    <span class="state-pending" data-at="2" data-until="3">Awaiting review</span>
-                    <span class="state-approved" data-at="3"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Approved</span>
-                  </span>
-                </div>
+                <p class="flow-title">Investor call</p>
+                <p class="flow-when mono">Thu · 3:30–4:00 PM</p>
                 <p class="invitee-add"><span class="invitee invitee-new">+ Tim Okafor</span></p>
                 <p class="source"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M10.5 4.5l-5 5a1.4 1.4 0 0 0 2 2l5.5-5.5a2.8 2.8 0 0 0-4-4L3.5 7.5a4.2 4.2 0 0 0 6 6l4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Source: Alex’s email</span></p>
+                <div class="flow-actions">
+                  <span class="approve">
+                    <span class="approve-btn" data-until="5">Approve</span>
+                    <span class="state-approved" data-at="5"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Approved</span>
+                    <svg class="cursor cursor-click" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="flow-row" data-at="3">
+            <div class="flow-row" data-at="6">
               <p class="flow-label mono">Invite · Investor call</p>
               <p class="invitees">
                 <span class="invitee">Alex Rivera</span>
                 <span class="invitee">Priya Shah</span>
-                <span class="invitee invitee-new land" data-at="4">Tim Okafor</span>
+                <span class="invitee invitee-new land" data-at="7">Tim Okafor</span>
               </p>
             </div>
           </div>

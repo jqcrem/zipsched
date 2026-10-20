@@ -285,6 +285,7 @@ h3 {
 .flow-from { font-size: 0.875rem; font-weight: 600; }
 .flow-quote {
   margin-top: 4px;
+  text-wrap: balance;
   font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--muted);
@@ -321,7 +322,8 @@ h3 {
 .day {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
-  grid-template-rows: repeat(10, 12px);
+  grid-template-rows: repeat(8, 12px);
+  box-shadow: inset 0 -1px 0 var(--rule);
 }
 .day-hour {
   grid-column: 1 / -1;
@@ -366,8 +368,8 @@ h3 {
 .scene:not(.is-active) { visibility: hidden; opacity: 0; }
 
 .flow-to {
-  display: inline-block;
-  margin-left: 6px;
+  display: block;
+  margin-top: 2px;
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--muted);
@@ -477,12 +479,42 @@ h3 {
 .cursor {
   position: absolute;
   z-index: 3;
-  left: calc(250% / 3);
-  top: var(--pick-row);
   opacity: 0;
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
 }
+.cursor-drag { left: calc(250% / 3); top: var(--pick-row); }
+.cursor-click { left: 58%; top: 52%; }
+
+/* Approve: a card's action, which a click turns into its Approved tag */
+.flow-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.approve {
+  position: relative;
+  display: inline-grid;
+  justify-items: end;
+  align-items: center;
+  min-height: 34px;
+}
+.approve > span { grid-area: 1 / 1; }
+.approve-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  opacity: 0;
+}
+.flow-actions .state-approved { padding: 6px 12px; font-size: 0.75rem; }
 
 /* Invitees */
 .invitee-add { margin-top: 12px; }
@@ -584,7 +616,7 @@ h3 {
 .js .scene.s7 [data-at="7"],
 .js .scene.s8 [data-at="8"],
 .js .scene.s9 [data-at="9"] { opacity: 1; transform: none; }
-.js .scene.s3 [data-until="3"],
+.js .scene.s5 [data-until="5"],
 .js .scene.s9 [data-until="9"] { opacity: 0; }
 .js .scene .state-approved[data-at] { transform: scale(0.9); }
 .js .scene mark { background-size: 0% 100%; }
@@ -594,16 +626,28 @@ h3 {
    releases at s8 (the time joins the reply above) and leaves at s9. */
 .js .scene .blk-new { transform: scaleY(0); }
 .js .scene.s7 .blk-new { transform: scaleY(1); }
-.js .scene .cursor { transform: translate(56px, 64px); }
-.js .scene.s6 .cursor { opacity: 1; transform: none; }
-.js .scene.s7 .cursor { transform: translateY(calc(var(--pick-row) * 2)) scale(0.92); }
-.js .scene.s8 .cursor { transform: translateY(calc(var(--pick-row) * 2)); }
-.js .scene.s9 .cursor { opacity: 0; }
+.js .scene .cursor-drag { transform: translate(56px, 64px); }
+.js .scene.s6 .cursor-drag { opacity: 1; transform: none; }
+.js .scene.s7 .cursor-drag { transform: translateY(calc(var(--pick-row) * 2)) scale(0.92); }
+.js .scene.s8 .cursor-drag { transform: translateY(calc(var(--pick-row) * 2)); }
+.js .scene.s9 .cursor-drag { opacity: 0; }
+
+/* The click: the cursor reaches Approve at s3, presses it at s4, the button
+   becomes the Approved tag at s5, and the cursor leaves at s6. */
+.js .scene .approve-btn { opacity: 1; }
+.js .scene.s4 .approve-btn { transform: scale(0.95); background: #000; }
+.js .scene.s5 .approve-btn { transform: scale(0.9); }
+.js .scene .cursor-click { transform: translate(40px, 36px); }
+.js .scene.s3 .cursor-click { opacity: 1; transform: none; }
+.js .scene.s4 .cursor-click { transform: scale(0.88); }
+.js .scene.s5 .cursor-click { transform: none; }
+.js .scene.s6 .cursor-click { opacity: 0; }
 .scene.instant [data-at],
 .scene.instant [data-until],
 .scene.instant mark,
 .scene.instant .cursor,
-.scene.instant .blk-new { transition: none !important; }
+.scene.instant .blk-new,
+.scene.instant .approve-btn { transition: none !important; }
 
 /* Review-queue cards and the pieces they share with the hero */
 .q-card {
@@ -1054,7 +1098,6 @@ h3 {
   .flow-card { padding: 22px 18px 24px; }
   .flow-row { padding-left: 26px; }
   .flow-quote { font-size: 1rem; }
-  .flow-to { display: block; margin: 2px 0 0; }
   .day { grid-template-columns: 40px minmax(0, 1fr); }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
@@ -1093,7 +1136,9 @@ h3 {
   .js .scene mark { transition: background-size 0.7s ease-out 0.5s; }
   .js .scene .blk-new { transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
   .js .scene .cursor { transition: opacity 0.3s ease, transform 0.8s cubic-bezier(0.45, 0, 0.25, 1); }
-  .js .scene.s7 .cursor { transition: opacity 0.3s ease, transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+  .js .scene.s7 .cursor-drag { transition: opacity 0.3s ease, transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+  .js .scene.s4 .cursor-click { transition: transform 0.12s ease-out; }
+  .js .scene .approve-btn { transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.15s ease; }
 
   .demo[data-state="playing"] .chapter[aria-pressed="true"] .chapter-bar span {
     animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both;
