@@ -575,7 +575,10 @@ h3 {
   gap: 12px;
   margin-top: 14px;
 }
-.demo-controls[hidden] { display: none; }
+/* Without JavaScript the controls do nothing, so they stay hidden, but they
+   keep their row: revealing them must not resize the hero and shift the
+   copy beside it. */
+.demo-controls[hidden] { display: flex; visibility: hidden; }
 .demo-chapters {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
