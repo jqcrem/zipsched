@@ -374,13 +374,13 @@ h3 {
 }
 .flow-thread {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   margin-top: 3px;
   font-size: 0.8125rem;
   color: var(--muted);
 }
-.flow-thread svg { flex: 0 0 auto; color: var(--cobalt); }
+.flow-thread svg { flex: 0 0 auto; margin-top: 3px; color: var(--cobalt); }
 
 .email-text {
   margin-top: 12px;
@@ -578,27 +578,39 @@ h3 {
 
 /* Steps. Without JavaScript every element is shown, so the first scene is a
    complete static frame. With it, script.js adds s1…sN to the active scene as
-   the sequence plays; [data-at="n"] appears at step n, [data-until="n"] leaves. */
+   the sequence plays; [data-at="n"] appears at step n, [data-until="n"] leaves.
+   .instant applies a jump into the middle of a scene without transitions. */
 .js .scene [data-at] { opacity: 0; transform: translateY(8px); }
 .js .scene .land[data-at] { transform: translateY(-8px); }
 .js .scene.s1 [data-at="1"],
 .js .scene.s2 [data-at="2"],
 .js .scene.s3 [data-at="3"],
 .js .scene.s4 [data-at="4"],
-.js .scene.s5 [data-at="5"] { opacity: 1; transform: none; }
+.js .scene.s5 [data-at="5"],
+.js .scene.s6 [data-at="6"],
+.js .scene.s7 [data-at="7"],
+.js .scene.s8 [data-at="8"],
+.js .scene.s9 [data-at="9"] { opacity: 1; transform: none; }
 .js .scene.s3 [data-until="3"],
-.js .scene.s5 [data-until="5"] { opacity: 0; }
+.js .scene.s9 [data-until="9"] { opacity: 0; }
 .js .scene .state-approved[data-at] { transform: scale(0.9); }
 .js .scene mark { background-size: 0% 100%; }
 .js .scene.s1 mark { background-size: 100% 100%; }
 
+/* The drag: the cursor arrives at s6, drags out the new time over s7,
+   releases at s8 (the time joins the reply above) and leaves at s9. */
 .js .scene .blk-new { transform: scaleY(0); }
-.js .scene.s3 .blk-new { transform: scaleY(1); }
-.js .scene.s2 .cursor { opacity: 1; transform: none; }
+.js .scene.s7 .blk-new { transform: scaleY(1); }
 .js .scene .cursor { transform: translate(56px, 64px); }
-.js .scene.s3 .cursor { transform: translateY(calc(var(--pick-row) * 2)) scale(0.92); }
-.js .scene.s4 .cursor { transform: translateY(calc(var(--pick-row) * 2)); }
-.js .scene.s5 .cursor { opacity: 0; }
+.js .scene.s6 .cursor { opacity: 1; transform: none; }
+.js .scene.s7 .cursor { transform: translateY(calc(var(--pick-row) * 2)) scale(0.92); }
+.js .scene.s8 .cursor { transform: translateY(calc(var(--pick-row) * 2)); }
+.js .scene.s9 .cursor { opacity: 0; }
+.scene.instant [data-at],
+.scene.instant [data-until],
+.scene.instant mark,
+.scene.instant .cursor,
+.scene.instant .blk-new { transition: none !important; }
 
 /* Review-queue cards and the pieces they share with the hero */
 .q-card {
@@ -1078,8 +1090,9 @@ h3 {
   html { scroll-behavior: smooth; }
   .button { transition: background-color 0.15s ease; }
 
-  .scene { transition: opacity 0.35s ease, visibility 0s linear 0.35s; }
-  .scene.is-active { transition: opacity 0.35s ease 0.1s; }
+  /* Scenes hand over in sequence, not as a crossfade, so two never overlap. */
+  .scene { transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+  .scene.is-active { transition: opacity 0.3s ease 0.22s; }
   .js .scene [data-at],
   .js .scene [data-until] {
     transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -1087,13 +1100,13 @@ h3 {
   .js .scene mark { transition: background-size 0.7s ease-out 0.5s; }
   .js .scene .blk-new { transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
   .js .scene .cursor { transition: opacity 0.3s ease, transform 0.8s cubic-bezier(0.45, 0, 0.25, 1); }
-  .js .scene.s3 .cursor { transition: opacity 0.3s ease, transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+  .js .scene.s7 .cursor { transition: opacity 0.3s ease, transform 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
 
   .demo[data-state="playing"] .chapter[aria-pressed="true"] .chapter-bar span {
-    animation: chapter-progress var(--chapter-ms, 5000ms) linear both;
+    animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both;
   }
   .demo[data-state="paused"] .chapter[aria-pressed="true"] .chapter-bar span {
-    animation: chapter-progress var(--chapter-ms, 5000ms) linear both paused;
+    animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both paused;
   }
   @keyframes chapter-progress { from { width: 0; } to { width: 100%; } }
 }
