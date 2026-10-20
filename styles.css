@@ -131,6 +131,7 @@ h3 {
 
 .lede {
   margin-top: 24px;
+  text-wrap: pretty;
   max-width: 34em;
   font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
   line-height: 1.6;
