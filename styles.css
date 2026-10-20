@@ -360,7 +360,7 @@ h3 {
 .demo-stage { display: grid; overflow: hidden; }
 .scene {
   grid-area: 1 / 1;
-  align-self: center;
+  align-self: start;
   min-width: 0;
 }
 .scene:not(.is-active) { visibility: hidden; opacity: 0; }
@@ -372,15 +372,8 @@ h3 {
   font-weight: 400;
   color: var(--muted);
 }
-.flow-thread {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-top: 3px;
-  font-size: 0.8125rem;
-  color: var(--muted);
-}
-.flow-thread svg { flex: 0 0 auto; margin-top: 3px; color: var(--cobalt); }
+.flow-thread { display: flex; align-items: flex-start; gap: 7px; }
+.flow-thread svg { flex: 0 0 auto; margin-top: 4px; color: var(--cobalt); }
 
 .email-text {
   margin-top: 12px;
@@ -421,7 +414,7 @@ h3 {
 .email-bullets .bullet-new::before { left: 8px; background: var(--cobalt); }
 
 /* Drag-to-add calendar */
-.pick { --pick-gutter: 44px; --pick-row: 24px; }
+.pick { --pick-gutter: 44px; --pick-row: 22px; }
 .pick-days {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -458,7 +451,7 @@ h3 {
   padding: 0 6px;
   border-radius: 4px;
   font-size: 0.6875rem;
-  line-height: 21px;
+  line-height: 19px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
