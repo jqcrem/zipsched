@@ -56,51 +56,38 @@
 
       <figure class="flow" aria-labelledby="flow-caption">
         <p class="visually-hidden">Illustration: a scheduling email asks for 45 minutes on Thursday afternoon. ZipSched turns it into a suggested hold for Thursday, 2:00 to 2:45 PM, with the email attached as its source. The suggestion is approved, and the hold appears on Thursday’s calendar.</p>
-        <div class="flow-stage" aria-hidden="true">
-          <div class="flow-cards">
-            <article class="mail">
-              <div class="mail-meta">
-                <span class="mail-from">Dana Whitfield</span>
-                <span class="mono">9:14 AM</span>
-              </div>
-              <p class="mail-subject">Board deck before Friday?</p>
-              <p class="mail-body">Could Alex and I find <mark>45 minutes Thursday afternoon</mark> to go through the deck? Anytime after 2 works.</p>
-            </article>
+        <div class="flow-card" aria-hidden="true">
+          <div class="flow-row flow-mail">
+            <p class="flow-label mono">Email</p>
+            <p class="flow-from">Dana Whitfield</p>
+            <p class="flow-quote">“Could Alex and I find <mark>45 minutes Thursday afternoon</mark>?”</p>
+          </div>
 
-            <div class="flow-step mono"><span class="flow-dot"></span>Read and checked against the calendar</div>
-
-            <article class="suggestion">
-              <div class="suggestion-top">
-                <span class="label mono">Suggested hold</span>
+          <div class="flow-row flow-suggestion">
+            <p class="flow-label mono">Suggestion</p>
+            <div class="flow-hold-card">
+              <div class="flow-hold-top">
+                <div>
+                  <p class="flow-title">Board deck review</p>
+                  <p class="flow-when mono">Thu · 2:00–2:45 PM</p>
+                </div>
                 <span class="state">
                   <span class="state-pending">Awaiting review</span>
                   <span class="state-approved"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Approved</span>
                 </span>
               </div>
-              <p class="suggestion-title">Board deck review with Dana Whitfield</p>
-              <dl class="suggestion-meta">
-                <div><dt>When</dt><dd class="mono">Thu 2:00–2:45 PM</dd></div>
-                <div><dt>Calendar</dt><dd>Alex Rivera</dd></div>
-              </dl>
-              <p class="source"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M10.5 4.5l-5 5a1.4 1.4 0 0 0 2 2l5.5-5.5a2.8 2.8 0 0 0-4-4L3.5 7.5a4.2 4.2 0 0 0 6 6l4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Source: “Board deck before Friday?”</span></p>
-            </article>
+              <p class="source"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M10.5 4.5l-5 5a1.4 1.4 0 0 0 2 2l5.5-5.5a2.8 2.8 0 0 0-4-4L3.5 7.5a4.2 4.2 0 0 0 6 6l4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Source: Dana’s email</span></p>
+            </div>
           </div>
 
-          <div class="cal">
-            <div class="cal-head">
-              <span class="cal-day">Thu <b>23</b></span>
-              <span class="mono">Alex Rivera</span>
-            </div>
-            <div class="cal-grid">
-              <span class="cal-hour mono" style="--row:1">12</span>
-              <span class="cal-hour mono" style="--row:5">1</span>
-              <span class="cal-hour mono" style="--row:9">2</span>
-              <span class="cal-hour mono" style="--row:13">3</span>
-              <span class="cal-hour mono" style="--row:17">4</span>
-              <div class="cal-event" style="--start:1;--end:5"><span>Lunch</span><span class="mono">12:00</span></div>
-              <div class="cal-event" style="--start:5;--end:8"><span>Product review</span><span class="mono">1:00</span></div>
-              <div class="cal-event cal-hold" style="--start:9;--end:12"><span>Hold · Board deck review</span><span class="mono">2:00–2:45</span></div>
-              <div class="cal-event" style="--start:15;--end:17"><span>Investor call</span><span class="mono">3:30</span></div>
+          <div class="flow-row flow-cal">
+            <p class="flow-label mono">Calendar · Thu</p>
+            <div class="day">
+              <span class="day-hour mono" style="--row:1">1 PM</span>
+              <span class="day-hour mono" style="--row:5">2 PM</span>
+              <span class="day-hour mono" style="--row:9">3 PM</span>
+              <span class="day-event" style="--start:1;--end:4">Product review</span>
+              <span class="day-event day-hold" style="--start:5;--end:8">Board deck review</span>
             </div>
           </div>
         </div>
