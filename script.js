@@ -76,7 +76,7 @@ else if (demo) {
     when: mail.when ?? "",
     times: [...(mail.times ?? [])],
     message: mail.kind === "times"
-      ? `Hey ${mail.from.split(" ")[0]},\n\nThese times work for ${PRINCIPAL_NAME}:`
+      ? `Hey ${mail.from.split(" ")[0]},\nThese times work for ${PRINCIPAL_NAME}:`
       : "",
     invitees: mail.kind === "invitee" ? [...mail.invitees, mail.add] : [],
   }));
@@ -127,6 +127,7 @@ else if (demo) {
   const activeDay = (value) => value.split(" ·")[0];
   const CALENDAR_START_MINUTES = 8 * 60;
   const CALENDAR_END_MINUTES = 20 * 60;
+  const CALENDAR_GUTTER = 38;
   const SNAP_MINUTES = 15;
   const parseClock = (value, fallbackMeridiem = "AM") => {
     const match = value.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
@@ -175,12 +176,25 @@ else if (demo) {
     const height = compact ? 126 : 138;
     return { height, pixelsPerMinute: height / (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES) };
   };
-  const blockStyle = (range, compact) => {
+  const blockStyle = (range, compact, minimumHeight = 18) => {
     const { height, pixelsPerMinute } = calendarMetrics(compact);
     const top = Math.max(0, (range.start - CALENDAR_START_MINUTES) * pixelsPerMinute);
-    const rawHeight = Math.max(18, (range.end - range.start) * pixelsPerMinute);
-    return `--calendar-day:${range.day};top:${Math.min(height - 18, top)}px;height:${Math.min(height - top, rawHeight)}px`;
+    const rawHeight = Math.max(minimumHeight, (range.end - range.start) * pixelsPerMinute);
+    return `--calendar-day:${range.day};top:${Math.min(height - minimumHeight, top)}px;height:${Math.min(height - top, rawHeight)}px`;
   };
+  const BUSY_EVENTS = [
+    { day: 0, start: 9 * 60, end: 10 * 60 + 30, title: "Prep" },
+    { day: 0, start: 15 * 60 + 15, end: 16 * 60, title: "Finance" },
+    { day: 1, start: 10 * 60 + 30, end: 11 * 60 + 30, title: "Staff 1:1" },
+    { day: 1, start: 16 * 60 + 45, end: 18 * 60 + 15, title: "Travel" },
+    { day: 2, start: 9 * 60 + 15, end: 10 * 60, title: "Candidate" },
+    { day: 2, start: 13 * 60, end: 14 * 60 + 30, title: "Design" },
+    { day: 2, start: 16 * 60, end: 17 * 60, title: "Focus" },
+    { day: 3, start: 9 * 60 + 45, end: 11 * 60 + 15, title: "Ops review" },
+    { day: 3, start: 15 * 60 + 45, end: 16 * 60 + 45, title: "Team sync" },
+    { day: 4, start: 12 * 60 + 15, end: 13 * 60 + 30, title: "Lunch" },
+    { day: 4, start: 16 * 60 + 30, end: 17 * 60 + 15, title: "Debrief" },
+  ];
   const emailAddress = (name) => `${name.toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
   const renderContext = (index, guidedSelectionCount = null) => {
     if (index < 0 || index >= MAILS.length) {
@@ -233,8 +247,12 @@ else if (demo) {
         : "";
       return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyle(range, compactCalendar)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
     }).join("");
+    const busyMarkup = BUSY_EVENTS.map((event) => {
+      const start = clockParts(event.start);
+      return `<div class="calendar-event calendar-event-muted" style="${blockStyle(event, compactCalendar, 10)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
+    }).join("");
     const editable = demo.dataset.state === "interactive" && index === interactiveIndex;
-    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid><div class="calendar-hour"><span>8 AM</span></div><div class="calendar-hour"><span>12 PM</span></div><div class="calendar-hour"><span>4 PM</span></div><div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:12px;height:22px">Prep<span>9:00</span></div>${proposalMarkup}<div class="calendar-event calendar-event-muted" style="--calendar-day:3;top:${compactCalendar ? 84 : 92}px;height:24px">Team sync<span>4:00</span></div></div>`;
+    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid>${["8 AM", "10 AM", "12 PM", "2 PM", "4 PM", "6 PM"].map((label) => `<div class="calendar-hour"><span>${label}</span></div>`).join("")}${busyMarkup}${proposalMarkup}</div>`;
     calendarPane.replaceChildren(calendar);
     if (!editable) return;
 
@@ -253,7 +271,7 @@ else if (demo) {
     const snapMinutes = (minutes) => Math.round(minutes / SNAP_MINUTES) * SNAP_MINUTES;
     const rangeFromPointer = (event) => {
       const rect = grid.getBoundingClientRect();
-      const gutter = 30;
+      const gutter = CALENDAR_GUTTER;
       const usableWidth = Math.max(1, rect.width - gutter);
       const day = Math.max(0, Math.min(days.length - 1, Math.floor(((event.clientX - rect.left - gutter) / usableWidth) * days.length)));
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
@@ -367,7 +385,7 @@ else if (demo) {
       ? `<input class="act-title act-title-input act-control" aria-label="Event title" value="${escapeHTML(edit.title)}" readonly tabindex="-1">`
       : `<p class="act-title">${escapeHTML(edit.title)}</p>`;
     const detail = m.kind === "times"
-      ? `<textarea class="act-email-copy act-control" aria-label="Email text" readonly tabindex="-1">${escapeHTML(edit.message)}</textarea><ul class="act-times mono">${edit.times.map((time) => `<li>${escapeHTML(time)}</li>`).join("")}</ul>`
+      ? `<div class="act-times-editor"><textarea class="act-email-copy act-control" aria-label="Email text" readonly tabindex="-1">${escapeHTML(edit.message)}</textarea><ul class="act-times mono" aria-label="Proposed times">${edit.times.map((time) => `<li>${escapeHTML(time)}</li>`).join("")}</ul></div>`
       : `<p class="act-when mono">${escapeHTML(edit.when)}</p>`;
     const invitees = m.kind === "invitee"
       ? `<p class="invitees">${edit.invitees.map((name, inviteeIndex) => `<span class="invitee${name === m.add ? " invitee-new" : ""}"><span>${escapeHTML(name)}</span><button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button></span>`).join("")}</p>`
@@ -654,9 +672,9 @@ else if (demo) {
       if (!range) return null;
       const calendarLeft = calendarPane.offsetLeft - (W <= 900 ? calendarPane.offsetWidth / 2 : 0);
       const calendarTop = calendarPane.offsetTop - (W > 900 ? calendarPane.offsetHeight / 2 : 0);
-      const gridLeft = calendarLeft + (W <= 900 ? calendarPane.offsetWidth * 0.43 : 30);
-      const gridWidth = W <= 900 ? calendarPane.offsetWidth * 0.57 : calendarPane.offsetWidth - 30;
-      const gridTop = calendarTop + (W <= 900 ? 42 : 84);
+      const gridLeft = calendarLeft + CALENDAR_GUTTER;
+      const gridWidth = calendarPane.offsetWidth - CALENDAR_GUTTER;
+      const gridTop = calendarTop + (W <= 900 ? 62 : 84);
       const { pixelsPerMinute } = calendarMetrics(W <= 900);
       const x = gridLeft + gridWidth * ((range.day + 0.5) / days.length);
       return {
