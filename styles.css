@@ -185,22 +185,31 @@ h3 {
   min-height: 68px;
   padding-block: 10px;
 }
-/* Wordmark lockup: the mark and the name share a row, centred on each
-   other, with a grey "by Beans" under the name. The mark repeats the home
-   link for the pointer only (no tab stop), and each line is a full 24px
-   tap target. */
+/* The mark centres on the wordmark alone; the byline occupies its own, tight
+   row so it never shifts that visual centre. */
 .brand-block {
   --brand-gap: 10px;
-  position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 32px max-content;
+  grid-template-rows: 24px 14px;
+  column-gap: var(--brand-gap);
+  row-gap: 0;
   align-items: center;
-  gap: var(--brand-gap);
-  height: 44px;
+  height: 38px;
   margin-right: auto;
 }
-.brand-mark-link { display: block; flex: 0 0 auto; }
+.brand-mark-link {
+  display: block;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
 .brand-mark { display: block; }
 .brand {
+  grid-column: 2;
+  grid-row: 1;
+  display: block;
+  align-self: center;
   font-weight: 650;
   font-size: 1.0625rem;
   line-height: 24px;
@@ -208,10 +217,10 @@ h3 {
   text-decoration: none;
 }
 .brand-by {
-  position: absolute;
-  top: 21px;
-  left: calc(32px + var(--brand-gap));
-  margin: 0;
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  margin: -3px 0 0;
   font-size: 0.75rem;
   line-height: 14px;
   color: var(--muted);
