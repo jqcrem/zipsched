@@ -69,6 +69,9 @@ else if (demo) {
     [-8, 26, 4.5, -2], [12, -14, -5.5, 1], [-2, 18, 1.5, -2.5], [6, -28, -7, 1.5],
     [-6, 4, 3, -1], [0, -8, -1.5, 2],
   ];
+  // Random-looking horizontal positions for the rush, kept stable so replay
+  // and responsive rebuilds reproduce the same pile.
+  const RUSH_X = [0.08, 0.72, 0.36, 0.93, 0.18, 0.59, 0.02, 0.84, 0.47, 0.28];
   const DROP = "cubic-bezier(0.2, 0.8, 0.25, 1)";
   const MOVE = "cubic-bezier(0.45, 0, 0.25, 1)";
   const DRAG = "cubic-bezier(0.4, 0, 0.3, 1)";
@@ -149,16 +152,13 @@ else if (demo) {
     const deckX = (W - aw) / 2;
     const deckY = (H - ah) / 2;
 
-    // The pile runs from the content column's left edge to just inside the
-    // window's right edge, the slow emails spaced wider than the rush.
+    // The first four emails spread across most of the stage. The rush lands
+    // in irregular positions across the full width and piles over them.
     const left = guide.offsetLeft;
     const span = Math.max(0, W - (W < 600 ? 12 : 24) - mw - left);
-    const steps = MAILS.map((_, i) => (i === 0 ? 0 : i < SLOW ? 2.2 : 1));
-    const stepsTotal = steps.reduce((sum, step) => sum + step, 0);
-    let travelled = 0;
     const pile = SCATTER.map(([sx, sy, r], i) => {
-      travelled += steps[i];
-      return { x: left + (span * travelled) / stepsTotal + sx * k, y: (H - mh) / 2 + sy * k, r };
+      const x = i < SLOW ? (0.9 * i) / (SLOW - 1) : RUSH_X[i - SLOW];
+      return { x: left + span * x + sx * k, y: (H - mh) / 2 + sy * k, r };
     });
     // Gathered, the pile shrinks a little and sits just left of the deck,
     // running off the window's edge where the stage is too narrow for both.
@@ -195,15 +195,14 @@ else if (demo) {
     });
 
     // 3. Newest first, each email flies over the deck and turns over into its
-    // action card. The rush goes first and overlaps; then a beat, which is the
-    // still frame, and the four slow ones.
+    // action card. Every card uses the same overlapping cadence.
     t += 850 + 14 * n + 250;
+    stillAt = t;
     const overX = deckX + (aw - mw) / 2;
     const overY = deckY + (ah - mh) / 2;
     for (let i = n - 1; i >= 0; i--) {
-      const slow = i < SLOW;
-      const fly = slow ? 560 : 420;
-      const flip = slow ? 260 : 200;
+      const fly = 420;
+      const flip = 200;
       const g = gathered[i];
       at(mails[i], [
         { transform: tf(g.x, g.y, g.r, shrink), opacity: 1 },
@@ -218,11 +217,8 @@ else if (demo) {
         { transform: tf(d.x, d.y, d.r, 1, -90), opacity: 1, offset: 0.001 },
         { transform: tf(d.x, d.y, d.r), opacity: 1 },
       ], t + fly, flip, "cubic-bezier(0.2, 0.7, 0.3, 1)", "both");
-      if (i === SLOW) {
-        stillAt = t + fly + flip + 200;
-        t += fly + flip + 400;
-      } else if (i > 0) {
-        t += slow ? 560 : 150;
+      if (i > 0) {
+        t += 150;
       } else {
         t += fly + flip + 500;
       }
