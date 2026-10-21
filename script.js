@@ -173,7 +173,7 @@ else if (demo) {
     return range ? formatCalendarRange({ ...range, end: Math.min(CALENDAR_END_MINUTES, range.end + minutes) }) : value;
   };
   const calendarMetrics = (compact) => {
-    const height = compact ? 126 : 138;
+    const height = compact ? 168 : 216;
     return { height, pixelsPerMinute: height / (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES) };
   };
   const blockStyle = (range, compact, minimumHeight = 18) => {
@@ -698,7 +698,13 @@ else if (demo) {
     acts.slice(0, SLOW).forEach((card, i) => {
       const dir = DECLINED.has(i) ? -1 : 1;
       const d = deck[i];
-      at(card, [{ transform: tf(d.x, d.y, d.r) }, { transform: tf(deckX, deckY) }], t, reviewTiming.straighten, MOVE);
+      at(card, [
+        { transform: tf(d.x, d.y, d.r), boxShadow: "none" },
+        {
+          transform: tf(deckX, deckY),
+          boxShadow: "0 1px 2px rgb(15 27 45 / 0.06), 0 18px 40px -20px rgb(15 27 45 / 0.35)",
+        },
+      ], t, reviewTiming.straighten, MOVE);
       t += reviewTiming.reveal;
 
       // A created hold is edited in place: the cursor grabs its lower border
