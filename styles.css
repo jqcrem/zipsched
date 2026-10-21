@@ -177,17 +177,18 @@ h3 {
   top: 0;
   z-index: 50;
   background: rgb(246 242 233 / 0.94);
-  border-bottom: 1px solid var(--rule);
 }
 .nav {
   display: flex;
   align-items: center;
   gap: 16px;
   min-height: 68px;
+  padding-block: 10px;
 }
-/* Wordmark lockup: the mark spans two lines, the name on the first and a
-   grey "by Beans" on the second. The mark repeats the home link for the
-   pointer only (no tab stop), and each line is a full 24px tap target. */
+/* Wordmark lockup: the mark and the name share a row, centred on each
+   other, with a grey "by Beans" under the name. The mark repeats the home
+   link for the pointer only (no tab stop), and each line is a full 24px
+   tap target. */
 .brand-block {
   display: grid;
   grid-template-columns: auto auto;
@@ -195,10 +196,11 @@ h3 {
   align-items: center;
   margin-right: auto;
 }
-.brand-mark-link { grid-row: 1 / span 2; display: block; }
+.brand-mark-link { grid-row: 1; display: block; }
 .brand-mark { display: block; }
 .brand {
   grid-column: 2;
+  grid-row: 1;
   justify-self: start;
   font-weight: 650;
   font-size: 1.0625rem;
@@ -208,6 +210,7 @@ h3 {
 }
 .brand-by {
   grid-column: 2;
+  grid-row: 2;
   font-size: 0.75rem;
   line-height: 24px;
   color: var(--muted);
@@ -302,14 +305,26 @@ h3 {
 .flow-row.is-card::before { top: 21px; }
 .flow-row.is-card::after { top: 36px; }
 .flow-row:has(+ .flow-row.is-card)::after { bottom: -47px; }
-.flow-label {
-  margin-bottom: 8px;
-  font-size: 0.6875rem;
-  line-height: 17px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+/* Email and calendar rows carry an icon on the rail in place of a dot and
+   a label: mail coming in, the calendar going out. Each sits level with
+   its row's first line. */
+.flow-row.has-icon::before { content: none; }
+.flow-row.has-icon::after { top: 26px; }
+.rail-icon {
+  position: absolute;
+  z-index: 1;
+  left: -7px; top: -1px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--cobalt);
 }
+.rail-day .rail-icon { top: -6px; }
+.rail-pick .rail-icon { top: -4px; }
+.rail-invite .rail-icon { top: 3px; }
 
 .flow-from { font-size: 0.875rem; font-weight: 600; }
 .flow-quote {
