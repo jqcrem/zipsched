@@ -5,8 +5,9 @@ document.querySelectorAll("[data-year]").forEach((node) => {
 // Hero demo. Fourteen emails drop onto a messy pile, four slowly and then ten
 // in a rush, spreading right until the pile nearly leaves the window. The pile
 // gathers to the left, each email flies to a deck and turns over into the
-// action it asks for, and a cursor drags every card right to approve it or
-// left to decline it. Every move is a Web Animation scheduled from one shared
+// action it asks for. A cursor demonstrates four reviews, including choosing
+// availability on the calendar, then the viewer edits and reviews the rest.
+// Every guided move is a Web Animation scheduled from one shared
 // start, so the sequence pauses, resumes and lays itself out again after a
 // resize by setting a single time on all of them. It plays once when the stage
 // comes into view; a viewer who prefers reduced motion gets a still frame and
@@ -22,7 +23,8 @@ else if (demo) {
     no: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     yes: '<svg viewBox="0 0 16 16" width="18" height="18"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
-  const KINDS = { hold: "New hold", times: "Pick times", invitee: "Add invitee" };
+  const KINDS = { hold: "New hold", times: "Send times", invitee: "Add invitee" };
+  const PRINCIPAL_NAME = "Alex Rivera";
 
   // In arrival order. The first SLOW arrive one at a time and the rest rush
   // in; every resulting suggestion is reviewed at the same pace. Names and
@@ -61,6 +63,24 @@ else if (demo) {
   // The second card is the only rejection among the first four. Three more
   // rejections are mixed into the remaining cards.
   const DECLINED = new Set([1, 5, 8, 12]);
+  const HOLD_OPTIONS = {
+    0: ["Thu · 2:00–2:45 PM", "Thu · 3:00–3:45 PM", "Fri · 9:30–10:15 AM"],
+    1: ["Fri · 8:30–9:00 AM", "Fri · 9:30–10:00 AM", "Mon · 8:30–9:00 AM"],
+    4: ["Tue · 12:30–1:30 PM", "Tue · 1:30–2:30 PM", "Wed · 12:00–1:00 PM"],
+    7: ["Thu · 7:00–9:00 PM", "Fri · 6:30–8:30 PM", "Sat · 7:00–9:00 PM"],
+    10: ["Wed · 3:00–4:00 PM", "Thu · 11:00 AM–12:00 PM", "Fri · 2:00–3:00 PM"],
+    11: ["Mon · 9:00–9:30 AM", "Mon · 10:30–11:00 AM", "Tue · 9:00–9:30 AM"],
+  };
+  const initialEdits = () => MAILS.map((mail) => ({
+    title: mail.title,
+    when: mail.when ?? "",
+    times: [...(mail.times ?? [])],
+    message: mail.kind === "times"
+      ? `Hey ${mail.from.split(" ")[0]},\n\nThese times work for ${PRINCIPAL_NAME}:`
+      : "",
+    invitees: mail.kind === "invitee" ? [...mail.invitees, mail.add] : [],
+  }));
+  let cardEdits = initialEdits();
   // Hand-set mess, one row per email: x and y offset on the pile (`px` at
   // desktop size), its tilt there (`deg`), and the slighter tilt of its card
   // on the deck (`deg`).
@@ -99,15 +119,77 @@ else if (demo) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
   const dayNumbers = [19, 20, 21, 22, 23];
   const cleanAsk = (ask) => ask.replace(/<\/?mark>/g, "");
-  const activeDay = (m) => (m.when || m.times[0]).split(" ·")[0];
+  const escapeHTML = (value) => String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+  const activeDay = (value) => value.split(" ·")[0];
+  const CALENDAR_START_MINUTES = 8 * 60;
+  const CALENDAR_END_MINUTES = 20 * 60;
+  const SNAP_MINUTES = 15;
+  const parseClock = (value, fallbackMeridiem = "AM") => {
+    const match = value.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+    if (!match) return null;
+    let hour = Number(match[1]);
+    const minute = Number(match[2] ?? 0);
+    const meridiem = (match[3] ?? fallbackMeridiem).toUpperCase();
+    if (hour === 12) hour = 0;
+    if (meridiem === "PM") hour += 12;
+    return hour * 60 + minute;
+  };
+  const parseCalendarRange = (value) => {
+    const [dayLabel, rawRange] = value.split(" · ");
+    const day = days.indexOf(dayLabel);
+    if (day < 0 || !rawRange) return null;
+    const [rawStart, rawEnd] = rawRange.split("–");
+    if (!rawStart || !rawEnd) return null;
+    const endMeridiem = rawEnd.trim().match(/(AM|PM)$/i)?.[1] ?? "AM";
+    const start = parseClock(rawStart, endMeridiem);
+    const end = parseClock(rawEnd, endMeridiem);
+    if (start === null || end === null) return null;
+    return { day, start, end: Math.max(start + SNAP_MINUTES, end) };
+  };
+  const clockParts = (minutes) => {
+    const normalized = (minutes + 1440) % 1440;
+    const hour24 = Math.floor(normalized / 60);
+    const minute = normalized % 60;
+    return {
+      clock: `${hour24 % 12 || 12}:${String(minute).padStart(2, "0")}`,
+      meridiem: hour24 >= 12 ? "PM" : "AM",
+    };
+  };
+  const formatCalendarRange = ({ day, start, end }) => {
+    const from = clockParts(start);
+    const to = clockParts(end);
+    const startLabel = from.meridiem === to.meridiem
+      ? from.clock
+      : `${from.clock} ${from.meridiem}`;
+    return `${days[day]} · ${startLabel}–${to.clock} ${to.meridiem}`;
+  };
+  const extendCalendarRange = (value, minutes = 30) => {
+    const range = parseCalendarRange(value);
+    return range ? formatCalendarRange({ ...range, end: Math.min(CALENDAR_END_MINUTES, range.end + minutes) }) : value;
+  };
+  const calendarMetrics = (compact) => {
+    const height = compact ? 126 : 138;
+    return { height, pixelsPerMinute: height / (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES) };
+  };
+  const blockStyle = (range, compact) => {
+    const { height, pixelsPerMinute } = calendarMetrics(compact);
+    const top = Math.max(0, (range.start - CALENDAR_START_MINUTES) * pixelsPerMinute);
+    const rawHeight = Math.max(18, (range.end - range.start) * pixelsPerMinute);
+    return `--calendar-day:${range.day};top:${Math.min(height - 18, top)}px;height:${Math.min(height - top, rawHeight)}px`;
+  };
   const emailAddress = (name) => `${name.toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
-  const renderContext = (index) => {
+  const renderContext = (index, guidedSelectionCount = null) => {
     if (index < 0 || index >= MAILS.length) {
       threadPane.replaceChildren();
       calendarPane.replaceChildren();
       return;
     }
     const m = MAILS[index];
+    const edit = cardEdits[index];
     const replyName = m.from === "Alex Rivera" ? "Sam Carter" : "Alex Rivera";
     const replyEmail = replyName === "Alex Rivera" ? "alex@company.com" : "sam@company.com";
     const messages = [
@@ -120,35 +202,220 @@ else if (demo) {
     threadPane.replaceChildren(panel);
 
     const calendar = document.createElement("article");
-    const selectedDay = activeDay(m);
-    const eventTime = m.when || m.times[0];
-    const eventTitle = m.kind === "times" ? "Available time" : m.title;
+    const timeOptions = m.times ?? [];
+    const selectedTimes = guidedSelectionCount === null
+      ? edit.times
+      : timeOptions.slice(0, guidedSelectionCount);
+    const compactCalendar = stage.clientWidth <= 900;
+    const displayedHoldTime = m.kind === "hold" && guidedSelectionCount === 1
+      ? extendCalendarRange(edit.when)
+      : edit.when;
+    const firstSelected = m.kind === "times"
+      ? (selectedTimes[0] ?? timeOptions[0] ?? "Mon · 9:00 AM")
+      : (displayedHoldTime || "Mon · 9:00 AM");
+    const selectedDay = activeDay(firstSelected);
     calendar.className = "context-panel calendar-panel";
     const dayStrip = days.map((day, dayIndex) => {
       const activeClass = day === selectedDay ? " is-active" : "";
       return `<span class="calendar-day${activeClass}">${day}<span>${dayNumbers[dayIndex]}</span></span>`;
     }).join("");
-    const proposedTop = 41 + (index % 2) * 36;
-    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid"><div class="calendar-hour"><span>9 AM</span></div><div class="calendar-hour"><span>12 PM</span></div><div class="calendar-hour"><span>3 PM</span></div><div class="calendar-event calendar-event-muted" style="top:4px">Prep<span>9:00</span></div><div class="calendar-event is-proposed" style="top:${proposedTop}px"><strong>${eventTitle}</strong><span>${eventTime}</span></div><div class="calendar-event calendar-event-muted" style="top:116px">Team sync<span>4:00</span></div></div>`;
+    const proposedValues = m.kind === "times"
+      ? selectedTimes
+      : m.kind === "hold" || m.kind === "invitee"
+        ? [displayedHoldTime]
+        : [];
+    const proposalMarkup = proposedValues.map((value, blockIndex) => {
+      const range = parseCalendarRange(value);
+      if (!range) return "";
+      const title = m.kind === "times" ? "" : `<strong>${escapeHTML(edit.title)}</strong>`;
+      const removable = m.kind === "times"
+        ? `<button type="button" class="calendar-block-remove" data-block-index="${blockIndex}" aria-label="Remove ${escapeHTML(value)}">${ICONS.no}</button>`
+        : "";
+      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyle(range, compactCalendar)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
+    }).join("");
+    const editable = demo.dataset.state === "interactive" && index === interactiveIndex;
+    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid><div class="calendar-hour"><span>8 AM</span></div><div class="calendar-hour"><span>12 PM</span></div><div class="calendar-hour"><span>4 PM</span></div><div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:12px;height:22px">Prep<span>9:00</span></div>${proposalMarkup}<div class="calendar-event calendar-event-muted" style="--calendar-day:3;top:${compactCalendar ? 84 : 92}px;height:24px">Team sync<span>4:00</span></div></div>`;
     calendarPane.replaceChildren(calendar);
+    if (!editable) return;
+
+    calendar.querySelectorAll(".calendar-block-remove").forEach((button) => {
+      button.addEventListener("pointerdown", (event) => event.stopPropagation());
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (m.kind !== "times") return;
+        edit.times.splice(Number(button.dataset.blockIndex), 1);
+        syncTimesCard(index);
+        renderContext(index);
+      });
+    });
+
+    const grid = calendar.querySelector("[data-calendar-grid]");
+    const snapMinutes = (minutes) => Math.round(minutes / SNAP_MINUTES) * SNAP_MINUTES;
+    const rangeFromPointer = (event) => {
+      const rect = grid.getBoundingClientRect();
+      const gutter = 30;
+      const usableWidth = Math.max(1, rect.width - gutter);
+      const day = Math.max(0, Math.min(days.length - 1, Math.floor(((event.clientX - rect.left - gutter) / usableWidth) * days.length)));
+      const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
+      const minutes = CALENDAR_START_MINUTES + snapMinutes((y / rect.height) * (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES));
+      return { day, minutes: Math.max(CALENDAR_START_MINUTES, Math.min(CALENDAR_END_MINUTES, minutes)) };
+    };
+
+    if (m.kind === "times") {
+      let creating = null;
+      grid.addEventListener("pointerdown", (event) => {
+        if (event.target.closest(".calendar-event")) return;
+        event.preventDefault();
+        const point = rangeFromPointer(event);
+        creating = {
+          pointerId: event.pointerId,
+          day: point.day,
+          anchor: point.minutes,
+          start: point.minutes,
+          end: Math.min(CALENDAR_END_MINUTES, point.minutes + 30),
+        };
+        grid.setPointerCapture(event.pointerId);
+        const draft = document.createElement("div");
+        draft.className = "calendar-event calendar-proposal calendar-draft";
+        draft.innerHTML = "<span></span>";
+        grid.append(draft);
+        creating.node = draft;
+      });
+      grid.addEventListener("pointermove", (event) => {
+        if (!creating || creating.pointerId !== event.pointerId) return;
+        const point = rangeFromPointer(event);
+        const earlier = Math.min(creating.anchor, point.minutes);
+        const later = Math.max(creating.anchor, point.minutes);
+        if (later - earlier < 30) {
+          creating.start = point.minutes < creating.anchor
+            ? Math.max(CALENDAR_START_MINUTES, creating.anchor - 30)
+            : creating.anchor;
+          creating.end = point.minutes < creating.anchor
+            ? creating.anchor
+            : Math.min(CALENDAR_END_MINUTES, creating.anchor + 30);
+        } else {
+          creating.start = earlier;
+          creating.end = later;
+        }
+        const range = { day: creating.day, start: creating.start, end: creating.end };
+        creating.node.setAttribute("style", blockStyle(range, compactCalendar));
+        creating.node.querySelector("span").textContent = formatCalendarRange(range).split(" · ")[1];
+      });
+      const finishCreation = (event) => {
+        if (!creating || creating.pointerId !== event.pointerId) return;
+        const next = formatCalendarRange({ day: creating.day, start: creating.start, end: creating.end });
+        creating = null;
+        edit.times.push(next);
+        edit.times.sort((a, b) => {
+          const left = parseCalendarRange(a);
+          const right = parseCalendarRange(b);
+          return left && right ? left.day - right.day || left.start - right.start : 0;
+        });
+        syncTimesCard(index);
+        renderContext(index);
+      };
+      grid.addEventListener("pointerup", finishCreation);
+      grid.addEventListener("pointercancel", finishCreation);
+    }
+
+    calendar.querySelectorAll(".calendar-resize-handle").forEach((handle) => {
+      handle.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const blockIndex = Number(handle.dataset.blockIndex);
+        const sourceValue = m.kind === "times" ? edit.times[blockIndex] : edit.when;
+        const original = parseCalendarRange(sourceValue);
+        if (!original) return;
+        const block = handle.closest(".calendar-proposal");
+        handle.setPointerCapture(event.pointerId);
+        const move = (moveEvent) => {
+          const point = rangeFromPointer(moveEvent);
+          const end = Math.max(original.start + SNAP_MINUTES, Math.min(CALENDAR_END_MINUTES, point.minutes));
+          const range = { ...original, end };
+          block.setAttribute("style", blockStyle(range, compactCalendar));
+          block.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(range).split(" · ")[1];
+        };
+        const end = (endEvent) => {
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", end);
+          handle.removeEventListener("pointercancel", end);
+          const point = rangeFromPointer(endEvent);
+          const value = formatCalendarRange({ ...original, end: Math.max(original.start + SNAP_MINUTES, Math.min(CALENDAR_END_MINUTES, point.minutes)) });
+          if (m.kind === "times") {
+            edit.times[blockIndex] = value;
+            syncTimesCard(index);
+          } else {
+            edit.when = value;
+            acts[index].querySelector(".act-when").textContent = value;
+          }
+          renderContext(index);
+        };
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", end);
+        handle.addEventListener("pointercancel", end);
+      });
+    });
   };
   // The deck is built newest email first, so the first email's card ends up
   // on top: each card sits above every card for a later email.
   const acts = MAILS.map((m, i) => {
     const card = document.createElement("article");
-    card.className = "act";
+    card.className = `act act-kind-${m.kind}`;
     card.style.zIndex = String(MAILS.length - i);
-    const detail =
-      m.kind === "times"
-        ? `<ul class="act-times mono">${m.times.map((time) => `<li>${time}</li>`).join("")}</ul>`
-        : `<p class="act-when mono">${m.when}</p>`;
-    const invitees =
-      m.kind === "invitee"
-        ? `<p class="invitees">${m.invitees.map((name) => `<span class="invitee">${name}</span>`).join("")}<span class="invitee invitee-new">+ ${m.add}</span></p>`
-        : "";
-    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p><p class="act-title">${m.title}</p>${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no" aria-label="Decline suggestion">${ICONS.no}</button><button type="button" class="act-btn act-yes" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
+    const edit = cardEdits[i];
+    const title = m.kind === "hold"
+      ? `<input class="act-title act-title-input act-control" aria-label="Event title" value="${escapeHTML(edit.title)}" readonly tabindex="-1">`
+      : `<p class="act-title">${escapeHTML(edit.title)}</p>`;
+    const detail = m.kind === "times"
+      ? `<textarea class="act-email-copy act-control" aria-label="Email text" readonly tabindex="-1">${escapeHTML(edit.message)}</textarea><ul class="act-times mono">${edit.times.map((time) => `<li>${escapeHTML(time)}</li>`).join("")}</ul>`
+      : `<p class="act-when mono">${escapeHTML(edit.when)}</p>`;
+    const invitees = m.kind === "invitee"
+      ? `<p class="invitees">${edit.invitees.map((name, inviteeIndex) => `<span class="invitee${name === m.add ? " invitee-new" : ""}"><span>${escapeHTML(name)}</span><button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button></span>`).join("")}</p>`
+      : "";
+    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p>${title}${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no act-control" aria-label="Decline suggestion">${ICONS.no}</button><button type="button" class="act-btn act-yes act-control" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
     stage.querySelector(".stage-deck").append(card);
     return card;
+  });
+  const syncTimesCard = (index) => {
+    const list = acts[index].querySelector(".act-times");
+    if (!list) return;
+    list.innerHTML = cardEdits[index].times.map((time) => `<li>${escapeHTML(time)}</li>`).join("");
+  };
+  const setCardEditing = (card, enabled) => {
+    const title = card.querySelector(".act-title-input");
+    const email = card.querySelector(".act-email-copy");
+    if (title) {
+      title.readOnly = !enabled;
+      title.tabIndex = enabled ? 0 : -1;
+    }
+    if (email) {
+      email.readOnly = !enabled;
+      email.tabIndex = enabled ? 0 : -1;
+    }
+    card.querySelectorAll(".invitee-remove").forEach((button) => {
+      button.disabled = !enabled;
+    });
+  };
+  acts.forEach((card, index) => {
+    const titleInput = card.querySelector(".act-title-input");
+    titleInput?.addEventListener("input", () => {
+      cardEdits[index].title = titleInput.value;
+      if (index === interactiveIndex) renderContext(index);
+    });
+    const emailInput = card.querySelector(".act-email-copy");
+    emailInput?.addEventListener("input", () => {
+      cardEdits[index].message = emailInput.value;
+    });
+    card.querySelectorAll(".invitee-remove").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (index !== interactiveIndex) return;
+        const inviteeName = button.closest(".invitee").querySelector(":scope > span").textContent;
+        const inviteeIndex = cardEdits[index].invitees.indexOf(inviteeName);
+        if (inviteeIndex < 0) return;
+        cardEdits[index].invitees.splice(inviteeIndex, 1);
+        button.closest(".invitee").remove();
+      });
+    });
   });
   summary.innerHTML = `<span class="summary-pill summary-yes">${ICONS.yes}${MAILS.length - DECLINED.size} approved</span><span class="summary-pill summary-no">${ICONS.no}${DECLINED.size} declined</span>`;
 
@@ -166,7 +433,9 @@ else if (demo) {
   let contextStartsAt = Infinity;
   let contextEndsAt = Infinity;
   let contextSwitches = [];
+  let contextSelectionSteps = [];
   let currentContextIndex = -2;
+  let currentContextSelectionCount = -2;
   /** The still frame for reduced motion: emails left on the pile beside the deck (`ms`) */
   let stillAt = 0;
 
@@ -216,16 +485,38 @@ else if (demo) {
 
   const syncContext = (ms) => {
     let nextIndex = -1;
+    let selectionCount = null;
     if (ms >= contextStartsAt && ms < contextEndsAt) {
       nextIndex = 0;
       for (const change of contextSwitches) {
         if (ms < change.at) break;
         nextIndex = change.index;
       }
+      if (MAILS[nextIndex]?.kind === "times") {
+        selectionCount = nextIndex < SLOW ? 0 : null;
+        for (const change of contextSelectionSteps) {
+          if (change.index !== nextIndex || ms < change.at) continue;
+          selectionCount = change.count;
+        }
+      } else if (MAILS[nextIndex]?.kind === "hold" && nextIndex < SLOW) {
+        selectionCount = 0;
+        for (const change of contextSelectionSteps) {
+          if (change.index !== nextIndex || ms < change.at) continue;
+          selectionCount = change.count;
+        }
+      }
     }
-    if (nextIndex === currentContextIndex) return;
+    if (nextIndex === currentContextIndex && selectionCount === currentContextSelectionCount) return;
     currentContextIndex = nextIndex;
-    renderContext(nextIndex);
+    currentContextSelectionCount = selectionCount;
+    acts.forEach((card, index) => {
+      const when = card.querySelector(".act-when");
+      if (!when || MAILS[index].kind !== "hold") return;
+      when.textContent = index === nextIndex && selectionCount === 1
+        ? extendCalendarRange(cardEdits[index].when)
+        : cardEdits[index].when;
+    });
+    renderContext(nextIndex, selectionCount);
   };
 
   // Lays the sequence out for the stage's current size. A card's first
@@ -245,7 +536,9 @@ else if (demo) {
     contextStartsAt = Infinity;
     contextEndsAt = Infinity;
     contextSwitches = [];
+    contextSelectionSteps = [];
     currentContextIndex = -2;
+    currentContextSelectionCount = -2;
     const W = stage.clientWidth;
     const H = stage.clientHeight;
     const mw = mails[0].offsetWidth;
@@ -276,13 +569,16 @@ else if (demo) {
       r: r * 0.85,
     }));
     const deck = SCATTER.map(([sx, , , r]) => ({ x: deckX + sx * 0.25 * k, y: deckY, r }));
-    acts.forEach((card) => {
+    acts.forEach((card, index) => {
       card.classList.remove("is-interactive");
       card.style.opacity = "";
       card.style.transform = "";
       card.style.pointerEvents = "";
       card.removeAttribute("title");
+      setCardEditing(card, false);
       clearButtonState(card);
+      const when = card.querySelector(".act-when");
+      if (when) when.textContent = cardEdits[index].when;
     });
     summary.style.opacity = "";
     summary.style.transform = "";
@@ -353,6 +649,21 @@ else if (demo) {
       at(cursor, [{ transform: pointer(hand) }, { transform: pointer(to) }], delay, duration, easing);
       hand = to;
     };
+    const calendarRangePoints = (value) => {
+      const range = parseCalendarRange(value);
+      if (!range) return null;
+      const calendarLeft = calendarPane.offsetLeft - (W <= 900 ? calendarPane.offsetWidth / 2 : 0);
+      const calendarTop = calendarPane.offsetTop - (W > 900 ? calendarPane.offsetHeight / 2 : 0);
+      const gridLeft = calendarLeft + (W <= 900 ? calendarPane.offsetWidth * 0.43 : 30);
+      const gridWidth = W <= 900 ? calendarPane.offsetWidth * 0.57 : calendarPane.offsetWidth - 30;
+      const gridTop = calendarTop + (W <= 900 ? 42 : 84);
+      const { pixelsPerMinute } = calendarMetrics(W <= 900);
+      const x = gridLeft + gridWidth * ((range.day + 0.5) / days.length);
+      return {
+        start: { x, y: gridTop + (range.start - CALENDAR_START_MINUTES) * pixelsPerMinute, s: 1 },
+        end: { x, y: gridTop + (range.end - CALENDAR_START_MINUTES) * pixelsPerMinute, s: 0.86 },
+      };
+    };
     contextStartsAt = t - 320;
     at(cursor, [{ transform: pointer(hand), opacity: 0 }, { transform: pointer(hand), opacity: 1 }], t - 200, 200, "linear", "both");
     at(threadPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 320, 320, DROP, "both");
@@ -371,6 +682,80 @@ else if (demo) {
       const d = deck[i];
       at(card, [{ transform: tf(d.x, d.y, d.r) }, { transform: tf(deckX, deckY) }], t, reviewTiming.straighten, MOVE);
       t += reviewTiming.reveal;
+
+      // A created hold is edited in place: the cursor grabs its lower border
+      // and lengthens it. This mirrors the direct manipulation available once
+      // the guided cards are gone.
+      if (MAILS[i].kind === "hold" && i === 0) {
+        const points = calendarRangePoints(cardEdits[i].when);
+        const resizedPoints = calendarRangePoints(extendCalendarRange(cardEdits[i].when));
+        if (points && resizedPoints) {
+          moveHand(points.end, t, 300);
+          t += 300;
+          moveHand({ ...points.end, s: 0.82 }, t, 70, "ease-out");
+          at(press, [
+            { transform: `translate(${points.end.x}px, ${points.end.y}px) scale(0.3)`, opacity: 0.9 },
+            { transform: `translate(${points.end.x}px, ${points.end.y}px) scale(1.5)`, opacity: 0 },
+          ], t, 340, "ease-out", "none");
+          t += 70;
+          moveHand(resizedPoints.end, t, 360, DRAG);
+          contextSelectionSteps.push({ at: t + 300, index: i, count: 1 });
+          t += 400;
+          moveHand({ ...hand, s: 1 }, t, 80, "ease-out");
+          t += 80;
+        }
+      }
+
+      // The guided Send times card demonstrates the same interaction the
+      // viewer gets later: draw blocks directly across the calendar, watch the
+      // bullets appear, then approve with the check button.
+      if (MAILS[i].kind === "times") {
+        const bulletItems = [...card.querySelectorAll(".act-times li")];
+        bulletItems.forEach((item, optionIndex) => {
+          const points = calendarRangePoints(MAILS[i].times[optionIndex]);
+          if (!points) return;
+          moveHand(points.start, t, 260);
+          t += 260;
+          moveHand({ ...points.start, s: 0.82 }, t, 70, "ease-out");
+          at(press, [
+            { transform: `translate(${points.start.x}px, ${points.start.y}px) scale(0.3)`, opacity: 0.9 },
+            { transform: `translate(${points.start.x}px, ${points.start.y}px) scale(1.5)`, opacity: 0 },
+          ], t, 360, "ease-out", "none");
+          t += 70;
+          moveHand(points.end, t, 340, DRAG);
+          at(item, [
+            { opacity: 0, transform: "translateY(3px)" },
+            { opacity: 1, transform: "none" },
+          ], t + 300, 150, DROP, "both");
+          contextSelectionSteps.push({ at: t + 300, index: i, count: optionIndex + 1 });
+          t += 380;
+          moveHand({ ...hand, s: 1 }, t, 60, "ease-out");
+          t += 70;
+        });
+        const approve = { x: deckX + aw - 40, y: deckY + ah - 38, s: 1 };
+        moveHand(approve, t, 300);
+        t += 300;
+        moveHand({ ...approve, s: 0.86 }, t, 80, "ease-out");
+        at(press, [
+          { transform: `translate(${approve.x}px, ${approve.y}px) scale(0.3)`, opacity: 0.9 },
+          { transform: `translate(${approve.x}px, ${approve.y}px) scale(1.5)`, opacity: 0 },
+        ], t, 400, "ease-out", "none");
+        at(card.querySelector(".act-yes"), [{
+          backgroundColor: "#1f4fd1",
+          borderColor: "#1f4fd1",
+          color: "#fff",
+          transform: "scale(1.12)",
+        }], t, 140, "ease-out");
+        t += 130;
+        at(card, [
+          { transform: tf(deckX, deckY) },
+          { transform: tf(deckX + W / 2 + aw + 80, deckY + 80 * k, 28) },
+        ], t, reviewTiming.throw, THROW);
+        contextSwitches.push({ at: t + reviewTiming.overlap, index: i + 1 });
+        t += reviewTiming.overlap;
+        return;
+      }
+
       moveHand(grab, t, reviewTiming.cursor);
       t += reviewTiming.cursor;
       moveHand({ ...grab, s: 0.86 }, t, reviewTiming.press, "ease-out");
@@ -499,8 +884,9 @@ else if (demo) {
     card.style.transform = tf(interactiveLayout.deckX, interactiveLayout.deckY);
     card.title = "Drag left to decline or right to approve";
     clearButtonState(card);
-    renderContext(next);
+    setCardEditing(card, true);
     setState("interactive");
+    renderContext(next);
   };
 
   const completeChoice = (index, direction, draggedX = 0) => {
@@ -514,6 +900,7 @@ else if (demo) {
     card.classList.remove("is-interactive");
     card.style.pointerEvents = "none";
     card.removeAttribute("title");
+    setCardEditing(card, false);
     showDecision(card, direction);
     const exit = card.animate([
       { transform: tf(deckX + startX, deckY + 10 * k, direction * 9), opacity: 1 },
@@ -535,6 +922,7 @@ else if (demo) {
       card.style.pointerEvents = "none";
       card.style.transform = tf(interactiveLayout.deck[i].x, interactiveLayout.deck[i].y, interactiveLayout.deck[i].r);
       card.style.opacity = decisions.has(i) ? "0" : "1";
+      setCardEditing(card, false);
       clearButtonState(card);
     }
     activateInteractiveCard();
@@ -542,7 +930,7 @@ else if (demo) {
 
   acts.forEach((card, index) => {
     card.addEventListener("pointerdown", (event) => {
-      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-btn")) return;
+      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-control")) return;
       event.preventDefault();
       snapAnims.get(card)?.cancel();
       card.setPointerCapture(event.pointerId);
