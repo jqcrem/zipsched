@@ -780,15 +780,16 @@ else if (demo) {
       at(mail, [{ transform: tf(from.x, from.y, from.r) }, { transform: tf(to.x, to.y, to.r, shrink) }], t + i * 14, 850, MOVE);
     });
 
-    // 3. Newest first, each email flies over the deck and turns over into its
-    // action card. Every card uses the same overlapping cadence.
+    // 3. Newest first, each email briskly flies over the deck and turns over
+    // into its action card. This transition is intentionally much quicker
+    // than the guided review that follows it.
     t += 850 + 14 * n + 250;
     stillAt = t;
     const overX = deckX + (aw - mw) / 2;
     const overY = deckY + (ah - mh) / 2;
     for (let i = n - 1; i >= 0; i--) {
-      const fly = 420;
-      const flip = 200;
+      const fly = 220;
+      const flip = 120;
       const g = gathered[i];
       at(mails[i], [
         { transform: tf(g.x, g.y, g.r, shrink), opacity: 1 },
@@ -804,9 +805,9 @@ else if (demo) {
         { transform: tf(d.x, d.y, d.r), opacity: 1 },
       ], t + fly, flip, "cubic-bezier(0.2, 0.7, 0.3, 1)", "both");
       if (i > 0) {
-        t += 150;
+        t += 60;
       } else {
-        t += fly + flip + 500;
+        t += fly + flip + 220;
       }
     }
 
