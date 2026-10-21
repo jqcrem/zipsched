@@ -997,6 +997,18 @@ else if (demo) {
     card.title = "Drag left to decline or right to approve";
     clearButtonState(card);
     setCardEditing(card, true);
+    if (next === SLOW) {
+      const interactiveHint = card.animate([
+        { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY) },
+        { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY - 12) },
+        { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY) },
+      ], {
+        delay: 180,
+        duration: 620,
+        easing: "cubic-bezier(0.2, 0.8, 0.25, 1)",
+      });
+      manualAnims.push(interactiveHint);
+    }
     setState("interactive");
     renderContext(next);
   };
