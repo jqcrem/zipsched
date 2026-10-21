@@ -33,19 +33,19 @@ else if (demo) {
     { from: "Dana Whitfield", at: "9:02 AM", meta: "Board deck", ask: "Can we find <mark>45 minutes Thursday afternoon</mark>?",
       kind: "hold", title: "Board deck review", when: "Thu · 2:00–2:45 PM" },
     { from: "Marcus Bell", at: "9:14 AM", meta: "Coffee?", ask: "Could we grab <mark>coffee Friday at 8:30</mark>?",
-      kind: "hold", title: "Coffee with Marcus Bell", when: "Fri · 8:30–9:00 AM" },
+      kind: "hold", title: "Coffee", when: "Fri · 8:30–9:00 AM" },
     { from: "Alex Rivera", at: "9:31 AM", meta: "to Jordan Lee · cc Sam (EA)", ask: "<mark>Cc’ing my EA</mark> to find us a time next week.",
       kind: "times", title: "Re: Intro, Alex / Jordan", times: ["Tue · 10:00–10:30 AM", "Wed · 11:00–11:30 AM", "Thu · 10:30–11:30 AM"] },
     { from: "Alex Rivera", at: "9:47 AM", meta: "Investor call", ask: "Can you <mark>add Tim to Thursday’s call</mark>? He’s joining from the fund.",
       kind: "invitee", title: "Investor call", when: "Thu · 3:30–4:00 PM", invitees: ["Alex Rivera", "Priya Shah"], add: "Tim Okafor" },
     { from: "Priya Shah", at: "10:03 AM", meta: "Lunch", ask: "<mark>Lunch next Tuesday</mark> at 12:30?",
-      kind: "hold", title: "Lunch with Priya Shah", when: "Tue · 12:30–1:30 PM" },
+      kind: "hold", title: "Lunch", when: "Tue · 12:30–1:30 PM" },
     { from: "Jordan Lee", at: "10:05 AM", meta: "Catching up", ask: "What works for <mark>a call next week</mark>?",
-      kind: "times", title: "Call with Jordan Lee", times: ["Mon · 2:00–2:30 PM", "Tue · 4:00–4:30 PM", "Wed · 9:30–10:00 AM"] },
+      kind: "times", title: "Call with Jordan Lee", times: ["Mon · 2:00–2:30 PM", "Tue · 4:00–4:30 PM", "Wed · 9:30–10:00 AM"], eaReply: "Looping in my EA to coordinate." },
     { from: "Lena Fischer", at: "10:08 AM", meta: "Contract review", ask: "Please <mark>loop in Maya</mark> from legal.",
       kind: "invitee", title: "Contract review", when: "Wed · 1:00–1:45 PM", invitees: ["Lena Fischer", "Alex Rivera"], add: "Maya Chen" },
     { from: "Omar Haddad", at: "10:12 AM", meta: "Dinner", ask: "<mark>Dinner Thursday at 7</mark>?",
-      kind: "hold", title: "Dinner with Omar Haddad", when: "Thu · 7:00–9:00 PM" },
+      kind: "hold", title: "Dinner", when: "Thu · 7:00–9:00 PM" },
     { from: "Chris Novak", at: "10:15 AM", meta: "Demo", ask: "Send me <mark>a few times for a demo</mark>.",
       kind: "times", title: "Demo for Chris Novak", times: ["Tue · 1:30–2:00 PM", "Wed · 11:30 AM–12:00 PM", "Fri · 11:00–11:30 AM"] },
     { from: "Dana Whitfield", at: "10:19 AM", meta: "Board deck review", ask: "Can we <mark>add Raj</mark> to the board deck review?",
@@ -53,11 +53,11 @@ else if (demo) {
     { from: "Grace Liu", at: "10:22 AM", meta: "Q4 review", ask: "<mark>Quarterly review, 60 min</mark>, Wednesday?",
       kind: "hold", title: "Quarterly review", when: "Wed · 3:00–4:00 PM" },
     { from: "Ben Carter", at: "10:26 AM", meta: "Intro", ask: "<mark>Intro call Monday at 9</mark>?",
-      kind: "hold", title: "Intro call with Ben Carter", when: "Mon · 9:00–9:30 AM" },
+      kind: "hold", title: "Intro call", when: "Mon · 9:00–9:30 AM" },
     { from: "Nadia Park", at: "10:31 AM", meta: "Weekly sync", ask: "Please <mark>include Theo</mark> on Friday’s sync.",
       kind: "invitee", title: "Weekly sync", when: "Fri · 10:00–10:30 AM", invitees: ["Nadia Park", "Alex Rivera"], add: "Theo Grant" },
     { from: "Hannah Moss", at: "10:34 AM", meta: "Team time", ask: "Can we find <mark>30 minutes with the team</mark>?",
-      kind: "times", title: "Team check-in", times: ["Mon · 3:00–3:30 PM", "Tue · 11:00–11:30 AM", "Thu · 4:30–5:00 PM"] },
+      kind: "times", title: "Team check-in", times: ["Mon · 3:00–3:30 PM", "Tue · 11:00–11:30 AM", "Thu · 4:30–5:00 PM"], eaReply: "Looping in my EA to coordinate." },
   ];
   const SLOW = 4;
   // The second card is the only rejection among the first four. Three more
@@ -78,7 +78,11 @@ else if (demo) {
     message: mail.kind === "times"
       ? `Hey ${mail.from.split(" ")[0]},\nThese times work for ${PRINCIPAL_NAME}:`
       : "",
-    invitees: mail.kind === "invitee" ? [...mail.invitees, mail.add] : [],
+    invitees: mail.kind === "invitee"
+      ? [...mail.invitees, mail.add]
+      : mail.kind === "hold"
+        ? [mail.from]
+        : [],
   }));
   let cardEdits = initialEdits();
   // Hand-set mess, one row per email: x and y offset on the pile (`px` at
@@ -172,28 +176,72 @@ else if (demo) {
     const range = parseCalendarRange(value);
     return range ? formatCalendarRange({ ...range, end: Math.min(CALENDAR_END_MINUTES, range.end + minutes) }) : value;
   };
-  const calendarMetrics = (compact) => {
+  const calendarMetrics = (compact, viewStart = CALENDAR_START_MINUTES, viewEnd = CALENDAR_END_MINUTES) => {
     const height = compact ? 168 : 216;
-    return { height, pixelsPerMinute: height / (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES) };
+    return { height, pixelsPerMinute: height / (viewEnd - viewStart) };
   };
-  const blockStyle = (range, compact, minimumHeight = 18) => {
-    const { height, pixelsPerMinute } = calendarMetrics(compact);
-    const top = Math.max(0, (range.start - CALENDAR_START_MINUTES) * pixelsPerMinute);
-    const rawHeight = Math.max(minimumHeight, (range.end - range.start) * pixelsPerMinute);
+  const blockStyle = (
+    range,
+    compact,
+    minimumHeight = 18,
+    viewStart = CALENDAR_START_MINUTES,
+    viewEnd = CALENDAR_END_MINUTES,
+  ) => {
+    const { height, pixelsPerMinute } = calendarMetrics(compact, viewStart, viewEnd);
+    const visibleStart = Math.max(viewStart, range.start);
+    const visibleEnd = Math.min(viewEnd, range.end);
+    const top = Math.max(0, (visibleStart - viewStart) * pixelsPerMinute);
+    const rawHeight = Math.max(minimumHeight, (visibleEnd - visibleStart) * pixelsPerMinute);
     return `--calendar-day:${range.day};top:${Math.min(height - minimumHeight, top)}px;height:${Math.min(height - top, rawHeight)}px`;
   };
+  const holdCalendarView = (value) => {
+    const range = parseCalendarRange(value);
+    const windowMinutes = 6 * 60;
+    const midpoint = range ? (range.start + range.end) / 2 : 13 * 60;
+    const start = Math.max(0, Math.min(24 * 60 - windowMinutes, Math.floor((midpoint - windowMinutes / 2) / 60) * 60));
+    return { start, end: start + windowMinutes, step: 60 };
+  };
+  const calendarHourLabel = (minutes) => {
+    const { clock, meridiem } = clockParts(minutes);
+    return `${clock.replace(":00", "")} ${meridiem}`;
+  };
   const BUSY_EVENTS = [
-    { day: 0, start: 9 * 60, end: 10 * 60 + 30, title: "Prep" },
-    { day: 0, start: 15 * 60 + 15, end: 16 * 60, title: "Finance" },
-    { day: 1, start: 10 * 60 + 30, end: 11 * 60 + 30, title: "Staff 1:1" },
+    { day: 0, start: 8 * 60, end: 9 * 60, title: "Briefing" },
+    { day: 0, start: 9 * 60, end: 10 * 60 + 30, title: "Board prep" },
+    { day: 0, start: 10 * 60 + 30, end: 11 * 60 + 30, title: "Client call" },
+    { day: 0, start: 12 * 60, end: 13 * 60, title: "Lunch" },
+    { day: 0, start: 15 * 60 + 30, end: 16 * 60 + 30, title: "Finance" },
+    { day: 0, start: 16 * 60 + 30, end: 18 * 60, title: "Counsel review" },
+    { day: 1, start: 8 * 60, end: 9 * 60, title: "Breakfast" },
+    { day: 1, start: 9 * 60, end: 10 * 60, title: "Pipeline" },
+    { day: 1, start: 11 * 60 + 30, end: 12 * 60 + 30, title: "Staff 1:1" },
+    { day: 1, start: 12 * 60 + 30, end: 13 * 60 + 30, title: "Lunch" },
+    { day: 1, start: 14 * 60, end: 15 * 60 + 30, title: "Vendor review" },
     { day: 1, start: 16 * 60 + 45, end: 18 * 60 + 15, title: "Travel" },
-    { day: 2, start: 9 * 60 + 15, end: 10 * 60, title: "Candidate" },
+    { day: 1, start: 18 * 60 + 15, end: 19 * 60 + 15, title: "Dinner" },
+    { day: 2, start: 8 * 60, end: 8 * 60 + 45, title: "Metrics" },
+    { day: 2, start: 8 * 60 + 45, end: 9 * 60 + 30, title: "Leadership" },
+    { day: 2, start: 10 * 60, end: 11 * 60, title: "Candidate" },
+    { day: 2, start: 12 * 60, end: 13 * 60, title: "Lunch" },
     { day: 2, start: 13 * 60, end: 14 * 60 + 30, title: "Design" },
-    { day: 2, start: 16 * 60, end: 17 * 60, title: "Focus" },
-    { day: 3, start: 9 * 60 + 45, end: 11 * 60 + 15, title: "Ops review" },
-    { day: 3, start: 15 * 60 + 45, end: 16 * 60 + 45, title: "Team sync" },
+    { day: 2, start: 14 * 60 + 30, end: 15 * 60 + 30, title: "Hiring debrief" },
+    { day: 2, start: 16 * 60, end: 17 * 60 + 30, title: "Focus time" },
+    { day: 2, start: 17 * 60 + 30, end: 18 * 60 + 30, title: "Research" },
+    { day: 3, start: 8 * 60, end: 9 * 60, title: "Leadership" },
+    { day: 3, start: 9 * 60, end: 10 * 60 + 30, title: "Ops review" },
+    { day: 3, start: 12 * 60, end: 13 * 60, title: "Lunch" },
+    { day: 3, start: 13 * 60, end: 14 * 60, title: "Partner 1:1" },
+    { day: 3, start: 15 * 60, end: 16 * 60, title: "Team sync" },
+    { day: 3, start: 16 * 60, end: 17 * 60, title: "Finance review" },
+    { day: 3, start: 17 * 60, end: 18 * 60, title: "Travel" },
+    { day: 3, start: 21 * 60 + 30, end: 22 * 60 + 30, title: "APAC call" },
+    { day: 4, start: 9 * 60, end: 10 * 60, title: "Standup" },
+    { day: 4, start: 10 * 60, end: 11 * 60, title: "Weekly review" },
+    { day: 4, start: 11 * 60 + 30, end: 12 * 60 + 15, title: "Planning" },
     { day: 4, start: 12 * 60 + 15, end: 13 * 60 + 30, title: "Lunch" },
-    { day: 4, start: 16 * 60 + 30, end: 17 * 60 + 15, title: "Debrief" },
+    { day: 4, start: 13 * 60 + 30, end: 15 * 60, title: "Focus time" },
+    { day: 4, start: 15 * 60, end: 16 * 60 + 30, title: "Debrief" },
+    { day: 4, start: 16 * 60 + 30, end: 18 * 60, title: "Wrap-up" },
   ];
   const emailAddress = (name) => `${name.toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
   const renderContext = (index, guidedSelectionCount = null) => {
@@ -208,7 +256,7 @@ else if (demo) {
     const replyEmail = replyName === "Alex Rivera" ? "alex@company.com" : "sam@company.com";
     const messages = [
       { name: m.from, email: emailAddress(m.from), at: m.at, body: cleanAsk(m.ask) },
-      { name: replyName, email: replyEmail, at: "a few min later", body: "Looping in my EA to coordinate." },
+      ...(m.eaReply ? [{ name: replyName, email: replyEmail, at: "a few min later", body: m.eaReply }] : []),
     ];
     const panel = document.createElement("article");
     panel.className = "context-panel thread-panel";
@@ -228,8 +276,16 @@ else if (demo) {
       ? (selectedTimes[0] ?? timeOptions[0] ?? "Mon · 9:00 AM")
       : (displayedHoldTime || "Mon · 9:00 AM");
     const selectedDay = activeDay(firstSelected);
-    calendar.className = "context-panel calendar-panel";
-    const dayStrip = days.map((day, dayIndex) => {
+    const selectedDayIndex = Math.max(0, days.indexOf(selectedDay));
+    const singleDay = m.kind === "hold";
+    const calendarView = singleDay
+      ? holdCalendarView(displayedHoldTime)
+      : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES, step: 120 };
+    const visibleDays = singleDay
+      ? [{ day: days[selectedDayIndex], dayIndex: selectedDayIndex }]
+      : days.map((day, dayIndex) => ({ day, dayIndex }));
+    calendar.className = `context-panel calendar-panel${singleDay ? " is-single-day" : ""}`;
+    const dayStrip = visibleDays.map(({ day, dayIndex }) => {
       const activeClass = day === selectedDay ? " is-active" : "";
       return `<span class="calendar-day${activeClass}">${day}<span>${dayNumbers[dayIndex]}</span></span>`;
     }).join("");
@@ -241,18 +297,28 @@ else if (demo) {
     const proposalMarkup = proposedValues.map((value, blockIndex) => {
       const range = parseCalendarRange(value);
       if (!range) return "";
+      const layoutRange = singleDay ? { ...range, day: 0 } : range;
       const title = m.kind === "times" ? "" : `<strong>${escapeHTML(edit.title)}</strong>`;
       const removable = m.kind === "times"
         ? `<button type="button" class="calendar-block-remove" data-block-index="${blockIndex}" aria-label="Remove ${escapeHTML(value)}">${ICONS.no}</button>`
         : "";
-      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyle(range, compactCalendar)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
+      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyle(layoutRange, compactCalendar, 18, calendarView.start, calendarView.end)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
     }).join("");
-    const busyMarkup = BUSY_EVENTS.map((event) => {
+    const busyMarkup = BUSY_EVENTS.filter((event) => (
+      (!singleDay || event.day === selectedDayIndex)
+      && event.end > calendarView.start
+      && event.start < calendarView.end
+    )).map((event) => {
       const start = clockParts(event.start);
-      return `<div class="calendar-event calendar-event-muted" style="${blockStyle(event, compactCalendar, 10)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
+      const layoutEvent = singleDay ? { ...event, day: 0 } : event;
+      return `<div class="calendar-event calendar-event-muted" style="${blockStyle(layoutEvent, compactCalendar, 10, calendarView.start, calendarView.end)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
     }).join("");
     const editable = demo.dataset.state === "interactive" && index === interactiveIndex;
-    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid>${["8 AM", "10 AM", "12 PM", "2 PM", "4 PM", "6 PM"].map((label) => `<div class="calendar-hour"><span>${label}</span></div>`).join("")}${busyMarkup}${proposalMarkup}</div>`;
+    const hourLabels = Array.from(
+      { length: Math.ceil((calendarView.end - calendarView.start) / calendarView.step) },
+      (_, row) => calendarHourLabel(calendarView.start + row * calendarView.step),
+    );
+    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid>${hourLabels.map((label) => `<div class="calendar-hour"><span>${label}</span></div>`).join("")}${busyMarkup}${proposalMarkup}</div>`;
     calendarPane.replaceChildren(calendar);
     if (!editable) return;
 
@@ -275,8 +341,8 @@ else if (demo) {
       const usableWidth = Math.max(1, rect.width - gutter);
       const day = Math.max(0, Math.min(days.length - 1, Math.floor(((event.clientX - rect.left - gutter) / usableWidth) * days.length)));
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
-      const minutes = CALENDAR_START_MINUTES + snapMinutes((y / rect.height) * (CALENDAR_END_MINUTES - CALENDAR_START_MINUTES));
-      return { day, minutes: Math.max(CALENDAR_START_MINUTES, Math.min(CALENDAR_END_MINUTES, minutes)) };
+      const minutes = calendarView.start + snapMinutes((y / rect.height) * (calendarView.end - calendarView.start));
+      return { day, minutes: Math.max(calendarView.start, Math.min(calendarView.end, minutes)) };
     };
 
     if (m.kind === "times") {
@@ -348,9 +414,15 @@ else if (demo) {
         handle.setPointerCapture(event.pointerId);
         const move = (moveEvent) => {
           const point = rangeFromPointer(moveEvent);
-          const end = Math.max(original.start + SNAP_MINUTES, Math.min(CALENDAR_END_MINUTES, point.minutes));
+          const end = Math.max(original.start + SNAP_MINUTES, Math.min(calendarView.end, point.minutes));
           const range = { ...original, end };
-          block.setAttribute("style", blockStyle(range, compactCalendar));
+          block.setAttribute("style", blockStyle(
+            singleDay ? { ...range, day: 0 } : range,
+            compactCalendar,
+            18,
+            calendarView.start,
+            calendarView.end,
+          ));
           block.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(range).split(" · ")[1];
         };
         const end = (endEvent) => {
@@ -358,7 +430,7 @@ else if (demo) {
           handle.removeEventListener("pointerup", end);
           handle.removeEventListener("pointercancel", end);
           const point = rangeFromPointer(endEvent);
-          const value = formatCalendarRange({ ...original, end: Math.max(original.start + SNAP_MINUTES, Math.min(CALENDAR_END_MINUTES, point.minutes)) });
+          const value = formatCalendarRange({ ...original, end: Math.max(original.start + SNAP_MINUTES, Math.min(calendarView.end, point.minutes)) });
           if (m.kind === "times") {
             edit.times[blockIndex] = value;
             syncTimesCard(index);
@@ -387,8 +459,13 @@ else if (demo) {
     const detail = m.kind === "times"
       ? `<div class="act-times-editor"><textarea class="act-email-copy act-control" aria-label="Email text" readonly tabindex="-1">${escapeHTML(edit.message)}</textarea><ul class="act-times mono" aria-label="Proposed times">${edit.times.map((time) => `<li>${escapeHTML(time)}</li>`).join("")}</ul></div>`
       : `<p class="act-when mono">${escapeHTML(edit.when)}</p>`;
-    const invitees = m.kind === "invitee"
-      ? `<p class="invitees">${edit.invitees.map((name, inviteeIndex) => `<span class="invitee${name === m.add ? " invitee-new" : ""}"><span>${escapeHTML(name)}</span><button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button></span>`).join("")}</p>`
+    const invitees = edit.invitees.length
+      ? `<p class="invitees" aria-label="Invitees">${edit.invitees.map((name, inviteeIndex) => {
+        const removable = m.kind === "invitee"
+          ? `<button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button>`
+          : "";
+        return `<span class="invitee${name === m.add ? " invitee-new" : ""}${m.kind === "hold" ? " invitee-sender" : ""}"><span>${escapeHTML(name)}</span>${removable}</span>`;
+      }).join("")}</p>`
       : "";
     card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p>${title}${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no act-control" aria-label="Decline suggestion">${ICONS.no}</button><button type="button" class="act-btn act-yes act-control" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
     stage.querySelector(".stage-deck").append(card);
@@ -586,7 +663,13 @@ else if (demo) {
       y: (H - mh) / 2 + sy * 0.6 * k,
       r: r * 0.85,
     }));
-    const deck = SCATTER.map(([sx, , , r]) => ({ x: deckX + sx * 0.25 * k, y: deckY, r }));
+    // In the stacked mobile/tablet layout, keep rear cards flush. Their
+    // rotation can otherwise expose action buttons below the front card.
+    const deck = SCATTER.map(([sx, , , r]) => ({
+      x: deckX + (W <= 900 ? 0 : sx * 0.25 * k),
+      y: deckY,
+      r: W <= 900 ? 0 : r,
+    }));
     acts.forEach((card, index) => {
       card.classList.remove("is-interactive");
       card.style.opacity = "";
@@ -667,7 +750,7 @@ else if (demo) {
       at(cursor, [{ transform: pointer(hand) }, { transform: pointer(to) }], delay, duration, easing);
       hand = to;
     };
-    const calendarRangePoints = (value) => {
+    const calendarRangePoints = (value, singleDay = false) => {
       const range = parseCalendarRange(value);
       if (!range) return null;
       const calendarLeft = calendarPane.offsetLeft - (W <= 900 ? calendarPane.offsetWidth / 2 : 0);
@@ -675,25 +758,30 @@ else if (demo) {
       const gridLeft = calendarLeft + CALENDAR_GUTTER;
       const gridWidth = calendarPane.offsetWidth - CALENDAR_GUTTER;
       const gridTop = calendarTop + (W <= 900 ? 62 : 84);
-      const { pixelsPerMinute } = calendarMetrics(W <= 900);
-      const x = gridLeft + gridWidth * ((range.day + 0.5) / days.length);
+      const calendarView = singleDay
+        ? holdCalendarView(value)
+        : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES };
+      const { pixelsPerMinute } = calendarMetrics(W <= 900, calendarView.start, calendarView.end);
+      const x = gridLeft + gridWidth * (singleDay ? 0.5 : (range.day + 0.5) / days.length);
       return {
-        start: { x, y: gridTop + (range.start - CALENDAR_START_MINUTES) * pixelsPerMinute, s: 1 },
-        end: { x, y: gridTop + (range.end - CALENDAR_START_MINUTES) * pixelsPerMinute, s: 0.86 },
+        start: { x, y: gridTop + (range.start - calendarView.start) * pixelsPerMinute, s: 1 },
+        end: { x, y: gridTop + (range.end - calendarView.start) * pixelsPerMinute, s: 0.86 },
       };
     };
     contextStartsAt = t - 320;
     at(cursor, [{ transform: pointer(hand), opacity: 0 }, { transform: pointer(hand), opacity: 1 }], t - 200, 200, "linear", "both");
     at(threadPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 320, 320, DROP, "both");
     at(calendarPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 240, 320, DROP, "both");
+    const reviewPace = 1.7;
+    const reviewMs = (duration) => Math.round(duration * reviewPace);
     const reviewTiming = {
-      straighten: 220,
-      reveal: 260,
-      cursor: 320,
-      press: 90,
-      drag: 420,
-      throw: 320,
-      overlap: 160,
+      straighten: reviewMs(220),
+      reveal: reviewMs(260),
+      cursor: reviewMs(320),
+      press: reviewMs(90),
+      drag: reviewMs(420),
+      throw: reviewMs(320),
+      overlap: reviewMs(160),
     };
     acts.slice(0, SLOW).forEach((card, i) => {
       const dir = DECLINED.has(i) ? -1 : 1;
@@ -711,22 +799,22 @@ else if (demo) {
       // and lengthens it. This mirrors the direct manipulation available once
       // the guided cards are gone.
       if (MAILS[i].kind === "hold" && i === 0) {
-        const points = calendarRangePoints(cardEdits[i].when);
-        const resizedPoints = calendarRangePoints(extendCalendarRange(cardEdits[i].when));
+        const points = calendarRangePoints(cardEdits[i].when, true);
+        const resizedPoints = calendarRangePoints(extendCalendarRange(cardEdits[i].when), true);
         if (points && resizedPoints) {
-          moveHand(points.end, t, 300);
-          t += 300;
-          moveHand({ ...points.end, s: 0.82 }, t, 70, "ease-out");
+          moveHand(points.end, t, reviewMs(300));
+          t += reviewMs(300);
+          moveHand({ ...points.end, s: 0.82 }, t, reviewMs(70), "ease-out");
           at(press, [
             { transform: `translate(${points.end.x}px, ${points.end.y}px) scale(0.3)`, opacity: 0.9 },
             { transform: `translate(${points.end.x}px, ${points.end.y}px) scale(1.5)`, opacity: 0 },
-          ], t, 340, "ease-out", "none");
-          t += 70;
-          moveHand(resizedPoints.end, t, 360, DRAG);
-          contextSelectionSteps.push({ at: t + 300, index: i, count: 1 });
-          t += 400;
-          moveHand({ ...hand, s: 1 }, t, 80, "ease-out");
-          t += 80;
+          ], t, reviewMs(340), "ease-out", "none");
+          t += reviewMs(70);
+          moveHand(resizedPoints.end, t, reviewMs(360), DRAG);
+          contextSelectionSteps.push({ at: t + reviewMs(300), index: i, count: 1 });
+          t += reviewMs(400);
+          moveHand({ ...hand, s: 1 }, t, reviewMs(80), "ease-out");
+          t += reviewMs(80);
         }
       }
 
@@ -738,39 +826,39 @@ else if (demo) {
         bulletItems.forEach((item, optionIndex) => {
           const points = calendarRangePoints(MAILS[i].times[optionIndex]);
           if (!points) return;
-          moveHand(points.start, t, 260);
-          t += 260;
-          moveHand({ ...points.start, s: 0.82 }, t, 70, "ease-out");
+          moveHand(points.start, t, reviewMs(260));
+          t += reviewMs(260);
+          moveHand({ ...points.start, s: 0.82 }, t, reviewMs(70), "ease-out");
           at(press, [
             { transform: `translate(${points.start.x}px, ${points.start.y}px) scale(0.3)`, opacity: 0.9 },
             { transform: `translate(${points.start.x}px, ${points.start.y}px) scale(1.5)`, opacity: 0 },
-          ], t, 360, "ease-out", "none");
-          t += 70;
-          moveHand(points.end, t, 340, DRAG);
+          ], t, reviewMs(360), "ease-out", "none");
+          t += reviewMs(70);
+          moveHand(points.end, t, reviewMs(340), DRAG);
           at(item, [
             { opacity: 0, transform: "translateY(3px)" },
             { opacity: 1, transform: "none" },
-          ], t + 300, 150, DROP, "both");
-          contextSelectionSteps.push({ at: t + 300, index: i, count: optionIndex + 1 });
-          t += 380;
-          moveHand({ ...hand, s: 1 }, t, 60, "ease-out");
-          t += 70;
+          ], t + reviewMs(300), reviewMs(150), DROP, "both");
+          contextSelectionSteps.push({ at: t + reviewMs(300), index: i, count: optionIndex + 1 });
+          t += reviewMs(380);
+          moveHand({ ...hand, s: 1 }, t, reviewMs(60), "ease-out");
+          t += reviewMs(70);
         });
         const approve = { x: deckX + aw - 40, y: deckY + ah - 38, s: 1 };
-        moveHand(approve, t, 300);
-        t += 300;
-        moveHand({ ...approve, s: 0.86 }, t, 80, "ease-out");
+        moveHand(approve, t, reviewMs(300));
+        t += reviewMs(300);
+        moveHand({ ...approve, s: 0.86 }, t, reviewMs(80), "ease-out");
         at(press, [
           { transform: `translate(${approve.x}px, ${approve.y}px) scale(0.3)`, opacity: 0.9 },
           { transform: `translate(${approve.x}px, ${approve.y}px) scale(1.5)`, opacity: 0 },
-        ], t, 400, "ease-out", "none");
+        ], t, reviewMs(400), "ease-out", "none");
         at(card.querySelector(".act-yes"), [{
           backgroundColor: "#1f4fd1",
           borderColor: "#1f4fd1",
           color: "#fff",
           transform: "scale(1.12)",
-        }], t, 140, "ease-out");
-        t += 130;
+        }], t, reviewMs(140), "ease-out");
+        t += reviewMs(130);
         at(card, [
           { transform: tf(deckX, deckY) },
           { transform: tf(deckX + W / 2 + aw + 80, deckY + 80 * k, 28) },
@@ -786,7 +874,7 @@ else if (demo) {
       at(press, [
         { transform: `translate(${grab.x}px, ${grab.y}px) scale(0.3)`, opacity: 0.9 },
         { transform: `translate(${grab.x}px, ${grab.y}px) scale(1.5)`, opacity: 0 },
-      ], t, 450, "ease-out", "none");
+      ], t, reviewMs(450), "ease-out", "none");
       t += reviewTiming.press;
       const dx = dir * reach;
       const dy = 10 * k;
@@ -798,9 +886,9 @@ else if (demo) {
         borderColor: dir > 0 ? "#1f4fd1" : "#dc2626",
         color: "#fff",
         transform: "scale(1.12)",
-      }], t + drag * 0.45, 140, "ease-out");
+      }], t + drag * 0.45, reviewMs(140), "ease-out");
       t += drag;
-      moveHand({ ...hand, s: 1 }, t, 100, "ease-out");
+      moveHand({ ...hand, s: 1 }, t, reviewMs(100), "ease-out");
       const throwDuration = reviewTiming.throw;
       at(card, [
         { transform: tf(deckX + dx, deckY + dy, dir * 9) },
@@ -813,8 +901,8 @@ else if (demo) {
 
     // 5. After four examples, the cursor leaves and the remaining cards are
     // handed to the viewer. The timeline stops here until they decide.
-    at(cursor, [{ opacity: 1 }, { opacity: 0 }], t, 220, "ease-in");
-    interactiveAt = t + 220;
+    at(cursor, [{ opacity: 1 }, { opacity: 0 }], t, reviewMs(220), "ease-in");
+    interactiveAt = t + reviewMs(220);
     total = interactiveAt;
   };
 

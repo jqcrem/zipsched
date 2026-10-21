@@ -583,10 +583,14 @@ html:not(.js) .demo { display: none; }
   line-height: 1.5;
   color: #4b5563;
 }
-.calendar-panel { --calendar-gutter: 38px; }
+.calendar-panel {
+  --calendar-columns: 5;
+  --calendar-gutter: 38px;
+}
+.calendar-panel.is-single-day { --calendar-columns: 1; }
 .calendar-days {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr));
   margin-left: var(--calendar-gutter);
 }
 .calendar-day {
@@ -608,7 +612,7 @@ html:not(.js) .demo { display: none; }
   inset: 0 0 0 var(--calendar-gutter);
   border-right: 1px solid #dfe4ea;
   background-image: linear-gradient(to right, #dfe4ea 1px, transparent 1px);
-  background-size: 20% 100%;
+  background-size: calc(100% / var(--calendar-columns)) 100%;
   pointer-events: none;
 }
 .calendar-grid.is-directly-editable { cursor: crosshair; }
@@ -628,8 +632,8 @@ html:not(.js) .demo { display: none; }
 }
 .calendar-event {
   position: absolute;
-  left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / 5 * var(--calendar-day) + 2px);
-  width: calc((100% - var(--calendar-gutter)) / 5 - 4px);
+  left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / var(--calendar-columns) * var(--calendar-day) + 2px);
+  width: calc((100% - var(--calendar-gutter)) / var(--calendar-columns) - 4px);
   min-height: 0;
   padding: 2px 3px;
   overflow: hidden;
@@ -1258,7 +1262,7 @@ html:not(.js) .demo { display: none; }
     --mail-w: 232px;
     --mail-h: 116px;
     --act-w: 244px;
-    --act-h: 218px;
+    --act-h: 232px;
     height: 700px;
   }
   .mail { padding: 11px 13px; }
@@ -1269,7 +1273,7 @@ html:not(.js) .demo { display: none; }
   .act-kind-times .act-email-copy { height: 42px; margin-top: 5px; font-size: 0.65625rem; line-height: 1.35; }
   .act-kind-times .act-times { gap: 0; margin-top: 1px; font-size: 0.65625rem; line-height: 1.4; }
   .act-kind-times .act-btns { padding-top: 6px; }
-  .act .invitees .invitee:not(.invitee-new) { display: none; }
+  .act-kind-invitee .invitees .invitee:not(.invitee-new) { display: none; }
   .act-times { gap: 2px; margin-top: 8px; font-size: 0.71875rem; }
   .act-btns { padding-top: 9px; }
   .act-btn { width: 38px; height: 38px; border-radius: 10px; }
