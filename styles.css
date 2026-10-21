@@ -190,18 +190,17 @@ h3 {
    link for the pointer only (no tab stop), and each line is a full 24px
    tap target. */
 .brand-block {
-  display: grid;
-  grid-template-columns: auto auto;
-  column-gap: 10px;
+  --brand-gap: 10px;
+  position: relative;
+  display: flex;
   align-items: center;
+  gap: var(--brand-gap);
+  height: 44px;
   margin-right: auto;
 }
-.brand-mark-link { grid-row: 1; display: block; }
+.brand-mark-link { display: block; flex: 0 0 auto; }
 .brand-mark { display: block; }
 .brand {
-  grid-column: 2;
-  grid-row: 1;
-  justify-self: start;
   font-weight: 650;
   font-size: 1.0625rem;
   line-height: 24px;
@@ -209,11 +208,12 @@ h3 {
   text-decoration: none;
 }
 .brand-by {
-  grid-column: 2;
-  grid-row: 2;
-  margin-top: -4px;
+  position: absolute;
+  top: 21px;
+  left: calc(32px + var(--brand-gap));
+  margin: 0;
   font-size: 0.75rem;
-  line-height: 16px;
+  line-height: 14px;
   color: var(--muted);
 }
 .brand-by a {
@@ -1287,7 +1287,7 @@ html:not(.js) .demo { display: none; }
 
 @media (max-width: 400px) {
   .brand { font-size: 1rem; }
-  .brand-block { column-gap: 8px; }
+  .brand-block { --brand-gap: 8px; }
   .button-small { padding: 0.5rem 0.7rem; font-size: 0.8125rem; }
   .q-card { padding-inline: 13px; }
 }
