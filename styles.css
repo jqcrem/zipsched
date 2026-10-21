@@ -235,14 +235,14 @@ h3 {
 }
 .nav-links a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
 
-/* Hero */
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(40px, 6vw, 88px);
-  align-items: center;
-  padding-block: clamp(48px, 8vw, 104px) clamp(72px, 9vw, 120px);
+/* Hero: the demo stage spans the window, with the copy centred under it */
+.hero { padding-bottom: clamp(72px, 9vw, 120px); }
+.hero-copy {
+  width: min(820px, 100% - 2 * var(--gutter));
+  margin: clamp(4px, 1.5vw, 16px) auto 0;
+  text-align: center;
 }
+.hero-copy .lede { margin-inline: auto; }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -250,11 +250,14 @@ h3 {
   gap: 14px 24px;
   margin-top: 32px;
 }
+.hero .hero-actions { justify-content: center; }
 .hero-facts {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px 22px;
-  margin-top: 36px;
+  max-width: 34em;
+  margin: 36px auto 0;
   padding-top: 18px;
   border-top: 1px solid var(--rule);
   font: 400 0.8125rem/1.5 var(--mono);
@@ -268,73 +271,65 @@ h3 {
   box-shadow: inset 0 0 0 1.5px var(--rule-strong);
 }
 
-/* Hero illustration: one card, three steps on a rail. */
-.flow {
-  min-width: 0;
-  width: 100%;
-  max-width: 540px;
-  justify-self: end;
+/* Hero demo. script.js builds the cards and places every one of them with
+   transforms from the stage's top-left corner, so the stage only sets the
+   card sizes (which the script measures) and its own height. Everything on
+   it starts transparent: the script's animations reveal each piece, and
+   without JavaScript the demo is left out. */
+html:not(.js) .demo { display: none; }
+.stage {
+  --mail-w: 300px;
+  --mail-h: 124px;
+  --act-w: 280px;
+  --act-h: 300px;
+  position: relative;
+  isolation: isolate;
+  height: 420px;
+  overflow: hidden;
 }
-.flow-card {
-  padding: 28px 28px 30px;
-  border: 1px solid var(--rule);
-  border-radius: 16px;
-  background: var(--paper);
-  box-shadow: var(--shadow-stage);
-}
-.flow-row { position: relative; padding-left: 30px; }
-.flow-row + .flow-row { margin-top: 26px; }
-.flow-row::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 3px;
-  width: 11px; height: 11px;
-  border-radius: 50%;
-  background: var(--paper);
-  box-shadow: inset 0 0 0 2px var(--cobalt);
-}
-.flow-row:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 5px; top: 20px; bottom: -22px;
-  border-left: 1px dashed var(--rule-strong);
-}
-.flow-row:last-child::before { background: var(--cobalt); }
-/* A card row has no label: its dot sits level with the card's action tag,
-   and the rail runs from the row above into that dot and on from below it. */
-.flow-row.is-card::before { top: 21px; }
-.flow-row.is-card::after { top: 36px; }
-.flow-row:has(+ .flow-row.is-card)::after { bottom: -47px; }
-/* Email and calendar rows carry an icon on the rail in place of a dot and
-   a label: mail coming in, the calendar going out. Each sits level with
-   its row's first line. */
-.flow-row.has-icon::before { content: none; }
-.flow-row.has-icon::after { top: 26px; }
-.rail-icon {
-  position: absolute;
-  z-index: 1;
-  left: -7px; top: -1px;
-  display: grid;
-  place-items: center;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: var(--paper);
-  color: var(--cobalt);
-}
-.rail-day .rail-icon { top: -6px; }
-.rail-pick .rail-icon { top: -4px; }
-.rail-invite .rail-icon { top: 3px; }
+.stage-guide { position: absolute; top: 0; left: 0; right: 0; height: 0; }
+.stage-deck,
+.stage-mail { position: absolute; inset: 0; }
+/* Emails stay above the deck, so one flying in to be turned over passes
+   over the cards already converted. Each layer orders its own cards. */
+.stage-deck { z-index: 1; }
+.stage-mail { z-index: 2; }
+.mail,
+.act,
+.stage-summary,
+.stage-press,
+.stage-cursor { opacity: 0; }
 
-.flow-from { font-size: 0.875rem; font-weight: 600; }
-.flow-quote {
-  margin-top: 4px;
-  text-wrap: balance;
-  font-size: 1.0625rem;
-  line-height: 1.55;
+.mail {
+  position: absolute;
+  left: 0; top: 0;
+  width: var(--mail-w);
+  height: var(--mail-h);
+  padding: 13px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+}
+.mail-head { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
+.mail-head svg { flex: 0 0 auto; color: var(--cobalt); }
+.mail-from,
+.mail-meta { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mail-from { font-weight: 600; }
+.mail-at { flex: 0 0 auto; margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+.mail-meta { margin-top: 1px; padding-left: 24px; font-size: 0.75rem; color: var(--muted); }
+.mail-ask {
+  display: -webkit-box;
+  margin-top: 8px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.9375rem;
+  line-height: 1.45;
   color: var(--muted);
 }
-.flow-quote mark {
+.mail-ask mark,
+.act-ask mark {
   padding: 1px 3px;
   margin-inline: -1px;
   border-radius: 3px;
@@ -347,20 +342,73 @@ h3 {
   -webkit-box-decoration-break: clone;
 }
 
-.flow-hold-card {
-  padding: 14px 16px;
-  border: 1px solid rgb(31 79 209 / 0.3);
-  border-radius: var(--radius);
-  box-shadow: inset 3px 0 0 var(--cobalt), 0 14px 30px -18px rgb(31 79 209 / 0.4);
-}
-.flow-hold-top {
+/* An action card: what the email asks for, with decline (✕) bottom left
+   and approve (✓) bottom right. */
+.act {
+  position: absolute;
+  left: 0; top: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px 12px;
+  flex-direction: column;
+  width: var(--act-w);
+  height: var(--act-h);
+  padding: 18px 18px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgb(15 27 45 / 0.06), 0 18px 40px -20px rgb(15 27 45 / 0.35);
 }
-.flow-title { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.act .action-tag { align-self: flex-start; }
+.act-title { margin-top: 14px; font-size: 1.125rem; font-weight: 600; line-height: 1.3; letter-spacing: -0.015em; }
+.act-when { margin-top: 3px; font-size: 0.8125rem; color: var(--muted); }
+.act-times { display: grid; gap: 5px; margin-top: 12px; font-size: 0.8125rem; }
+.act-times li { position: relative; padding-left: 14px; }
+.act-times li::before {
+  content: "";
+  position: absolute;
+  left: 2px; top: 0.62em;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--cobalt);
+}
+.act-ask {
+  margin-top: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--ivory);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.act .invitees { margin-top: 14px; }
+.act-from {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.act-from svg { flex: 0 0 auto; width: 13px; height: 13px; color: var(--cobalt); }
+.act-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.act-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid;
+  border-radius: 12px;
+  background: var(--paper);
+}
+.act-no { border-color: var(--rule-strong); color: var(--muted); }
+.act-yes { border-color: rgb(31 79 209 / 0.45); color: var(--cobalt); }
+
 .action-tag {
   display: inline-flex;
   align-items: center;
@@ -375,221 +423,6 @@ h3 {
   white-space: nowrap;
 }
 .action-tag svg { flex: 0 0 auto; }
-.action-tag + .flow-title,
-.flow-hold-top + .flow-title { margin-top: 10px; }
-.flow-when { margin-top: 2px; font-size: 0.8125rem; color: var(--muted); }
-.flow-hold-card .source { margin-top: 12px; }
-
-/* Calendars draw only their hour lines, across the event area, with each
-   time centred on its line in the gutter. */
-.day {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  grid-template-rows: repeat(8, 12px);
-  margin-top: 6px;
-}
-.day::before {
-  content: "";
-  grid-column: 2;
-  grid-row: 1 / -1;
-  background: repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px 48px);
-}
-.day-hour,
-.pick-hours span {
-  align-self: start;
-  padding-right: 10px;
-  text-align: right;
-  font-size: 0.6875rem;
-  line-height: 1;
-  color: var(--muted);
-  transform: translateY(-50%);
-}
-.day-hour { grid-column: 1; grid-row: var(--row); }
-.day-event {
-  position: relative;
-  z-index: 1;
-  grid-column: 2;
-  grid-row: var(--start) / var(--end);
-  margin: 2px 0 1px;
-  padding: 0 8px;
-  border-radius: 4px;
-  background: rgb(15 27 45 / 0.06);
-  box-shadow: inset 2px 0 0 rgb(15 27 45 / 0.3);
-  font-size: 0.75rem;
-  line-height: 31px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.day-hold {
-  background: var(--cobalt-wash);
-  box-shadow: inset 3px 0 0 var(--cobalt), 0 0 0 1px rgb(31 79 209 / 0.3);
-  color: var(--cobalt-deep);
-  font-weight: 600;
-}
-
-/* Hero demo: four scenes stacked in one cell, so the card keeps the height of
-   the tallest and never shifts the page as scenes change. */
-.demo-stage { display: grid; overflow: hidden; }
-.scene {
-  grid-area: 1 / 1;
-  align-self: start;
-  min-width: 0;
-}
-.scene:not(.is-active) { visibility: hidden; opacity: 0; }
-
-.flow-to {
-  display: inline-block;
-  margin-left: 8px;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--muted);
-}
-.flow-thread { display: flex; align-items: flex-start; gap: 7px; }
-.flow-thread svg { flex: 0 0 auto; margin-top: 4px; color: var(--cobalt); }
-
-.email-text {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--ivory);
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-.email-text ul,
-.email-bullets { display: grid; gap: 4px; margin-top: 6px; }
-.email-text li,
-.email-bullets li {
-  position: relative;
-  padding-left: 14px;
-  font-size: 0.8125rem;
-  color: var(--ink);
-}
-.email-text li::before,
-.email-bullets li::before {
-  content: "";
-  position: absolute;
-  left: 2px; top: 0.6em;
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.email-bullets { position: relative; margin-top: 10px; }
-/* The reply card's Send button sits beside its times, bottom right, so it
-   adds no height; on a phone it moves to the top row, opposite the tag. */
-.reply-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "tag tag" "title title" "list send";
-  column-gap: 16px;
-}
-.reply-card .action-tag { grid-area: tag; justify-self: start; }
-.reply-card .flow-title { grid-area: title; }
-.reply-card .email-bullets { grid-area: list; }
-.reply-card .approve { grid-area: send; align-self: end; }
-.email-bullets li {
-  margin-inline: -6px;
-  padding: 1px 6px 1px 20px;
-  border-radius: 4px;
-}
-.email-bullets li::before { left: 8px; }
-.email-bullets .bullets-empty {
-  position: absolute;
-  left: 0; top: 0;
-  padding-left: 6px;
-  font-family: var(--sans);
-  color: var(--muted);
-}
-.email-bullets .bullets-empty::before { content: none; }
-
-/* Drag-to-add calendar */
-.pick { --pick-gutter: 44px; --pick-row: 19px; }
-.pick-days {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-left: var(--pick-gutter);
-  padding-bottom: 6px;
-  font-size: 0.6875rem;
-  color: var(--muted);
-}
-.pick-days span { padding-left: 4px; }
-.pick-body { display: grid; grid-template-columns: var(--pick-gutter) minmax(0, 1fr); }
-.pick-hours {
-  display: grid;
-  grid-template-rows: repeat(2, calc(var(--pick-row) * 2));
-}
-.pick-grid {
-  position: relative;
-  height: calc(var(--pick-row) * 4);
-  background: repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px calc(var(--pick-row) * 2));
-}
-.blk {
-  position: absolute;
-  left: calc(var(--col) * 100% / 3 + 3px);
-  width: calc(100% / 3 - 6px);
-  top: calc(var(--from) * var(--pick-row) + 2px);
-  height: calc(var(--len) * var(--pick-row) - 3px);
-  padding: 0 6px;
-  border-radius: 4px;
-  font-size: 0.6875rem;
-  line-height: 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.blk-busy {
-  background: rgb(15 27 45 / 0.06);
-  box-shadow: inset 2px 0 0 rgb(15 27 45 / 0.3);
-  color: var(--muted);
-}
-.blk-pick {
-  background: var(--cobalt);
-  box-shadow: inset 0 0 0 1px var(--cobalt-deep);
-}
-.blk-pick { transform-origin: top; }
-.cursor {
-  position: absolute;
-  z-index: 3;
-  opacity: 0;
-  pointer-events: none;
-  filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
-}
-.cursor-drag { left: 100%; top: calc(var(--pick-row) * 4); }
-.cursor-click,
-.cursor-send { left: 58%; top: 52%; }
-
-/* Approve: a card's action, which a click turns into its Approved tag */
-.flow-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-}
-.approve {
-  position: relative;
-  display: inline-grid;
-  justify-items: end;
-  align-items: center;
-  min-height: 34px;
-}
-.approve > span { grid-area: 1 / 1; }
-.approve-btn,
-.send-btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 16px;
-  border-radius: 8px;
-  background: var(--ink);
-  color: #fff;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  opacity: 0;
-}
-.flow-actions .state-approved { padding: 6px 12px; font-size: 0.75rem; }
-
-/* Invitees */
-.invitee-add { margin-top: 12px; }
 .invitees { display: flex; flex-wrap: wrap; gap: 6px; }
 .invitee {
   display: inline-flex;
@@ -607,59 +440,59 @@ h3 {
   font-weight: 600;
 }
 
-/* Controls */
-.demo-controls {
+.stage-summary {
+  position: absolute;
+  inset: 0;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 10px;
+}
+.summary-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 8px;
+  padding: 8px 16px 8px 13px;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 600;
 }
-/* Without JavaScript the controls do nothing, so they stay hidden, but they
-   keep their row: revealing them must not resize the hero and shift the
-   copy beside it. */
-.demo-controls[hidden] { display: flex; visibility: hidden; }
-.demo-chapters {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  flex: 1 1 auto;
-  min-width: 0;
+.summary-yes { background: var(--cobalt); color: #fff; box-shadow: 0 6px 16px -8px rgb(31 79 209 / 0.6); }
+.summary-no { background: var(--sand); color: var(--muted); }
+
+/* The cursor's tip is its origin, so a transform names the point it is on. */
+.stage-cursor {
+  position: absolute;
+  z-index: 3;
+  left: -2px; top: -2px;
+  transform-origin: 2px 2px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
 }
-.chapter {
-  display: grid;
-  gap: 7px;
-  min-height: 40px;
-  padding: 6px 2px 4px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  color: var(--muted);
-  font: 500 0.75rem/1.2 var(--sans);
-  text-align: left;
-  cursor: pointer;
+.stage-press {
+  position: absolute;
+  z-index: 3;
+  left: -16px; top: -16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgb(31 79 209 / 0.28);
+  pointer-events: none;
 }
-.chapter:hover,
-.chapter[aria-pressed="true"] { color: var(--ink); }
-.chapter-bar {
-  display: block;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--rule);
-  overflow: hidden;
+
+/* Play, pause and replay: a bare grey icon with a full 40px hit area, at
+   the stage's bottom right */
+.demo-controls {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -44px;
 }
-.chapter-bar span {
-  display: block;
-  width: 0;
-  height: 100%;
-  background: var(--cobalt);
-}
-.chapter.is-done .chapter-bar span,
-.chapter[aria-pressed="true"] .chapter-bar span { width: 100%; }
-/* Play, pause and replay: a bare grey icon with a full 40px hit area */
 .demo-toggle {
   display: inline-grid;
   place-items: center;
-  flex: 0 0 auto;
   width: 40px;
   height: 40px;
   margin-right: -10px;
@@ -677,83 +510,7 @@ h3 {
 .demo[data-state="ready"] .icon-play,
 .demo[data-state="ended"] .icon-replay { display: block; }
 
-/* Steps. Without JavaScript every element is shown, so the first scene is a
-   complete static frame. With it, script.js adds s1…sN to the active scene as
-   the sequence plays; [data-at="n"] appears at step n, [data-until="n"] leaves.
-   .instant applies a jump into the middle of a scene without transitions. */
-.js .scene [data-at] { opacity: 0; transform: translateY(8px); }
-.js .scene .land[data-at] { transform: translateY(-8px); }
-.js .scene.s1 [data-at="1"],
-.js .scene.s2 [data-at="2"],
-.js .scene.s3 [data-at="3"],
-.js .scene.s4 [data-at="4"],
-.js .scene.s5 [data-at="5"],
-.js .scene.s6 [data-at="6"],
-.js .scene.s7 [data-at="7"],
-.js .scene.s8 [data-at="8"],
-.js .scene.s9 [data-at="9"],
-.js .scene.s10 [data-at="10"],
-.js .scene.s11 [data-at="11"],
-.js .scene.s12 [data-at="12"],
-.js .scene.s13 [data-at="13"],
-.js .scene.s14 [data-at="14"],
-.js .scene.s15 [data-at="15"],
-.js .scene.s16 [data-at="16"] { opacity: 1; transform: none; }
-.js .scene.s5 [data-until="5"],
-.js .scene.s15 [data-until="15"] { opacity: 0; }
-.js .scene .state-approved[data-at] { transform: scale(0.9); }
-.js .scene mark { background-size: 0% 100%; }
-.js .scene.s1 mark { background-size: 100% 100%; }
-
-/* The drags: for each time the cursor moves to its start, drags it out (the
-   block grows with it) and releases, and the time joins the reply above as a
-   bullet. Tue is s4-s6, Wed s7-s9, Thu s10-s12; the cursor leaves at s13. */
-.js .scene .blk-pick { transform: scaleY(0); }
-.js .scene.s5 .pick-1,
-.js .scene.s8 .pick-2,
-.js .scene.s11 .pick-3 { transform: scaleY(1); }
-.js .scene.s4 .cursor-drag { opacity: 1; left: calc(100% / 6); top: 0; }
-.js .scene.s5 .cursor-drag { top: var(--pick-row); transform: scale(0.92); }
-.js .scene.s6 .cursor-drag { transform: none; }
-.js .scene.s7 .cursor-drag { left: 50%; top: calc(var(--pick-row) * 2); }
-.js .scene.s8 .cursor-drag { top: calc(var(--pick-row) * 3); transform: scale(0.92); }
-.js .scene.s9 .cursor-drag { transform: none; }
-.js .scene.s10 .cursor-drag { left: calc(500% / 6); top: var(--pick-row); }
-.js .scene.s11 .cursor-drag { top: calc(var(--pick-row) * 3); transform: scale(0.92); }
-.js .scene.s12 .cursor-drag { transform: none; }
-.js .scene.s13 .cursor-drag { opacity: 0; }
-
-/* The click: the cursor reaches Approve at s3, presses it at s4, the button
-   becomes the Approved tag at s5, and the cursor leaves at s6. */
-.js .scene .approve-btn { opacity: 1; }
-.js .scene.s4 .approve-btn { transform: scale(0.95); background: #000; }
-.js .scene.s5 .approve-btn { transform: scale(0.9); }
-.js .scene .cursor-click { transform: translate(40px, 36px); }
-.js .scene.s3 .cursor-click { opacity: 1; transform: none; }
-.js .scene.s4 .cursor-click { transform: scale(0.88); }
-.js .scene.s5 .cursor-click { transform: none; }
-.js .scene.s6 .cursor-click { opacity: 0; }
-
-/* The send: once the times are in, the cursor comes up from the calendar to
-   Send at s13, presses it at s14, the button becomes the Sent tag at s15,
-   and the cursor leaves at s16. */
-.js .scene .send-btn { opacity: 1; }
-.js .scene.s14 .send-btn { transform: scale(0.95); background: #000; }
-.js .scene.s15 .send-btn { transform: scale(0.9); }
-.js .scene .cursor-send { transform: translate(-30px, 150px); }
-.js .scene.s13 .cursor-send { opacity: 1; transform: none; }
-.js .scene.s14 .cursor-send { transform: scale(0.88); }
-.js .scene.s15 .cursor-send { transform: none; }
-.js .scene.s16 .cursor-send { opacity: 0; }
-.scene.instant [data-at],
-.scene.instant [data-until],
-.scene.instant mark,
-.scene.instant .cursor,
-.scene.instant .blk-pick,
-.scene.instant .approve-btn,
-.scene.instant .send-btn { transition: none !important; }
-
-/* Review-queue cards and the pieces they share with the hero */
+/* Review-queue cards */
 .q-card {
   min-width: 0;
   background: var(--paper);
@@ -774,10 +531,6 @@ h3 {
   text-transform: uppercase;
   color: var(--cobalt);
 }
-.state { display: inline-grid; justify-items: end; flex: 0 0 auto; }
-.state > span { grid-area: 1 / 1; }
-.state-pending,
-.state-approved,
 .pill {
   display: inline-flex;
   align-items: center;
@@ -788,13 +541,10 @@ h3 {
   font-weight: 600;
   white-space: nowrap;
 }
-.state-pending,
 .pill {
   background: var(--sand);
   color: var(--muted);
 }
-.state-pending { opacity: 0; }
-.state-approved,
 .pill-done {
   background: var(--cobalt);
   color: #fff;
@@ -1175,9 +925,6 @@ h3 {
 
 @media (max-width: 980px) {
   :root { --gutter: 24px; }
-  .hero { grid-template-columns: minmax(0, 1fr); }
-  .hero-copy { max-width: 640px; }
-  .flow { justify-self: start; }
   .band-inner,
   .principals-inner { grid-template-columns: minmax(0, 1fr); }
   .band-copy,
@@ -1199,14 +946,17 @@ h3 {
   .steps,
   .tiles { grid-template-columns: minmax(0, 1fr); }
   .steps { gap: 32px; }
-  .flow-card { padding: 22px 18px 24px; }
-  .flow-row { padding-left: 26px; }
-  .flow-quote { font-size: 1rem; }
-  .flow-to { display: block; margin: 2px 0 0; }
-  .reply-card { grid-template-areas: "tag send" "title title" "list list"; }
-  .reply-card .approve { align-self: center; }
-  .js .scene .cursor-send { transform: translate(-20px, 250px); }
-  .day { grid-template-columns: 40px minmax(0, 1fr); }
+  .stage {
+    --mail-w: 232px;
+    --mail-h: 116px;
+    --act-w: 244px;
+    --act-h: 276px;
+    height: 340px;
+  }
+  .mail { padding: 11px 13px; }
+  .mail-ask { font-size: 0.875rem; }
+  .act { padding: 15px 15px 13px; }
+  .act-title { margin-top: 12px; font-size: 1rem; }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
 }
@@ -1216,57 +966,12 @@ h3 {
   .brand-block { column-gap: 8px; }
   .button-small { padding: 0.5rem 0.7rem; font-size: 0.8125rem; }
   .q-card { padding-inline: 13px; }
-  .chapter { font-size: 0.6875rem; white-space: nowrap; }
-  .pick { --pick-gutter: 38px; }
-  .blk { padding-inline: 4px; }
-  .pick-hours span { padding-right: 4px; }
 }
 
-@media (max-width: 340px) {
-  .demo-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-/* Motion: transitions only when the viewer allows them. With reduced motion
-   the demo still changes scenes when asked, without movement. */
+/* Motion: transitions only when the viewer allows them. The hero demo is
+   driven by script.js, which shows a still frame instead of playing it on
+   its own when the viewer prefers reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
   .button { transition: background-color 0.15s ease; }
-
-  /* Scenes hand over in sequence, not as a crossfade, so two never overlap. */
-  .scene { transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
-  .scene.is-active { transition: opacity 0.3s ease 0.22s; }
-  .js .scene [data-at],
-  .js .scene [data-until] {
-    transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .js .scene mark { transition: background-size 0.7s ease-out 0.5s; }
-  .js .scene .blk-pick { transition: transform 0.5s cubic-bezier(0.45, 0, 0.25, 1); }
-  .js .scene .pick-3 { transition-duration: 0.8s; }
-  .js .scene .cursor { transition: opacity 0.3s ease, transform 0.8s cubic-bezier(0.45, 0, 0.25, 1); }
-  /* A move to the next time takes 0.6s; each drag matches its block. */
-  .js .scene .cursor-drag {
-    transition: opacity 0.3s ease, left 0.6s cubic-bezier(0.45, 0, 0.25, 1),
-      top 0.6s cubic-bezier(0.45, 0, 0.25, 1), transform 0.12s ease-out;
-  }
-  .js .scene.s5 .cursor-drag { transition-duration: 0.3s, 0.5s, 0.5s, 0.12s; }
-  .js .scene.s7 .cursor-drag { transition-duration: 0.3s, 0.6s, 0.6s, 0.12s; }
-  .js .scene.s8 .cursor-drag { transition-duration: 0.3s, 0.5s, 0.5s, 0.12s; }
-  .js .scene.s10 .cursor-drag { transition-duration: 0.3s, 0.6s, 0.6s, 0.12s; }
-  .js .scene.s11 .cursor-drag { transition-duration: 0.3s, 0.8s, 0.8s, 0.12s; }
-  .js .scene.s6 .bullet-1,
-  .js .scene.s9 .bullet-2,
-  .js .scene.s12 .bullet-3 { animation: bullet-added 1.4s ease-out; }
-  @keyframes bullet-added { from { background-color: var(--cobalt-wash); } to { background-color: transparent; } }
-  .js .scene.s4 .cursor-click,
-  .js .scene.s14 .cursor-send { transition: transform 0.12s ease-out; }
-  .js .scene .approve-btn,
-  .js .scene .send-btn { transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.15s ease; }
-
-  .demo[data-state="playing"] .chapter[aria-pressed="true"] .chapter-bar span {
-    animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both;
-  }
-  .demo[data-state="paused"] .chapter[aria-pressed="true"] .chapter-bar span {
-    animation: chapter-progress var(--chapter-ms, 5000ms) linear var(--chapter-delay, 0ms) both paused;
-  }
-  @keyframes chapter-progress { from { width: 0; } to { width: 100%; } }
 }
