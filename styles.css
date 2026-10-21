@@ -599,6 +599,7 @@ html:not(.js) .demo { display: none; }
   --calendar-gutter: 38px;
 }
 .calendar-panel.is-single-day { --calendar-columns: 1; }
+.calendar-panel.is-three-day { --calendar-columns: 3; }
 .calendar-days {
   display: grid;
   grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr));

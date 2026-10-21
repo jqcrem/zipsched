@@ -281,10 +281,37 @@ else if (demo) {
     const calendarView = singleDay
       ? holdCalendarView(displayedHoldTime)
       : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES, step: 120 };
+    const timeDayIndexes = timeOptions
+      .map(parseCalendarRange)
+      .filter(Boolean)
+      .map((range) => range.day);
+    // Send-times suggestions stay focused on three consecutive days. Pick the
+    // window containing the most proposed times, so the compact calendar still
+    // shows the useful choices rather than an arbitrary slice of the week.
+    const timeWindowStart = m.kind === "times"
+      ? [0, 1, 2].reduce((bestStart, start) => {
+        const bestCount = timeDayIndexes.filter((dayIndex) => dayIndex >= bestStart && dayIndex < bestStart + 3).length;
+        const count = timeDayIndexes.filter((dayIndex) => dayIndex >= start && dayIndex < start + 3).length;
+        return count > bestCount ? start : bestStart;
+      }, 0)
+      : 0;
     const visibleDays = singleDay
       ? [{ day: days[selectedDayIndex], dayIndex: selectedDayIndex }]
-      : days.map((day, dayIndex) => ({ day, dayIndex }));
-    calendar.className = `context-panel calendar-panel${singleDay ? " is-single-day" : ""}`;
+      : m.kind === "times"
+        ? days.slice(timeWindowStart, timeWindowStart + 3).map((day, offset) => ({ day, dayIndex: timeWindowStart + offset }))
+        : days.map((day, dayIndex) => ({ day, dayIndex }));
+    const visibleDayIndexes = visibleDays.map(({ dayIndex }) => dayIndex);
+    const layoutRange = (range) => {
+      const column = visibleDayIndexes.indexOf(range.day);
+      return column < 0 ? null : { ...range, day: column };
+    };
+    const blockStyleFor = (range, minimumHeight = 18) => {
+      const layout = layoutRange(range);
+      return layout ? blockStyle(layout, compactCalendar, minimumHeight, calendarView.start, calendarView.end) : "";
+    };
+    calendar.className = `context-panel calendar-panel${singleDay ? " is-single-day" : m.kind === "times" ? " is-three-day" : ""}`;
+    calendar.dataset.dayStart = String(visibleDays[0].dayIndex);
+    calendar.dataset.dayCount = String(visibleDays.length);
     const dayStrip = visibleDays.map(({ day, dayIndex }) => {
       const activeClass = day === selectedDay ? " is-active" : "";
       return `<span class="calendar-day${activeClass}">${day}<span>${dayNumbers[dayIndex]}</span></span>`;
@@ -297,21 +324,20 @@ else if (demo) {
     const proposalMarkup = proposedValues.map((value, blockIndex) => {
       const range = parseCalendarRange(value);
       if (!range) return "";
-      const layoutRange = singleDay ? { ...range, day: 0 } : range;
+      if (!visibleDayIndexes.includes(range.day)) return "";
       const title = m.kind === "times" ? "" : `<strong>${escapeHTML(edit.title)}</strong>`;
       const removable = m.kind === "times"
         ? `<button type="button" class="calendar-block-remove" data-block-index="${blockIndex}" aria-label="Remove ${escapeHTML(value)}">${ICONS.no}</button>`
         : "";
-      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyle(layoutRange, compactCalendar, 18, calendarView.start, calendarView.end)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
+      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyleFor(range)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
     }).join("");
     const busyMarkup = BUSY_EVENTS.filter((event) => (
-      (!singleDay || event.day === selectedDayIndex)
+      visibleDayIndexes.includes(event.day)
       && event.end > calendarView.start
       && event.start < calendarView.end
     )).map((event) => {
       const start = clockParts(event.start);
-      const layoutEvent = singleDay ? { ...event, day: 0 } : event;
-      return `<div class="calendar-event calendar-event-muted" style="${blockStyle(layoutEvent, compactCalendar, 10, calendarView.start, calendarView.end)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
+      return `<div class="calendar-event calendar-event-muted" style="${blockStyleFor(event, 10)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
     }).join("");
     const editable = demo.dataset.state === "interactive" && index === interactiveIndex;
     const hourLabels = Array.from(
@@ -339,7 +365,8 @@ else if (demo) {
       const rect = grid.getBoundingClientRect();
       const gutter = CALENDAR_GUTTER;
       const usableWidth = Math.max(1, rect.width - gutter);
-      const day = Math.max(0, Math.min(days.length - 1, Math.floor(((event.clientX - rect.left - gutter) / usableWidth) * days.length)));
+      const daySlot = Math.max(0, Math.min(visibleDays.length - 1, Math.floor(((event.clientX - rect.left - gutter) / usableWidth) * visibleDays.length)));
+      const day = visibleDays[daySlot].dayIndex;
       const y = Math.max(0, Math.min(rect.height, event.clientY - rect.top));
       const minutes = calendarView.start + snapMinutes((y / rect.height) * (calendarView.end - calendarView.start));
       return { day, minutes: Math.max(calendarView.start, Math.min(calendarView.end, minutes)) };
@@ -368,17 +395,11 @@ else if (demo) {
             Math.min(calendarView.end - duration, original.start + point.minutes - origin.minutes),
           );
           const moved = {
-            day: singleDay ? original.day : Math.max(0, Math.min(days.length - 1, original.day + point.day - origin.day)),
+            day: singleDay ? original.day : Math.max(visibleDays[0].dayIndex, Math.min(visibleDays.at(-1).dayIndex, original.day + point.day - origin.day)),
             start,
             end: start + duration,
           };
-          proposal.setAttribute("style", blockStyle(
-            singleDay ? { ...moved, day: 0 } : moved,
-            compactCalendar,
-            18,
-            calendarView.start,
-            calendarView.end,
-          ));
+          proposal.setAttribute("style", blockStyleFor(moved));
           proposal.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(moved).split(" · ")[1];
         };
         const end = (endEvent) => {
@@ -394,7 +415,7 @@ else if (demo) {
             Math.min(calendarView.end - duration, original.start + point.minutes - origin.minutes),
           );
           const moved = {
-            day: singleDay ? original.day : Math.max(0, Math.min(days.length - 1, original.day + point.day - origin.day)),
+            day: singleDay ? original.day : Math.max(visibleDays[0].dayIndex, Math.min(visibleDays.at(-1).dayIndex, original.day + point.day - origin.day)),
             start,
             end: start + duration,
           };
@@ -456,7 +477,7 @@ else if (demo) {
           creating.end = later;
         }
         const range = { day: creating.day, start: creating.start, end: creating.end };
-        creating.node.setAttribute("style", blockStyle(range, compactCalendar));
+        creating.node.setAttribute("style", blockStyleFor(range));
         creating.node.querySelector("span").textContent = formatCalendarRange(range).split(" · ")[1];
       });
       const finishCreation = (event) => {
@@ -490,13 +511,7 @@ else if (demo) {
           const point = rangeFromPointer(moveEvent);
           const end = Math.max(original.start + SNAP_MINUTES, Math.min(calendarView.end, point.minutes));
           const range = { ...original, end };
-          block.setAttribute("style", blockStyle(
-            singleDay ? { ...range, day: 0 } : range,
-            compactCalendar,
-            18,
-            calendarView.start,
-            calendarView.end,
-          ));
+          block.setAttribute("style", blockStyleFor(range));
           block.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(range).split(" · ")[1];
         };
         const end = (endEvent) => {
@@ -837,7 +852,11 @@ else if (demo) {
         ? holdCalendarView(value)
         : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES };
       const { pixelsPerMinute } = calendarMetrics(W <= 900, calendarView.start, calendarView.end);
-      const x = gridLeft + gridWidth * (singleDay ? 0.5 : (range.day + 0.5) / days.length);
+      const renderedCalendar = calendarPane.querySelector(".calendar-panel");
+      const dayStart = Number(renderedCalendar?.dataset.dayStart ?? 0);
+      const dayCount = Number(renderedCalendar?.dataset.dayCount ?? days.length);
+      const column = Math.max(0, Math.min(dayCount - 1, range.day - dayStart));
+      const x = gridLeft + gridWidth * (singleDay ? 0.5 : (column + 0.5) / dayCount);
       return {
         start: { x, y: gridTop + (range.start - calendarView.start) * pixelsPerMinute, s: 1 },
         end: { x, y: gridTop + (range.end - calendarView.start) * pixelsPerMinute, s: 0.86 },
