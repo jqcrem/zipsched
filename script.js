@@ -345,6 +345,80 @@ else if (demo) {
       return { day, minutes: Math.max(calendarView.start, Math.min(calendarView.end, minutes)) };
     };
 
+    // Blue proposals are the editable calendar entries. Dragging one moves
+    // the whole time range; gray events deliberately remain read-only.
+    calendar.querySelectorAll(".calendar-proposal").forEach((proposal) => {
+      proposal.addEventListener("pointerdown", (event) => {
+        if (event.target.closest(".calendar-block-remove, .calendar-resize-handle")) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const blockIndex = Number(proposal.dataset.blockIndex);
+        const sourceValue = m.kind === "times" ? edit.times[blockIndex] : edit.when;
+        const original = parseCalendarRange(sourceValue);
+        if (!original) return;
+        const origin = rangeFromPointer(event);
+        proposal.setPointerCapture(event.pointerId);
+        proposal.classList.add("is-moving");
+        const move = (moveEvent) => {
+          if (moveEvent.pointerId !== event.pointerId) return;
+          const point = rangeFromPointer(moveEvent);
+          const duration = original.end - original.start;
+          const start = Math.max(
+            calendarView.start,
+            Math.min(calendarView.end - duration, original.start + point.minutes - origin.minutes),
+          );
+          const moved = {
+            day: singleDay ? original.day : Math.max(0, Math.min(days.length - 1, original.day + point.day - origin.day)),
+            start,
+            end: start + duration,
+          };
+          proposal.setAttribute("style", blockStyle(
+            singleDay ? { ...moved, day: 0 } : moved,
+            compactCalendar,
+            18,
+            calendarView.start,
+            calendarView.end,
+          ));
+          proposal.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(moved).split(" · ")[1];
+        };
+        const end = (endEvent) => {
+          if (endEvent.pointerId !== event.pointerId) return;
+          proposal.removeEventListener("pointermove", move);
+          proposal.removeEventListener("pointerup", end);
+          proposal.removeEventListener("pointercancel", end);
+          proposal.classList.remove("is-moving");
+          const point = rangeFromPointer(endEvent);
+          const duration = original.end - original.start;
+          const start = Math.max(
+            calendarView.start,
+            Math.min(calendarView.end - duration, original.start + point.minutes - origin.minutes),
+          );
+          const moved = {
+            day: singleDay ? original.day : Math.max(0, Math.min(days.length - 1, original.day + point.day - origin.day)),
+            start,
+            end: start + duration,
+          };
+          const value = formatCalendarRange(moved);
+          if (m.kind === "times") {
+            edit.times[blockIndex] = value;
+            edit.times.sort((left, right) => {
+              const leftRange = parseCalendarRange(left);
+              const rightRange = parseCalendarRange(right);
+              return leftRange && rightRange ? leftRange.day - rightRange.day || leftRange.start - rightRange.start : 0;
+            });
+            syncTimesCard(index);
+          } else {
+            edit.when = value;
+            acts[index].querySelector(".act-when").textContent = value;
+          }
+          renderContext(index);
+        };
+        proposal.addEventListener("pointermove", move);
+        proposal.addEventListener("pointerup", end);
+        proposal.addEventListener("pointercancel", end);
+      });
+    });
+
     if (m.kind === "times") {
       let creating = null;
       grid.addEventListener("pointerdown", (event) => {
@@ -562,8 +636,8 @@ else if (demo) {
     clearButtonState(card);
     if (!active) return;
     const button = card.querySelector(direction > 0 ? ".act-yes" : ".act-no");
-    button.style.backgroundColor = direction > 0 ? "#1f4fd1" : "#dc2626";
-    button.style.borderColor = direction > 0 ? "#1f4fd1" : "#dc2626";
+    button.style.backgroundColor = direction > 0 ? "#16a34a" : "#dc2626";
+    button.style.borderColor = direction > 0 ? "#16a34a" : "#dc2626";
     button.style.color = "#fff";
     button.style.transform = "scale(1.12)";
   };
@@ -853,8 +927,8 @@ else if (demo) {
           { transform: `translate(${approve.x}px, ${approve.y}px) scale(1.5)`, opacity: 0 },
         ], t, reviewMs(400), "ease-out", "none");
         at(card.querySelector(".act-yes"), [{
-          backgroundColor: "#1f4fd1",
-          borderColor: "#1f4fd1",
+          backgroundColor: "#16a34a",
+          borderColor: "#16a34a",
           color: "#fff",
           transform: "scale(1.12)",
         }], t, reviewMs(140), "ease-out");
@@ -882,8 +956,8 @@ else if (demo) {
       at(card, [{ transform: tf(deckX, deckY) }, { transform: tf(deckX + dx, deckY + dy, dir * 9) }], t, drag, DRAG);
       moveHand({ x: grab.x + dx, y: grab.y + dy, s: 0.86 }, t, drag, DRAG);
       at(card.querySelector(dir > 0 ? ".act-yes" : ".act-no"), [{
-        backgroundColor: dir > 0 ? "#1f4fd1" : "#dc2626",
-        borderColor: dir > 0 ? "#1f4fd1" : "#dc2626",
+        backgroundColor: dir > 0 ? "#16a34a" : "#dc2626",
+        borderColor: dir > 0 ? "#16a34a" : "#dc2626",
         color: "#fff",
         transform: "scale(1.12)",
       }], t + drag * 0.45, reviewMs(140), "ease-out");
@@ -964,6 +1038,8 @@ else if (demo) {
   };
 
   let drag = null;
+  let wheelOffset = 0;
+  let wheelTimer = 0;
   const snapAnims = new WeakMap();
 
   const finishInteraction = () => {
@@ -989,6 +1065,8 @@ else if (demo) {
     }
     interactiveIndex = next;
     interactionLocked = false;
+    wheelOffset = 0;
+    window.clearTimeout(wheelTimer);
     const card = acts[next];
     card.classList.add("is-interactive");
     card.style.pointerEvents = "auto";
@@ -1017,6 +1095,8 @@ else if (demo) {
     if (interactionLocked || index !== interactiveIndex || !interactiveLayout) return;
     interactionLocked = true;
     drag = null;
+    wheelOffset = 0;
+    window.clearTimeout(wheelTimer);
     const card = acts[index];
     snapAnims.get(card)?.cancel();
     const { W, aw, deckX, deckY, reach, k } = interactiveLayout;
@@ -1056,11 +1136,51 @@ else if (demo) {
     card.addEventListener("pointerdown", (event) => {
       if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-control")) return;
       event.preventDefault();
+      window.clearTimeout(wheelTimer);
+      wheelOffset = 0;
       snapAnims.get(card)?.cancel();
       card.setPointerCapture(event.pointerId);
       drag = { pointerId: event.pointerId, startX: event.clientX, x: 0 };
       card.classList.add("is-dragging");
     });
+    card.addEventListener("wheel", (event) => {
+      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-control") || !interactiveLayout) return;
+      const horizontal = event.deltaX || (event.shiftKey ? event.deltaY : 0);
+      if (!horizontal) return;
+      event.preventDefault();
+      snapAnims.get(card)?.cancel();
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 120 : 1;
+      const limit = interactiveLayout.W * 0.62;
+      // Trackpad scroll direction follows content, so invert it to make the
+      // card follow the finger: scroll left to decline, right to approve.
+      wheelOffset = Math.max(-limit, Math.min(limit, wheelOffset - horizontal * unit));
+      const rotation = (wheelOffset / interactiveLayout.reach) * 9;
+      card.style.transform = tf(interactiveLayout.deckX + wheelOffset, interactiveLayout.deckY + 10 * interactiveLayout.k, rotation);
+      const threshold = Math.min(96, interactiveLayout.aw * 0.3);
+      showDecision(card, wheelOffset, Math.abs(wheelOffset) >= threshold * 0.55);
+      window.clearTimeout(wheelTimer);
+      wheelTimer = window.setTimeout(() => {
+        if (index !== interactiveIndex || interactionLocked || !interactiveLayout) return;
+        const releasedX = wheelOffset;
+        wheelOffset = 0;
+        if (Math.abs(releasedX) >= threshold) {
+          completeChoice(index, releasedX > 0 ? 1 : -1, releasedX);
+          return;
+        }
+        clearButtonState(card);
+        const snap = card.animate([
+          { transform: card.style.transform },
+          { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY) },
+        ], { duration: 220, easing: MOVE, fill: "forwards" });
+        snapAnims.set(card, snap);
+        snap.onfinish = () => {
+          card.style.transform = tf(interactiveLayout.deckX, interactiveLayout.deckY);
+          snap.cancel();
+          snapAnims.delete(card);
+        };
+        manualAnims.push(snap);
+      }, 140);
+    }, { passive: false });
     card.addEventListener("pointermove", (event) => {
       if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || !interactiveLayout) return;
       const limit = interactiveLayout.W * 0.62;

@@ -670,9 +670,11 @@ html:not(.js) .demo { display: none; }
   border: 1px solid #1d4ed8;
   background: #2563eb;
   color: #fff;
-  cursor: default;
+  cursor: grab;
   overflow: visible;
+  user-select: none;
 }
+.calendar-proposal.is-moving { cursor: grabbing; }
 .calendar-proposal > strong,
 .calendar-proposal > span:not(.calendar-resize-handle) {
   display: block;
