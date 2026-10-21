@@ -24,8 +24,8 @@ else if (demo) {
   };
   const KINDS = { hold: "New hold", times: "Pick times", invitee: "Add invitee" };
 
-  // In arrival order. The first SLOW arrive one at a time and are reviewed
-  // one at a time; the rest rush in and are approved in a rush. Names and
+  // In arrival order. The first SLOW arrive one at a time and the rest rush
+  // in; every resulting suggestion is reviewed at the same pace. Names and
   // times are fictional, and no two approved holds or offered times overlap.
   const MAILS = [
     { from: "Dana Whitfield", at: "9:02 AM", meta: "Board deck", ask: "Can we find <mark>45 minutes Thursday afternoon</mark>?",
@@ -58,8 +58,9 @@ else if (demo) {
       kind: "times", title: "Team check-in", times: ["Mon · 3:00–3:30 PM", "Tue · 11:00–11:30 AM", "Thu · 4:30–5:00 PM"] },
   ];
   const SLOW = 4;
-  /** Index of the one card the cursor declines */
-  const DECLINED = 1;
+  // The second card is the only rejection among the first four. Three more
+  // rejections are mixed into the remaining cards.
+  const DECLINED = new Set([1, 5, 8, 12]);
   // Hand-set mess, one row per email: x and y offset on the pile (`px` at
   // desktop size), its tilt there (`deg`), and the slighter tilt of its card
   // on the deck (`deg`).
@@ -79,6 +80,8 @@ else if (demo) {
 
   const stage = demo.querySelector(".stage");
   const guide = stage.querySelector(".stage-guide");
+  const threadPane = stage.querySelector(".stage-thread");
+  const calendarPane = stage.querySelector(".stage-calendar");
   const cursor = stage.querySelector(".stage-cursor");
   const press = stage.querySelector(".stage-press");
   const summary = stage.querySelector(".stage-summary");
@@ -93,31 +96,77 @@ else if (demo) {
     stage.querySelector(".stage-mail").append(card);
     return card;
   });
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  const dayNumbers = [19, 20, 21, 22, 23];
+  const cleanAsk = (ask) => ask.replace(/<\/?mark>/g, "");
+  const activeDay = (m) => (m.when || m.times[0]).split(" ·")[0];
+  const emailAddress = (name) => `${name.toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
+  const renderContext = (index) => {
+    if (index < 0 || index >= MAILS.length) {
+      threadPane.replaceChildren();
+      calendarPane.replaceChildren();
+      return;
+    }
+    const m = MAILS[index];
+    const replyName = m.from === "Alex Rivera" ? "Sam Carter" : "Alex Rivera";
+    const replyEmail = replyName === "Alex Rivera" ? "alex@company.com" : "sam@company.com";
+    const messages = [
+      { name: m.from, email: emailAddress(m.from), at: m.at, body: cleanAsk(m.ask) },
+      { name: replyName, email: replyEmail, at: "a few min later", body: "Looping in my EA to coordinate." },
+    ];
+    const panel = document.createElement("article");
+    panel.className = "context-panel thread-panel";
+    panel.innerHTML = `<span class="context-icon">${ICONS.mail}</span><p class="thread-subject">${m.meta}</p><ol class="thread-list">${messages.map((message) => `<li><p class="thread-sender"><strong>${message.name}</strong><span class="thread-time">${message.at}</span></p><p class="thread-email">${message.email}</p><p class="thread-message-copy">${message.body}</p></li>`).join("")}</ol>`;
+    threadPane.replaceChildren(panel);
+
+    const calendar = document.createElement("article");
+    const selectedDay = activeDay(m);
+    const eventTime = m.when || m.times[0];
+    const eventTitle = m.kind === "times" ? "Available time" : m.title;
+    calendar.className = "context-panel calendar-panel";
+    const dayStrip = days.map((day, dayIndex) => {
+      const activeClass = day === selectedDay ? " is-active" : "";
+      return `<span class="calendar-day${activeClass}">${day}<span>${dayNumbers[dayIndex]}</span></span>`;
+    }).join("");
+    const proposedTop = 41 + (index % 2) * 36;
+    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid"><div class="calendar-hour"><span>9 AM</span></div><div class="calendar-hour"><span>12 PM</span></div><div class="calendar-hour"><span>3 PM</span></div><div class="calendar-event calendar-event-muted" style="top:4px">Prep<span>9:00</span></div><div class="calendar-event is-proposed" style="top:${proposedTop}px"><strong>${eventTitle}</strong><span>${eventTime}</span></div><div class="calendar-event calendar-event-muted" style="top:116px">Team sync<span>4:00</span></div></div>`;
+    calendarPane.replaceChildren(calendar);
+  };
   // The deck is built newest email first, so the first email's card ends up
   // on top: each card sits above every card for a later email.
   const acts = MAILS.map((m, i) => {
     const card = document.createElement("article");
     card.className = "act";
     card.style.zIndex = String(MAILS.length - i);
-    // A hold quotes the ask it came from; the other kinds fill their card
-    // with the times or the invitees.
     const detail =
       m.kind === "times"
         ? `<ul class="act-times mono">${m.times.map((time) => `<li>${time}</li>`).join("")}</ul>`
-        : `<p class="act-when mono">${m.when}</p>${m.kind === "hold" ? `<p class="act-ask">“${m.ask}”</p>` : ""}`;
+        : `<p class="act-when mono">${m.when}</p>`;
     const invitees =
       m.kind === "invitee"
         ? `<p class="invitees">${m.invitees.map((name) => `<span class="invitee">${name}</span>`).join("")}<span class="invitee invitee-new">+ ${m.add}</span></p>`
         : "";
-    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p><p class="act-title">${m.title}</p>${detail}${invitees}<p class="act-from">${ICONS.mail}${m.from}</p><div class="act-btns"><span class="act-btn act-no">${ICONS.no}</span><span class="act-btn act-yes">${ICONS.yes}</span></div>`;
+    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p><p class="act-title">${m.title}</p>${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no" aria-label="Decline suggestion">${ICONS.no}</button><button type="button" class="act-btn act-yes" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
     stage.querySelector(".stage-deck").append(card);
     return card;
   });
-  summary.innerHTML = `<span class="summary-pill summary-yes">${ICONS.yes}${MAILS.length - 1} approved</span><span class="summary-pill summary-no">${ICONS.no}1 declined</span>`;
+  summary.innerHTML = `<span class="summary-pill summary-yes">${ICONS.yes}${MAILS.length - DECLINED.size} approved</span><span class="summary-pill summary-no">${ICONS.no}${DECLINED.size} declined</span>`;
 
   let anims = [];
+  let manualAnims = [];
+  let actRevealAnims = [];
   /** Length of the whole sequence (`ms`) */
   let total = 0;
+  let interactiveAt = Infinity;
+  let interactiveLayout = null;
+  let interactiveIndex = -1;
+  let interactionLocked = false;
+  let interactionTimer = 0;
+  const decisions = new Map();
+  let contextStartsAt = Infinity;
+  let contextEndsAt = Infinity;
+  let contextSwitches = [];
+  let currentContextIndex = -2;
   /** The still frame for reduced motion: emails left on the pile beside the deck (`ms`) */
   let stillAt = 0;
 
@@ -133,6 +182,50 @@ else if (demo) {
     animation.pause();
     animation.persist();
     anims.push(animation);
+    return animation;
+  };
+
+  const clearButtonState = (card) => {
+    for (const button of card.querySelectorAll(".act-btn")) {
+      button.style.backgroundColor = "";
+      button.style.borderColor = "";
+      button.style.color = "";
+      button.style.transform = "";
+    }
+  };
+
+  const showDecision = (card, direction, active = true) => {
+    clearButtonState(card);
+    if (!active) return;
+    const button = card.querySelector(direction > 0 ? ".act-yes" : ".act-no");
+    button.style.backgroundColor = direction > 0 ? "#1f4fd1" : "#dc2626";
+    button.style.borderColor = direction > 0 ? "#1f4fd1" : "#dc2626";
+    button.style.color = "#fff";
+    button.style.transform = "scale(1.12)";
+  };
+
+  const updateSummary = () => {
+    let approved = 3;
+    let declined = 1;
+    for (const decision of decisions.values()) {
+      if (decision > 0) approved += 1;
+      else declined += 1;
+    }
+    summary.innerHTML = `<span class="summary-pill summary-yes">${ICONS.yes}${approved} approved</span><span class="summary-pill summary-no">${ICONS.no}${declined} declined</span>`;
+  };
+
+  const syncContext = (ms) => {
+    let nextIndex = -1;
+    if (ms >= contextStartsAt && ms < contextEndsAt) {
+      nextIndex = 0;
+      for (const change of contextSwitches) {
+        if (ms < change.at) break;
+        nextIndex = change.index;
+      }
+    }
+    if (nextIndex === currentContextIndex) return;
+    currentContextIndex = nextIndex;
+    renderContext(nextIndex);
   };
 
   // Lays the sequence out for the stage's current size. A card's first
@@ -140,7 +233,19 @@ else if (demo) {
   // each later one starts where the one before it left off.
   const build = () => {
     for (const animation of anims) animation.cancel();
+    for (const animation of manualAnims) animation.cancel();
+    window.clearTimeout(interactionTimer);
     anims = [];
+    manualAnims = [];
+    actRevealAnims = [];
+    interactiveAt = Infinity;
+    interactiveLayout = null;
+    interactiveIndex = -1;
+    interactionLocked = false;
+    contextStartsAt = Infinity;
+    contextEndsAt = Infinity;
+    contextSwitches = [];
+    currentContextIndex = -2;
     const W = stage.clientWidth;
     const H = stage.clientHeight;
     const mw = mails[0].offsetWidth;
@@ -150,7 +255,7 @@ else if (demo) {
     const k = mw / 300;
     const n = MAILS.length;
     const deckX = (W - aw) / 2;
-    const deckY = (H - ah) / 2;
+    const deckY = W <= 600 ? 186 : W <= 900 ? 188 : (H - ah) / 2;
 
     // The first four emails spread across most of the stage. The rush lands
     // in irregular positions across the full width and piles over them.
@@ -171,6 +276,16 @@ else if (demo) {
       r: r * 0.85,
     }));
     const deck = SCATTER.map(([sx, , , r]) => ({ x: deckX + sx * 0.25 * k, y: deckY, r }));
+    acts.forEach((card) => {
+      card.classList.remove("is-interactive");
+      card.style.opacity = "";
+      card.style.transform = "";
+      card.style.pointerEvents = "";
+      card.removeAttribute("title");
+      clearButtonState(card);
+    });
+    summary.style.opacity = "";
+    summary.style.transform = "";
 
     // 1. The emails land.
     let t = 500;
@@ -212,7 +327,7 @@ else if (demo) {
         { transform: tf(overX, overY, 0, 1, 90), opacity: 0 },
       ], t, fly, "ease-in-out");
       const d = deck[i];
-      at(acts[i], [
+      actRevealAnims[i] = at(acts[i], [
         { transform: tf(d.x, d.y, d.r, 1, -90), opacity: 0 },
         { transform: tf(d.x, d.y, d.r, 1, -90), opacity: 1, offset: 0.001 },
         { transform: tf(d.x, d.y, d.r), opacity: 1 },
@@ -232,50 +347,66 @@ else if (demo) {
     // or ✕ off a narrow stage.
     const grab = { x: deckX + aw * 0.66, y: deckY + ah * 0.7, s: 1 };
     const reach = Math.min(aw * 0.5, deckX + 4);
+    interactiveLayout = { W, aw, deckX, deckY, reach, k, deck };
     let hand = { x: W / 2 + aw * 0.95, y: H + 30, s: 1 };
     const moveHand = (to, delay, duration, easing = MOVE) => {
       at(cursor, [{ transform: pointer(hand) }, { transform: pointer(to) }], delay, duration, easing);
       hand = to;
     };
+    contextStartsAt = t - 320;
     at(cursor, [{ transform: pointer(hand), opacity: 0 }, { transform: pointer(hand), opacity: 1 }], t - 200, 200, "linear", "both");
-    acts.forEach((card, i) => {
-      const slow = i < SLOW;
-      const dir = i === DECLINED ? -1 : 1;
+    at(threadPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 320, 320, DROP, "both");
+    at(calendarPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 240, 320, DROP, "both");
+    const reviewTiming = {
+      straighten: 220,
+      reveal: 260,
+      cursor: 320,
+      press: 90,
+      drag: 420,
+      throw: 320,
+      overlap: 160,
+    };
+    acts.slice(0, SLOW).forEach((card, i) => {
+      const dir = DECLINED.has(i) ? -1 : 1;
       const d = deck[i];
-      at(card, [{ transform: tf(d.x, d.y, d.r) }, { transform: tf(deckX, deckY) }], t, slow ? 300 : 120, MOVE);
-      t += slow ? (i === 0 ? 700 : 450) : 40;
-      moveHand(grab, t, slow ? 560 : 170);
-      t += slow ? 560 : 170;
-      moveHand({ ...grab, s: 0.86 }, t, slow ? 120 : 50, "ease-out");
+      at(card, [{ transform: tf(d.x, d.y, d.r) }, { transform: tf(deckX, deckY) }], t, reviewTiming.straighten, MOVE);
+      t += reviewTiming.reveal;
+      moveHand(grab, t, reviewTiming.cursor);
+      t += reviewTiming.cursor;
+      moveHand({ ...grab, s: 0.86 }, t, reviewTiming.press, "ease-out");
       at(press, [
         { transform: `translate(${grab.x}px, ${grab.y}px) scale(0.3)`, opacity: 0.9 },
         { transform: `translate(${grab.x}px, ${grab.y}px) scale(1.5)`, opacity: 0 },
       ], t, 450, "ease-out", "none");
-      t += slow ? 160 : 50;
+      t += reviewTiming.press;
       const dx = dir * reach;
       const dy = 10 * k;
-      const drag = slow ? 620 : 180;
+      const drag = reviewTiming.drag;
       at(card, [{ transform: tf(deckX, deckY) }, { transform: tf(deckX + dx, deckY + dy, dir * 9) }], t, drag, DRAG);
       moveHand({ x: grab.x + dx, y: grab.y + dy, s: 0.86 }, t, drag, DRAG);
       at(card.querySelector(dir > 0 ? ".act-yes" : ".act-no"), [{
-        backgroundColor: dir > 0 ? "#1f4fd1" : "#0f1b2d",
-        borderColor: dir > 0 ? "#1f4fd1" : "#0f1b2d",
+        backgroundColor: dir > 0 ? "#1f4fd1" : "#dc2626",
+        borderColor: dir > 0 ? "#1f4fd1" : "#dc2626",
         color: "#fff",
         transform: "scale(1.12)",
-      }], t + drag * 0.45, slow ? 200 : 90, "ease-out");
+      }], t + drag * 0.45, 140, "ease-out");
       t += drag;
       moveHand({ ...hand, s: 1 }, t, 100, "ease-out");
+      const throwDuration = reviewTiming.throw;
       at(card, [
         { transform: tf(deckX + dx, deckY + dy, dir * 9) },
         { transform: tf(deckX + dir * (W / 2 + aw + 80), deckY + dy + 80 * k, dir * 28) },
-      ], t, slow ? 420 : 260, THROW);
-      t += slow ? 260 : 30;
+      ], t, throwDuration, THROW);
+      const switchAt = t + reviewTiming.overlap;
+      contextSwitches.push({ at: switchAt, index: i + 1 });
+      t += reviewTiming.overlap;
     });
 
-    // 5. The tally.
-    at(cursor, [{ opacity: 1 }, { opacity: 0 }], t + 150, 300, "ease-in");
-    at(summary, [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], t + 350, 500, DROP, "both");
-    total = t + 1050;
+    // 5. After four examples, the cursor leaves and the remaining cards are
+    // handed to the viewer. The timeline stops here until they decide.
+    at(cursor, [{ opacity: 1 }, { opacity: 0 }], t, 220, "ease-in");
+    interactiveAt = t + 220;
+    total = interactiveAt;
   };
 
   let started = false;
@@ -285,6 +416,7 @@ else if (demo) {
   /** Where the sequence is stopped while not running (`ms`) */
   let heldAt = 0;
   let endTimer = 0;
+  let contextFrame = 0;
 
   const setState = (state) => {
     demo.dataset.state = state;
@@ -292,6 +424,7 @@ else if (demo) {
       playing: "Pause animation",
       paused: "Play animation",
       ready: "Play animation",
+      interactive: "Replay animation",
       ended: "Replay animation",
     };
     toggle.setAttribute("aria-label", labels[state]);
@@ -301,12 +434,14 @@ else if (demo) {
 
   const hold = (ms) => {
     window.clearTimeout(endTimer);
+    window.cancelAnimationFrame(contextFrame);
     running = false;
     heldAt = ms;
     for (const animation of anims) {
       animation.pause();
       animation.currentTime = ms;
     }
+    syncContext(ms);
   };
   // Setting the start time, unlike play(), never rewinds an animation that
   // has already finished.
@@ -315,13 +450,142 @@ else if (demo) {
     running = true;
     origin = document.timeline.currentTime - ms;
     for (const animation of anims) animation.startTime = origin;
+    syncContext(ms);
+    const watchContext = () => {
+      if (!running) return;
+      syncContext(clock());
+      contextFrame = window.requestAnimationFrame(watchContext);
+    };
+    window.cancelAnimationFrame(contextFrame);
+    contextFrame = window.requestAnimationFrame(watchContext);
     window.clearTimeout(endTimer);
     endTimer = window.setTimeout(() => {
       hold(total);
-      setState("ended");
+      enterInteractive();
     }, total - ms);
     setState("playing");
   };
+
+  let drag = null;
+  const snapAnims = new WeakMap();
+
+  const finishInteraction = () => {
+    interactionLocked = true;
+    interactiveIndex = -1;
+    updateSummary();
+    const fadeThread = threadPane.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-in", fill: "forwards" });
+    const fadeCalendar = calendarPane.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-in", fill: "forwards" });
+    const showSummary = summary.animate([
+      { opacity: 0, transform: "translateY(10px)" },
+      { opacity: 1, transform: "none" },
+    ], { delay: 180, duration: 500, easing: DROP, fill: "forwards" });
+    manualAnims.push(fadeThread, fadeCalendar, showSummary);
+    setState("ended");
+  };
+
+  const activateInteractiveCard = () => {
+    if (!interactiveLayout) return;
+    const next = acts.findIndex((_, index) => index >= SLOW && !decisions.has(index));
+    if (next < 0) {
+      finishInteraction();
+      return;
+    }
+    interactiveIndex = next;
+    interactionLocked = false;
+    const card = acts[next];
+    card.classList.add("is-interactive");
+    card.style.pointerEvents = "auto";
+    card.style.opacity = "1";
+    card.style.transform = tf(interactiveLayout.deckX, interactiveLayout.deckY);
+    card.title = "Drag left to decline or right to approve";
+    clearButtonState(card);
+    renderContext(next);
+    setState("interactive");
+  };
+
+  const completeChoice = (index, direction, draggedX = 0) => {
+    if (interactionLocked || index !== interactiveIndex || !interactiveLayout) return;
+    interactionLocked = true;
+    drag = null;
+    const card = acts[index];
+    snapAnims.get(card)?.cancel();
+    const { W, aw, deckX, deckY, reach, k } = interactiveLayout;
+    const startX = draggedX || direction * reach;
+    card.classList.remove("is-interactive");
+    card.style.pointerEvents = "none";
+    card.removeAttribute("title");
+    showDecision(card, direction);
+    const exit = card.animate([
+      { transform: tf(deckX + startX, deckY + 10 * k, direction * 9), opacity: 1 },
+      { transform: tf(deckX + direction * (W / 2 + aw + 80), deckY + 90 * k, direction * 28), opacity: 1 },
+    ], { duration: 320, easing: THROW, fill: "forwards" });
+    manualAnims.push(exit);
+    decisions.set(index, direction);
+    interactionTimer = window.setTimeout(activateInteractiveCard, 180);
+  };
+
+  const enterInteractive = () => {
+    if (!interactiveLayout) return;
+    interactionLocked = false;
+    summary.style.opacity = "0";
+    for (let i = SLOW; i < acts.length; i += 1) {
+      actRevealAnims[i]?.cancel();
+      const card = acts[i];
+      card.classList.remove("is-interactive");
+      card.style.pointerEvents = "none";
+      card.style.transform = tf(interactiveLayout.deck[i].x, interactiveLayout.deck[i].y, interactiveLayout.deck[i].r);
+      card.style.opacity = decisions.has(i) ? "0" : "1";
+      clearButtonState(card);
+    }
+    activateInteractiveCard();
+  };
+
+  acts.forEach((card, index) => {
+    card.addEventListener("pointerdown", (event) => {
+      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-btn")) return;
+      event.preventDefault();
+      snapAnims.get(card)?.cancel();
+      card.setPointerCapture(event.pointerId);
+      drag = { pointerId: event.pointerId, startX: event.clientX, x: 0 };
+      card.classList.add("is-dragging");
+    });
+    card.addEventListener("pointermove", (event) => {
+      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || !interactiveLayout) return;
+      const limit = interactiveLayout.W * 0.62;
+      drag.x = Math.max(-limit, Math.min(limit, event.clientX - drag.startX));
+      const rotation = (drag.x / interactiveLayout.reach) * 9;
+      card.style.transform = tf(interactiveLayout.deckX + drag.x, interactiveLayout.deckY + 10 * interactiveLayout.k, rotation);
+      const threshold = Math.min(96, interactiveLayout.aw * 0.3);
+      showDecision(card, drag.x, Math.abs(drag.x) >= threshold * 0.55);
+    });
+    const endDrag = (event) => {
+      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || !interactiveLayout) return;
+      const releasedX = drag.x;
+      drag = null;
+      card.classList.remove("is-dragging");
+      const threshold = Math.min(96, interactiveLayout.aw * 0.3);
+      if (Math.abs(releasedX) >= threshold) {
+        completeChoice(index, releasedX > 0 ? 1 : -1, releasedX);
+        return;
+      }
+      clearButtonState(card);
+      const snap = card.animate([
+        { transform: card.style.transform },
+        { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY) },
+      ], { duration: 220, easing: MOVE, fill: "forwards" });
+      snapAnims.set(card, snap);
+      snap.onfinish = () => {
+        card.style.transform = tf(interactiveLayout.deckX, interactiveLayout.deckY);
+        snap.cancel();
+        snapAnims.delete(card);
+      };
+      manualAnims.push(snap);
+    };
+    card.addEventListener("pointerup", endDrag);
+    card.addEventListener("pointercancel", endDrag);
+    card.querySelector(".act-no").addEventListener("click", () => completeChoice(index, -1));
+    card.querySelector(".act-yes").addEventListener("click", () => completeChoice(index, 1));
+  });
 
   build();
   const autoplay = !reduceMotion.matches && "IntersectionObserver" in window;
@@ -334,7 +598,12 @@ else if (demo) {
       hold(clock());
       setState("paused");
     } else if (state === "paused") run(heldAt);
-    else run(0);
+    else if (state === "interactive" || state === "ended") {
+      decisions.clear();
+      build();
+      hold(0);
+      run(0);
+    } else run(0);
   });
 
   let width = stage.clientWidth;
@@ -343,8 +612,13 @@ else if (demo) {
     width = stage.clientWidth;
     const ms = clock();
     const wasRunning = running;
+    const state = demo.dataset.state;
     build();
     if (wasRunning) run(ms);
+    else if (state === "interactive" || state === "ended") {
+      hold(total);
+      enterInteractive();
+    }
     else hold(ms);
   }).observe(stage);
 
