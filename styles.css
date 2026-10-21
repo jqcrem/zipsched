@@ -197,6 +197,7 @@ h3 {
   align-items: center;
   height: 38px;
   margin-right: auto;
+  transform: translateY(7px);
 }
 .brand-mark-link {
   display: block;
