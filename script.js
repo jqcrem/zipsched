@@ -897,21 +897,32 @@ else if (demo) {
       at(cursor, [{ transform: pointer(hand) }, { transform: pointer(to) }], delay, duration, easing);
       hand = to;
     };
-    const calendarRangePoints = (value, singleDay = false) => {
+    const calendarRangePoints = (value, singleDay = false, proposedTimes = []) => {
       const range = parseCalendarRange(value);
       if (!range) return null;
       const calendarLeft = calendarPane.offsetLeft - (W <= 900 ? calendarPane.offsetWidth / 2 : 0);
       const calendarTop = calendarPane.offsetTop - (W > 900 ? calendarPane.offsetHeight / 2 : 0);
       const gridLeft = calendarLeft + CALENDAR_GUTTER;
       const gridWidth = calendarPane.offsetWidth - CALENDAR_GUTTER;
-      const gridTop = calendarTop + (W <= 900 ? 62 : 84);
+      // The calendar icon was removed, so the grid begins directly below the
+      // day strip instead of below an icon-and-heading block.
+      const gridTop = calendarTop + (W <= 900 ? 32 : 40);
       const calendarView = singleDay
         ? holdCalendarView(value)
         : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES };
       const { pixelsPerMinute } = calendarMetrics(W <= 900, calendarView.start, calendarView.end);
-      const renderedCalendar = calendarPane.querySelector(".calendar-panel");
-      const dayStart = Number(renderedCalendar?.dataset.dayStart ?? 0);
-      const dayCount = Number(renderedCalendar?.dataset.dayCount ?? days.length);
+      const timeDayIndexes = proposedTimes
+        .map(parseCalendarRange)
+        .filter(Boolean)
+        .map((timeRange) => timeRange.day);
+      const dayStart = !singleDay && proposedTimes.length
+        ? [0, 1, 2].reduce((bestStart, start) => {
+          const bestCount = timeDayIndexes.filter((dayIndex) => dayIndex >= bestStart && dayIndex < bestStart + 3).length;
+          const count = timeDayIndexes.filter((dayIndex) => dayIndex >= start && dayIndex < start + 3).length;
+          return count > bestCount ? start : bestStart;
+        }, 0)
+        : 0;
+      const dayCount = singleDay ? 1 : proposedTimes.length ? 3 : days.length;
       const column = Math.max(0, Math.min(dayCount - 1, range.day - dayStart));
       const x = gridLeft + gridWidth * (singleDay ? 0.5 : (column + 0.5) / dayCount);
       return {
@@ -975,7 +986,7 @@ else if (demo) {
       if (MAILS[i].kind === "times") {
         const bulletItems = [...card.querySelectorAll(".act-times li")];
         bulletItems.forEach((item, optionIndex) => {
-          const points = calendarRangePoints(MAILS[i].times[optionIndex]);
+          const points = calendarRangePoints(MAILS[i].times[optionIndex], false, MAILS[i].times);
           if (!points) return;
           moveHand(points.start, t, reviewMs(260));
           t += reviewMs(260);
