@@ -897,45 +897,21 @@ else if (demo) {
       at(cursor, [{ transform: pointer(hand) }, { transform: pointer(to) }], delay, duration, easing);
       hand = to;
     };
-    const calendarRangePoints = (value, singleDay = false, proposedTimes = []) => {
-      const range = parseCalendarRange(value);
-      if (!range) return null;
-      const grid = calendarPane.querySelector("[data-calendar-grid]");
-      if (!grid) return null;
+    const calendarRangePoints = (blockIndex = 0) => {
+      const block = calendarPane.querySelector(`.calendar-proposal[data-block-index="${blockIndex}"]`);
+      if (!block) return null;
       const stageBounds = stage.getBoundingClientRect();
-      const gridBounds = grid.getBoundingClientRect();
-      const gridLeft = gridBounds.left - stageBounds.left + CALENDAR_GUTTER;
-      const gridWidth = gridBounds.width - CALENDAR_GUTTER;
-      // The panel's entrance animation begins 8px lower than its resting
-      // position. Cursor moves happen after that animation has settled.
-      const gridTop = gridBounds.top - stageBounds.top - 8;
-      const calendarView = singleDay
-        ? holdCalendarView(value)
-        : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES };
-      const { pixelsPerMinute } = calendarMetrics(W <= 900, calendarView.start, calendarView.end);
-      const timeDayIndexes = proposedTimes
-        .map(parseCalendarRange)
-        .filter(Boolean)
-        .map((timeRange) => timeRange.day);
-      const dayStart = !singleDay && proposedTimes.length
-        ? [0, 1, 2].reduce((bestStart, start) => {
-          const bestCount = timeDayIndexes.filter((dayIndex) => dayIndex >= bestStart && dayIndex < bestStart + 3).length;
-          const count = timeDayIndexes.filter((dayIndex) => dayIndex >= start && dayIndex < start + 3).length;
-          return count > bestCount ? start : bestStart;
-        }, 0)
-        : 0;
-      const dayCount = singleDay ? 1 : proposedTimes.length ? 3 : days.length;
-      const column = Math.max(0, Math.min(dayCount - 1, range.day - dayStart));
-      const x = gridLeft + gridWidth * (singleDay ? 0.5 : (column + 0.5) / dayCount);
+      const blockBounds = block.getBoundingClientRect();
+      const x = (blockBounds.left + blockBounds.right) / 2 - stageBounds.left;
       return {
-        start: { x, y: gridTop + (range.start - calendarView.start) * pixelsPerMinute, s: 1 },
-        end: { x, y: gridTop + (range.end - calendarView.start) * pixelsPerMinute, s: 0.86 },
+        start: { x, y: blockBounds.top - stageBounds.top, s: 1 },
+        end: { x, y: blockBounds.bottom - stageBounds.top, s: 0.86 },
       };
     };
     contextStartsAt = t - 320;
     at(cursor, [{ transform: pointer(hand), opacity: 0 }, { transform: pointer(hand), opacity: 1 }], t - 200, 200, "linear", "both");
     at(threadPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 320, 320, DROP, "both");
-    at(calendarPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], t - 240, 320, DROP, "both");
+    const calendarEntranceAt = t - 240;
     const reviewPace = 1.7;
     const reviewMs = (duration) => Math.round(duration * reviewPace);
     const reviewTiming = {
@@ -964,8 +940,10 @@ else if (demo) {
       // the guided cards are gone.
       if (MAILS[i].kind === "hold" && i === 0) {
         renderContext(i, 0);
-        const points = calendarRangePoints(cardEdits[i].when, true);
-        const resizedPoints = calendarRangePoints(extendCalendarRange(cardEdits[i].when), true);
+        const points = calendarRangePoints();
+        renderContext(i, 1);
+        const resizedPoints = calendarRangePoints();
+        renderContext(i, 0);
         if (points && resizedPoints) {
           moveHand(points.end, t, reviewMs(300));
           t += reviewMs(300);
@@ -990,7 +968,8 @@ else if (demo) {
         renderContext(i, 0);
         const bulletItems = [...card.querySelectorAll(".act-times li")];
         bulletItems.forEach((item, optionIndex) => {
-          const points = calendarRangePoints(MAILS[i].times[optionIndex], false, MAILS[i].times);
+          renderContext(i, optionIndex + 1);
+          const points = calendarRangePoints(optionIndex);
           if (!points) return;
           moveHand(points.start, t, reviewMs(260));
           t += reviewMs(260);
@@ -1010,6 +989,7 @@ else if (demo) {
           moveHand({ ...hand, s: 1 }, t, reviewMs(60), "ease-out");
           t += reviewMs(70);
         });
+        renderContext(i, 0);
         const approve = { x: deckX + aw - 40, y: deckY + ah - 38, s: 1 };
         moveHand(approve, t, reviewMs(300));
         t += reviewMs(300);
@@ -1064,6 +1044,11 @@ else if (demo) {
       contextSwitches.push({ at: switchAt, index: i + 1 });
       t += reviewTiming.overlap;
     });
+
+    // Measure guided targets before creating the pane's entrance animation,
+    // so getBoundingClientRect() reflects its final resting transform. The
+    // animation keeps its original timeline even though it is created later.
+    at(calendarPane, [{ opacity: 0, transform: W <= 900 ? "translate(-50%, 8px)" : "translateY(calc(-50% + 8px))" }, { opacity: 1, transform: W <= 900 ? "translate(-50%, 0)" : "translateY(-50%)" }], calendarEntranceAt, 320, DROP, "both");
 
     // 5. After four examples, the cursor leaves and the remaining cards are
     // handed to the viewer. The timeline stops here until they decide.
