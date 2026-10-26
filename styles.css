@@ -528,6 +528,9 @@ html:not(.js) .demo { display: none; }
   white-space: nowrap;
 }
 .action-tag svg { flex: 0 0 auto; }
+.act-kind-hold .action-tag { background: #e9f8ee; color: #15803d; }
+.act-kind-times .action-tag { background: #fef3c7; color: #a16207; }
+.act-kind-invitee .action-tag { background: var(--cobalt-wash); color: var(--cobalt-deep); }
 .invitees { display: flex; flex-wrap: wrap; gap: 6px; }
 .invitee {
   position: relative;
