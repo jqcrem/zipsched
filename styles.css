@@ -585,6 +585,7 @@ html:not(.js) .demo { display: none; }
 .thread-subject-icon { display: grid; flex: 0 0 auto; color: currentColor; }
 .thread-subject-icon svg { width: 16px; height: 16px; }
 .thread-subject-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.thread-panel { display: flex; flex-direction: column; }
 .thread-list {
   display: grid;
   gap: 14px;
@@ -593,6 +594,17 @@ html:not(.js) .demo { display: none; }
   border-left: 1px dashed #b8c2d0;
   list-style: disc;
 }
+.thread-recipient {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  color: #94a3b8;
+  font: 400 0.625rem/1.4 var(--sans);
+}
+.thread-recipient strong { color: #64748b; font-weight: 600; }
 .thread-list li { padding-left: 3px; }
 .thread-list li::marker { color: var(--cobalt); font-size: 0.75rem; }
 .thread-sender { display: flex; align-items: baseline; gap: 6px; font-size: 0.75rem; }

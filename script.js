@@ -260,9 +260,12 @@ else if (demo) {
       { name: m.from, email: emailAddress(m.from), at: m.at, body: cleanAsk(m.ask) },
       ...(m.eaReply ? [{ name: replyName, email: replyEmail, at: "a few min later", body: m.eaReply }] : []),
     ];
+    const recipient = m.kind === "times"
+      ? `<p class="thread-recipient"><span>Reply to</span><strong>${escapeHTML(m.from)}</strong><span>${emailAddress(m.from)}</span></p>`
+      : "";
     const panel = document.createElement("article");
     panel.className = "context-panel thread-panel";
-    panel.innerHTML = `<p class="thread-subject"><span class="thread-subject-icon">${ICONS.mail}</span><span class="thread-subject-text">${m.meta}</span></p><ol class="thread-list">${messages.map((message) => `<li><p class="thread-sender"><strong>${message.name}</strong><span class="thread-time">${message.at}</span></p><p class="thread-email">${message.email}</p><p class="thread-message-copy">${message.body}</p></li>`).join("")}</ol>`;
+    panel.innerHTML = `<p class="thread-subject"><span class="thread-subject-icon">${ICONS.mail}</span><span class="thread-subject-text">${m.meta}</span></p><ol class="thread-list">${messages.map((message) => `<li><p class="thread-sender"><strong>${message.name}</strong><span class="thread-time">${message.at}</span></p><p class="thread-email">${message.email}</p><p class="thread-message-copy">${message.body}</p></li>`).join("")}</ol>${recipient}`;
     threadPane.replaceChildren(panel);
 
     const calendar = document.createElement("article");
