@@ -550,26 +550,21 @@ html:not(.js) .demo { display: none; }
   font-weight: 600;
 }
 
-/* Source context stays intentionally bare: icon, content and no surrounding
-   card chrome. The center suggestion remains the only elevated surface. */
+/* Source context stays intentionally bare, without card chrome. The center
+   suggestion remains the only elevated surface. */
 .context-panel { position: relative; z-index: 1; height: 100%; overflow: hidden; color: #111827; }
-.context-icon {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  margin-bottom: 16px;
-  color: var(--cobalt);
-}
-.context-icon svg { width: 20px; height: 20px; }
 .thread-subject {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   font-size: 0.8125rem;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
+.thread-subject-icon { display: grid; flex: 0 0 auto; color: currentColor; }
+.thread-subject-icon svg { width: 16px; height: 16px; }
+.thread-subject-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .thread-list {
   display: grid;
   gap: 14px;
@@ -1251,9 +1246,7 @@ html:not(.js) .demo { display: none; }
   .thread-list { gap: 8px; margin-top: 8px; }
   .thread-message-copy { margin-top: 2px; }
   .thread-message-copy { -webkit-line-clamp: 2; }
-  .context-icon { float: left; margin: 0 12px 0 0; }
   .calendar-panel { display: block; }
-  .calendar-panel .context-icon { float: none; margin-bottom: 6px; }
   .calendar-days { align-content: start; }
   .calendar-day { min-height: 28px; }
   .calendar-grid { margin-top: 4px; }

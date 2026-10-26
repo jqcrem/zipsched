@@ -260,7 +260,7 @@ else if (demo) {
     ];
     const panel = document.createElement("article");
     panel.className = "context-panel thread-panel";
-    panel.innerHTML = `<span class="context-icon">${ICONS.mail}</span><p class="thread-subject">${m.meta}</p><ol class="thread-list">${messages.map((message) => `<li><p class="thread-sender"><strong>${message.name}</strong><span class="thread-time">${message.at}</span></p><p class="thread-email">${message.email}</p><p class="thread-message-copy">${message.body}</p></li>`).join("")}</ol>`;
+    panel.innerHTML = `<p class="thread-subject"><span class="thread-subject-icon">${ICONS.mail}</span><span class="thread-subject-text">${m.meta}</span></p><ol class="thread-list">${messages.map((message) => `<li><p class="thread-sender"><strong>${message.name}</strong><span class="thread-time">${message.at}</span></p><p class="thread-email">${message.email}</p><p class="thread-message-copy">${message.body}</p></li>`).join("")}</ol>`;
     threadPane.replaceChildren(panel);
 
     const calendar = document.createElement("article");
@@ -344,7 +344,7 @@ else if (demo) {
       { length: Math.ceil((calendarView.end - calendarView.start) / calendarView.step) },
       (_, row) => calendarHourLabel(calendarView.start + row * calendarView.step),
     );
-    calendar.innerHTML = `<span class="context-icon">${ICONS.hold}</span><div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid>${hourLabels.map((label) => `<div class="calendar-hour"><span>${label}</span></div>`).join("")}${busyMarkup}${proposalMarkup}</div>`;
+    calendar.innerHTML = `<div class="calendar-days">${dayStrip}</div><div class="calendar-grid${editable ? " is-directly-editable" : ""}" data-calendar-grid>${hourLabels.map((label) => `<div class="calendar-hour"><span>${label}</span></div>`).join("")}${busyMarkup}${proposalMarkup}</div>`;
     calendarPane.replaceChildren(calendar);
     if (!editable) return;
 
