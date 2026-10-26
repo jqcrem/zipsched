@@ -902,10 +902,12 @@ else if (demo) {
       if (!block) return null;
       const stageBounds = stage.getBoundingClientRect();
       const blockBounds = block.getBoundingClientRect();
-      const x = (blockBounds.left + blockBounds.right) / 2 - stageBounds.left;
+      const scaleX = stageBounds.width / stage.clientWidth;
+      const scaleY = stageBounds.height / stage.clientHeight;
+      const x = ((blockBounds.left + blockBounds.right) / 2 - stageBounds.left) / scaleX;
       return {
-        start: { x, y: blockBounds.top - stageBounds.top, s: 1 },
-        end: { x, y: blockBounds.bottom - stageBounds.top, s: 0.86 },
+        start: { x, y: (blockBounds.top - stageBounds.top) / scaleY, s: 1 },
+        end: { x, y: (blockBounds.bottom - stageBounds.top) / scaleY, s: 0.86 },
       };
     };
     contextStartsAt = t - 320;
@@ -1231,7 +1233,8 @@ else if (demo) {
       const limit = interactiveLayout.W * 0.62;
       // Trackpad scroll direction follows content, so invert it to make the
       // card follow the finger: scroll left to decline, right to approve.
-      wheelOffset = Math.max(-limit, Math.min(limit, wheelOffset - horizontal * unit));
+      const visualScale = stage.getBoundingClientRect().width / stage.clientWidth;
+      wheelOffset = Math.max(-limit, Math.min(limit, wheelOffset - (horizontal * unit) / visualScale));
       const rotation = (wheelOffset / interactiveLayout.reach) * 9;
       card.style.transform = tf(interactiveLayout.deckX + wheelOffset, interactiveLayout.deckY + 10 * interactiveLayout.k, rotation);
       const threshold = Math.min(96, interactiveLayout.aw * 0.3);
@@ -1262,7 +1265,8 @@ else if (demo) {
     card.addEventListener("pointermove", (event) => {
       if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || card.classList.contains("is-editing") || !interactiveLayout) return;
       const limit = interactiveLayout.W * 0.62;
-      drag.x = Math.max(-limit, Math.min(limit, event.clientX - drag.startX));
+      const visualScale = stage.getBoundingClientRect().width / stage.clientWidth;
+      drag.x = Math.max(-limit, Math.min(limit, (event.clientX - drag.startX) / visualScale));
       const rotation = (drag.x / interactiveLayout.reach) * 9;
       card.style.transform = tf(interactiveLayout.deckX + drag.x, interactiveLayout.deckY + 10 * interactiveLayout.k, rotation);
       const threshold = Math.min(96, interactiveLayout.aw * 0.3);

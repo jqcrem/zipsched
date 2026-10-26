@@ -1242,6 +1242,78 @@ html:not(.js) .demo { display: none; }
 .policy-card a { color: var(--cobalt); text-underline-offset: 3px; }
 
 /* Responsive */
+@media (min-width: 1100px) {
+  /* Use native desktop dimensions instead of raster-scaling the finished
+     demo. Text and borders stay sharp, while the existing tablet and phone
+     rules below continue to use the compact geometry. */
+  .stage {
+    --mail-w: 360px;
+    --mail-h: 149px;
+    --act-w: 336px;
+    --act-h: 322px;
+    height: 600px;
+  }
+  .stage-side { width: 288px; height: 343px; }
+  .stage-thread { right: calc(50% + 186px); width: 300px; }
+  .stage-calendar { left: calc(50% + 240px); width: 312px; height: 408px; }
+  .stage-side::before { inset: -29px -38px; }
+
+  .mail { padding: 16px 19px; border-radius: 14px; }
+  .mail-head { gap: 10px; font-size: 1.05rem; }
+  .mail-head svg { width: 19px; height: 19px; }
+  .mail-at,
+  .mail-meta { font-size: 0.9rem; }
+  .mail-meta { padding-left: 29px; }
+  .mail-ask { margin-top: 10px; font-size: 1.125rem; }
+
+  .act { padding: 22px 22px 19px; border-radius: 19px; }
+  .act-title { margin-top: 14px; font-size: 1.35rem; }
+  .act-when { margin-top: 4px; font-size: 0.975rem; }
+  .act-email-copy { height: 48px; margin-top: 8px; padding: 4px; font-size: 0.9rem; }
+  .act-times { gap: 4px; margin-top: 5px; padding-right: 5px; font-size: 0.9rem; }
+  .act-times li { padding-left: 17px; }
+  .act-times li::before { left: 2px; width: 5px; height: 5px; }
+  .act .invitees { margin-top: 17px; }
+  .act-btns { padding-top: 17px; }
+  .act-btn { width: 53px; height: 53px; border-radius: 14px; }
+  .act-btn svg { width: 21px; height: 21px; }
+  .act-edit-menu { min-width: 113px; }
+  .act-edit-confirm button { font-size: 0.825rem; }
+  .action-tag { gap: 7px; padding: 4px 12px 4px 10px; font-size: 0.9rem; }
+  .action-tag svg { width: 16px; height: 16px; }
+  .invitees { gap: 7px; }
+  .invitee { gap: 4px; padding: 4px 12px; font-size: 0.975rem; }
+
+  .thread-subject { gap: 7px; font-size: 0.975rem; }
+  .thread-subject-icon svg { width: 19px; height: 19px; }
+  .thread-list { gap: 17px; margin-top: 19px; padding-left: 20px; }
+  .thread-recipient { gap: 4px 7px; padding-top: 12px; font-size: 0.75rem; }
+  .thread-sender { gap: 7px; font-size: 0.9rem; }
+  .thread-time { font-size: 0.675rem; }
+  .thread-email { font-size: 0.75rem; }
+  .thread-message-copy { margin-top: 6px; font-size: 0.9rem; }
+
+  .calendar-panel { --calendar-gutter: 46px; }
+  .calendar-day { min-height: 38px; font-size: 0.675rem; }
+  .calendar-day span { font-size: 0.9rem; }
+  .calendar-grid { margin-top: 10px; }
+  .calendar-hour { height: 43px; }
+  .calendar-hour > span { right: calc(100% + 8px); top: -8px; font-size: 0.675rem; }
+  .calendar-event { padding: 2px 4px; border-radius: 7px; font-size: 0.75rem; }
+  .calendar-event-muted { min-height: 13px; font-size: 0.6rem; }
+  .calendar-event-muted span { font-size: 0.525rem; }
+  .calendar-proposal { min-height: 22px; padding: 4px 17px 6px 6px; }
+  .calendar-proposal > span:not(.calendar-resize-handle) { font-size: 0.6rem; }
+  .calendar-block-remove { width: 14px; height: 14px; }
+  .calendar-block-remove svg { width: 8px; height: 8px; }
+
+  .stage-cursor { width: 24px; height: 29px; }
+  .stage-press { left: -19px; top: -19px; width: 38px; height: 38px; }
+  .summary-pill { gap: 10px; padding: 10px 19px 10px 16px; font-size: 1.125rem; }
+  .demo-controls { margin-top: -53px; }
+  .demo-toggle { width: 48px; height: 48px; margin-right: -12px; }
+}
+
 @media (max-width: 1080px) {
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
