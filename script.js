@@ -20,6 +20,7 @@ else if (demo) {
     hold: '<svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3M8 8.5v3M6.5 10h3"/></g></svg>',
     times: '<svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3.25l2 1.25"/></g></svg>',
     invitee: '<svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5c.6-2.4 2.3-3.5 4.5-3.5s3.9 1.1 4.5 3.5M12.5 5v4M10.5 7h4"/></g></svg>',
+    edit: '<svg viewBox="0 0 24 24" width="17" height="17"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     no: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     yes: '<svg viewBox="0 0 16 16" width="18" height="18"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
@@ -85,6 +86,7 @@ else if (demo) {
         : [],
   }));
   let cardEdits = initialEdits();
+  const editSnapshots = new Map();
   // Hand-set mess, one row per email: x and y offset on the pile (`px` at
   // desktop size), its tilt there (`deg`), and the slighter tilt of its card
   // on the deck (`deg`).
@@ -339,7 +341,9 @@ else if (demo) {
       const start = clockParts(event.start);
       return `<div class="calendar-event calendar-event-muted" style="${blockStyleFor(event, 10)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
     }).join("");
-    const editable = demo.dataset.state === "interactive" && index === interactiveIndex;
+    const editable = demo.dataset.state === "interactive"
+      && index === interactiveIndex
+      && acts[index]?.classList.contains("is-editing");
     const hourLabels = Array.from(
       { length: Math.ceil((calendarView.end - calendarView.start) / calendarView.step) },
       (_, row) => calendarHourLabel(calendarView.start + row * calendarView.step),
@@ -535,6 +539,14 @@ else if (demo) {
       });
     });
   };
+  const inviteeMarkup = (mail, edit) => edit.invitees.length
+    ? `<p class="invitees" aria-label="Invitees">${edit.invitees.map((name, inviteeIndex) => {
+      const removable = mail.kind === "invitee"
+        ? `<button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button>`
+        : "";
+      return `<span class="invitee${name === mail.add ? " invitee-new" : ""}${mail.kind === "hold" ? " invitee-sender" : ""}"><span>${escapeHTML(name)}</span>${removable}</span>`;
+    }).join("")}</p>`
+    : "";
   // The deck is built newest email first, so the first email's card ends up
   // on top: each card sits above every card for a later email.
   const acts = MAILS.map((m, i) => {
@@ -548,15 +560,8 @@ else if (demo) {
     const detail = m.kind === "times"
       ? `<div class="act-times-editor"><textarea class="act-email-copy act-control" aria-label="Email text" readonly tabindex="-1">${escapeHTML(edit.message)}</textarea><ul class="act-times mono" aria-label="Proposed times">${edit.times.map((time) => `<li>${escapeHTML(time)}</li>`).join("")}</ul></div>`
       : `<p class="act-when mono">${escapeHTML(edit.when)}</p>`;
-    const invitees = edit.invitees.length
-      ? `<p class="invitees" aria-label="Invitees">${edit.invitees.map((name, inviteeIndex) => {
-        const removable = m.kind === "invitee"
-          ? `<button type="button" class="invitee-remove act-control" data-invitee-index="${inviteeIndex}" aria-label="Remove ${escapeHTML(name)}" disabled>${ICONS.no}</button>`
-          : "";
-        return `<span class="invitee${name === m.add ? " invitee-new" : ""}${m.kind === "hold" ? " invitee-sender" : ""}"><span>${escapeHTML(name)}</span>${removable}</span>`;
-      }).join("")}</p>`
-      : "";
-    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p>${title}${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no act-control" aria-label="Decline suggestion">${ICONS.no}</button><button type="button" class="act-btn act-yes act-control" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
+    const invitees = inviteeMarkup(m, edit);
+    card.innerHTML = `<p class="action-tag">${ICONS[m.kind]}${KINDS[m.kind]}</p>${title}${detail}${invitees}<div class="act-btns"><button type="button" class="act-btn act-no act-control" aria-label="Decline suggestion">${ICONS.no}</button><div class="act-edit-menu"><button type="button" class="act-btn act-edit act-control" aria-label="Edit suggestion">${ICONS.edit}</button><span class="act-edit-confirm"><button type="button" class="act-edit-cancel act-control">Cancel</button><button type="button" class="act-edit-save act-control">Save</button></span></div><button type="button" class="act-btn act-yes act-control" aria-label="Approve suggestion">${ICONS.yes}</button></div>`;
     stage.querySelector(".stage-deck").append(card);
     return card;
   });
@@ -565,7 +570,15 @@ else if (demo) {
     if (!list) return;
     list.innerHTML = cardEdits[index].times.map((time) => `<li>${escapeHTML(time)}</li>`).join("");
   };
+  const syncInviteesCard = (index) => {
+    const card = acts[index];
+    const markup = inviteeMarkup(MAILS[index], cardEdits[index]);
+    const current = card.querySelector(".invitees");
+    if (current) current.outerHTML = markup;
+    else if (markup) card.querySelector(".act-btns").insertAdjacentHTML("beforebegin", markup);
+  };
   const setCardEditing = (card, enabled) => {
+    card.classList.toggle("is-editing", enabled);
     const title = card.querySelector(".act-title-input");
     const email = card.querySelector(".act-email-copy");
     if (title) {
@@ -579,6 +592,9 @@ else if (demo) {
     card.querySelectorAll(".invitee-remove").forEach((button) => {
       button.disabled = !enabled;
     });
+    card.querySelectorAll(".act-no, .act-yes").forEach((button) => {
+      button.disabled = enabled;
+    });
   };
   acts.forEach((card, index) => {
     const titleInput = card.querySelector(".act-title-input");
@@ -590,15 +606,14 @@ else if (demo) {
     emailInput?.addEventListener("input", () => {
       cardEdits[index].message = emailInput.value;
     });
-    card.querySelectorAll(".invitee-remove").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (index !== interactiveIndex) return;
-        const inviteeName = button.closest(".invitee").querySelector(":scope > span").textContent;
-        const inviteeIndex = cardEdits[index].invitees.indexOf(inviteeName);
-        if (inviteeIndex < 0) return;
-        cardEdits[index].invitees.splice(inviteeIndex, 1);
-        button.closest(".invitee").remove();
-      });
+    card.addEventListener("click", (event) => {
+      const removeButton = event.target.closest(".invitee-remove");
+      if (!removeButton || index !== interactiveIndex || !card.classList.contains("is-editing")) return;
+      const inviteeName = removeButton.closest(".invitee").querySelector(":scope > span").textContent;
+      const inviteeIndex = cardEdits[index].invitees.indexOf(inviteeName);
+      if (inviteeIndex < 0) return;
+      cardEdits[index].invitees.splice(inviteeIndex, 1);
+      syncInviteesCard(index);
     });
   });
   summary.innerHTML = `<span class="summary-pill summary-yes">${ICONS.yes}${MAILS.length - DECLINED.size} approved</span><span class="summary-pill summary-no">${ICONS.no}${DECLINED.size} declined</span>`;
@@ -646,6 +661,45 @@ else if (demo) {
       button.style.transform = "";
     }
   };
+
+  const snapshotEdit = (index) => ({
+    ...cardEdits[index],
+    times: [...cardEdits[index].times],
+    invitees: [...cardEdits[index].invitees],
+  });
+  const restoreCardEdit = (index) => {
+    const card = acts[index];
+    const edit = cardEdits[index];
+    const title = card.querySelector(".act-title-input");
+    const email = card.querySelector(".act-email-copy");
+    if (title) title.value = edit.title;
+    if (email) email.value = edit.message;
+    syncTimesCard(index);
+    syncInviteesCard(index);
+  };
+  acts.forEach((card, index) => {
+    card.querySelector(".act-edit").addEventListener("click", () => {
+      if (index !== interactiveIndex || interactionLocked) return;
+      editSnapshots.set(index, snapshotEdit(index));
+      setCardEditing(card, true);
+      renderContext(index);
+    });
+    card.querySelector(".act-edit-save").addEventListener("click", () => {
+      if (index !== interactiveIndex || !card.classList.contains("is-editing")) return;
+      editSnapshots.delete(index);
+      setCardEditing(card, false);
+      renderContext(index);
+    });
+    card.querySelector(".act-edit-cancel").addEventListener("click", () => {
+      if (index !== interactiveIndex || !card.classList.contains("is-editing")) return;
+      const snapshot = editSnapshots.get(index);
+      if (snapshot) cardEdits[index] = snapshot;
+      editSnapshots.delete(index);
+      restoreCardEdit(index);
+      setCardEditing(card, false);
+      renderContext(index);
+    });
+  });
 
   const showDecision = (card, direction, active = true) => {
     clearButtonState(card);
@@ -1094,7 +1148,7 @@ else if (demo) {
     card.style.transform = tf(interactiveLayout.deckX, interactiveLayout.deckY);
     card.title = "Drag left to decline or right to approve";
     clearButtonState(card);
-    setCardEditing(card, true);
+    setCardEditing(card, false);
     if (next === SLOW) {
       const interactiveHint = card.animate([
         { transform: tf(interactiveLayout.deckX, interactiveLayout.deckY) },
@@ -1112,7 +1166,7 @@ else if (demo) {
   };
 
   const completeChoice = (index, direction, draggedX = 0) => {
-    if (interactionLocked || index !== interactiveIndex || !interactiveLayout) return;
+    if (interactionLocked || index !== interactiveIndex || !interactiveLayout || acts[index].classList.contains("is-editing")) return;
     interactionLocked = true;
     drag = null;
     wheelOffset = 0;
@@ -1125,6 +1179,7 @@ else if (demo) {
     card.style.pointerEvents = "none";
     card.removeAttribute("title");
     setCardEditing(card, false);
+    editSnapshots.delete(index);
     showDecision(card, direction);
     const exit = card.animate([
       { transform: tf(deckX + startX, deckY + 10 * k, direction * 9), opacity: 1 },
@@ -1154,7 +1209,7 @@ else if (demo) {
 
   acts.forEach((card, index) => {
     card.addEventListener("pointerdown", (event) => {
-      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-control")) return;
+      if (index !== interactiveIndex || interactionLocked || card.classList.contains("is-editing") || event.target.closest(".act-control")) return;
       event.preventDefault();
       window.clearTimeout(wheelTimer);
       wheelOffset = 0;
@@ -1164,7 +1219,7 @@ else if (demo) {
       card.classList.add("is-dragging");
     });
     card.addEventListener("wheel", (event) => {
-      if (index !== interactiveIndex || interactionLocked || event.target.closest(".act-control") || !interactiveLayout) return;
+      if (index !== interactiveIndex || interactionLocked || card.classList.contains("is-editing") || event.target.closest(".act-control") || !interactiveLayout) return;
       const horizontal = event.deltaX || (event.shiftKey ? event.deltaY : 0);
       if (!horizontal) return;
       event.preventDefault();
@@ -1202,7 +1257,7 @@ else if (demo) {
       }, 140);
     }, { passive: false });
     card.addEventListener("pointermove", (event) => {
-      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || !interactiveLayout) return;
+      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || card.classList.contains("is-editing") || !interactiveLayout) return;
       const limit = interactiveLayout.W * 0.62;
       drag.x = Math.max(-limit, Math.min(limit, event.clientX - drag.startX));
       const rotation = (drag.x / interactiveLayout.reach) * 9;
@@ -1211,7 +1266,7 @@ else if (demo) {
       showDecision(card, drag.x, Math.abs(drag.x) >= threshold * 0.55);
     });
     const endDrag = (event) => {
-      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || !interactiveLayout) return;
+      if (!drag || drag.pointerId !== event.pointerId || index !== interactiveIndex || card.classList.contains("is-editing") || !interactiveLayout) return;
       const releasedX = drag.x;
       drag = null;
       card.classList.remove("is-dragging");

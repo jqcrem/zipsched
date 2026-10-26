@@ -410,6 +410,7 @@ html:not(.js) .demo { display: none; }
 }
 .act.is-dragging { cursor: grabbing; }
 .act.is-interactive .act-btn { cursor: pointer; }
+.act.is-interactive.is-editing { cursor: default; }
 .act .action-tag { align-self: flex-start; }
 .act-title { margin-top: 12px; font-size: 1.125rem; font-weight: 600; line-height: 1.3; letter-spacing: -0.015em; }
 .act-title-input {
@@ -478,6 +479,7 @@ html:not(.js) .demo { display: none; }
 .act .invitees { margin-top: 14px; }
 .act-btns {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   margin-top: auto;
   padding-top: 14px;
@@ -496,6 +498,21 @@ html:not(.js) .demo { display: none; }
 }
 .act-no { border-color: var(--rule-strong); color: var(--muted); }
 .act-yes { border-color: rgb(31 79 209 / 0.45); color: var(--cobalt); }
+.act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.act-edit-menu { display: grid; place-items: center; min-width: 94px; }
+.act-edit-confirm button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: 600 0.6875rem/1 var(--sans);
+  cursor: pointer;
+}
+.act-edit { border-color: var(--rule-strong); color: var(--muted); }
+.act-edit:hover { background: #f3f4f6; color: var(--ink); }
+.act-edit-confirm { display: none; align-items: center; gap: 8px; }
+.act-edit-save { color: var(--cobalt-deep) !important; }
+.act.is-editing .act-edit { display: none; }
+.act.is-editing .act-edit-confirm { display: flex; }
 
 .action-tag {
   display: inline-flex;
