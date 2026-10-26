@@ -900,13 +900,15 @@ else if (demo) {
     const calendarRangePoints = (value, singleDay = false, proposedTimes = []) => {
       const range = parseCalendarRange(value);
       if (!range) return null;
-      const calendarLeft = calendarPane.offsetLeft - (W <= 900 ? calendarPane.offsetWidth / 2 : 0);
-      const calendarTop = calendarPane.offsetTop - (W > 900 ? calendarPane.offsetHeight / 2 : 0);
-      const gridLeft = calendarLeft + CALENDAR_GUTTER;
-      const gridWidth = calendarPane.offsetWidth - CALENDAR_GUTTER;
-      // The calendar icon was removed, so the grid begins directly below the
-      // day strip instead of below an icon-and-heading block.
-      const gridTop = calendarTop + (W <= 900 ? 32 : 40);
+      const grid = calendarPane.querySelector("[data-calendar-grid]");
+      if (!grid) return null;
+      const stageBounds = stage.getBoundingClientRect();
+      const gridBounds = grid.getBoundingClientRect();
+      const gridLeft = gridBounds.left - stageBounds.left + CALENDAR_GUTTER;
+      const gridWidth = gridBounds.width - CALENDAR_GUTTER;
+      // The panel's entrance animation begins 8px lower than its resting
+      // position. Cursor moves happen after that animation has settled.
+      const gridTop = gridBounds.top - stageBounds.top - 8;
       const calendarView = singleDay
         ? holdCalendarView(value)
         : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES };
@@ -961,6 +963,7 @@ else if (demo) {
       // and lengthens it. This mirrors the direct manipulation available once
       // the guided cards are gone.
       if (MAILS[i].kind === "hold" && i === 0) {
+        renderContext(i, 0);
         const points = calendarRangePoints(cardEdits[i].when, true);
         const resizedPoints = calendarRangePoints(extendCalendarRange(cardEdits[i].when), true);
         if (points && resizedPoints) {
@@ -984,6 +987,7 @@ else if (demo) {
       // viewer gets later: draw blocks directly across the calendar, watch the
       // bullets appear, then approve with the check button.
       if (MAILS[i].kind === "times") {
+        renderContext(i, 0);
         const bulletItems = [...card.querySelectorAll(".act-times li")];
         bulletItems.forEach((item, optionIndex) => {
           const points = calendarRangePoints(MAILS[i].times[optionIndex], false, MAILS[i].times);
