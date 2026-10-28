@@ -791,10 +791,11 @@ else if (demo) {
     const deckX = (W - aw) / 2;
     const deckY = W <= 600 ? 186 : W <= 900 ? 188 : (H - ah) / 2;
 
-    // The first four emails spread across most of the stage. The rush lands
-    // in irregular positions across the full width and piles over them.
+    // The first four emails spread across the centred content rail. The rush
+    // uses that same rail, rather than the full viewport: using the stage
+    // width here made the landing group drift right on ultrawide screens.
     const left = guide.offsetLeft;
-    const span = Math.max(0, W - (W < 600 ? 12 : 24) - mw - left);
+    const span = Math.max(0, guide.offsetWidth - mw);
     const pile = SCATTER.map(([sx, sy, r], i) => {
       const x = i < SLOW ? (0.9 * i) / (SLOW - 1) : RUSH_X[i - SLOW];
       return { x: left + span * x + sx * k, y: (H - mh) / 2 + sy * k, r };
