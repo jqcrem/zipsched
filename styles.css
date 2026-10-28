@@ -1314,6 +1314,23 @@ html:not(.js) .demo { display: none; }
   .demo-toggle { width: 48px; height: 48px; margin-right: -12px; }
 }
 
+/* Reversible wide-screen size experiment: give the interactive card and its
+   email/calendar context more presence without affecting laptop or mobile
+   layouts. */
+@media (min-width: 1280px) {
+  .stage {
+    --mail-w: 396px;
+    --mail-h: 164px;
+    --act-w: 370px;
+    --act-h: 354px;
+    height: 660px;
+  }
+  .stage-side { width: 317px; height: 377px; }
+  .stage-thread { right: calc(50% + 205px); width: 330px; }
+  .stage-calendar { left: calc(50% + 240px); width: 343px; height: 449px; }
+  .stage-side::before { inset: -32px -42px; }
+}
+
 @media (max-width: 1080px) {
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
