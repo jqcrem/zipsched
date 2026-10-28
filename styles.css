@@ -1329,6 +1329,32 @@ html:not(.js) .demo { display: none; }
   .stage-thread { right: calc(50% + 205px); width: 330px; }
   .stage-calendar { left: calc(50% + 240px); width: 343px; height: 449px; }
   .stage-side::before { inset: -32px -42px; }
+
+  .mail-head { font-size: 1.125rem; }
+  .mail-at,
+  .mail-meta { font-size: 0.975rem; }
+  .mail-ask { font-size: 1.2rem; }
+
+  .act-title { font-size: 1.5rem; }
+  .act-when { font-size: 1.0625rem; }
+  .act-email-copy,
+  .act-times { font-size: 0.975rem; }
+  .invitee { font-size: 1.0625rem; }
+
+  .thread-subject { font-size: 1.1rem; }
+  .thread-sender { font-size: 1rem; }
+  .thread-time { font-size: 0.75rem; }
+  .thread-email { font-size: 0.85rem; }
+  .thread-message-copy { font-size: 0.975rem; }
+  .thread-recipient { font-size: 0.825rem; }
+
+  .calendar-day { font-size: 0.75rem; }
+  .calendar-day span { font-size: 1rem; }
+  .calendar-hour > span { font-size: 0.75rem; }
+  .calendar-event { font-size: 0.825rem; }
+  .calendar-event-muted { font-size: 0.675rem; }
+  .calendar-event-muted span { font-size: 0.6rem; }
+  .calendar-proposal > span:not(.calendar-resize-handle) { font-size: 0.675rem; }
 }
 
 @media (max-width: 1080px) {
