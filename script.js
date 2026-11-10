@@ -1297,7 +1297,19 @@ else if (demo) {
     card.querySelector(".act-yes").addEventListener("click", () => completeChoice(index, 1));
   });
 
+  // The stage is a pointer-driven illustration, hidden from assistive tech
+  // with a text description beside it, so nothing in it joins the tab order.
+  // Scrollable lists count, since browsers make those tabbable by default.
+  // The editing fields set their own tabindex while a card is being edited.
+  const keepOutOfTabOrder = () => {
+    for (const node of stage.querySelectorAll("a[href], button:not(.act-control), .act-times")) {
+      node.tabIndex = -1;
+    }
+  };
+  new MutationObserver(keepOutOfTabOrder).observe(stage, { childList: true, subtree: true });
+
   build();
+  keepOutOfTabOrder();
   const autoplay = !reduceMotion.matches && "IntersectionObserver" in window;
   hold(autoplay ? 0 : stillAt);
   setState("ready");
