@@ -1329,9 +1329,11 @@ else if (demo) {
   });
 
   let width = stage.clientWidth;
+  let height = stage.clientHeight;
   new ResizeObserver(() => {
-    if (stage.clientWidth === width) return;
+    if (stage.clientWidth === width && stage.clientHeight === height) return;
     width = stage.clientWidth;
+    height = stage.clientHeight;
     const ms = clock();
     const wasRunning = running;
     const state = demo.dataset.state;
