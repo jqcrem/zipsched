@@ -514,8 +514,6 @@ html:not(.js) .demo { display: none; }
 .act-no { border-color: var(--rule-strong); color: var(--muted); }
 .act-yes { border-color: rgb(31 79 209 / 0.45); color: var(--cobalt); }
 .act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.act-edit { border-color: var(--rule-strong); color: var(--muted); }
-.act-edit:hover { background: #f3f4f6; color: var(--ink); }
 
 .action-tag {
   display: inline-flex;
