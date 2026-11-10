@@ -584,14 +584,8 @@ else if (demo) {
     card.classList.toggle("is-editing", enabled);
     const title = card.querySelector(".act-title-input");
     const email = card.querySelector(".act-email-copy");
-    if (title) {
-      title.readOnly = !enabled;
-      title.tabIndex = enabled ? 0 : -1;
-    }
-    if (email) {
-      email.readOnly = !enabled;
-      email.tabIndex = enabled ? 0 : -1;
-    }
+    if (title) title.readOnly = !enabled;
+    if (email) email.readOnly = !enabled;
     card.querySelectorAll(".invitee-remove").forEach((button) => {
       button.disabled = !enabled;
     });
@@ -1300,9 +1294,9 @@ else if (demo) {
   // The stage is a pointer-driven illustration, hidden from assistive tech
   // with a text description beside it, so nothing in it joins the tab order.
   // Scrollable lists count, since browsers make those tabbable by default.
-  // The editing fields set their own tabindex while a card is being edited.
+  // A tabindex of -1 still lets a click focus and press these controls.
   const keepOutOfTabOrder = () => {
-    for (const node of stage.querySelectorAll("a[href], button:not(.act-control), .act-times")) {
+    for (const node of stage.querySelectorAll("a[href], button, .act-times")) {
       node.tabIndex = -1;
     }
   };
