@@ -18,7 +18,7 @@
   <meta property="og:image:alt" content="ZipSched: Stop typing emails into the calendar.">
   <meta name="twitter:card" content="summary_large_image">
   <script>document.documentElement.classList.add("js");</script>
-  <link rel="stylesheet" href="styles.css?v=pdf-sections-1">
+  <link rel="stylesheet" href="styles.css?v=how-section-1">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -75,165 +75,153 @@
       </figure>
     </section>
 
-    <!-- Intro -->
-    <section class="intro wrap" id="how" aria-labelledby="intro-title">
-      <h2 id="intro-title">Scheduling a meeting should take less work than the meeting itself.</h2>
-      <p>ZipSched helps coordinate availability, send invites, and handle changes, while keeping you in control.</p>
-    </section>
-
-    <!-- Ask for a meeting -->
-    <section class="feature wrap" aria-labelledby="ask-title">
-      <div class="feature-copy">
-        <h2 id="ask-title">Ask for a meeting. Review it. Send.</h2>
-        <p>Text or email ZipSched who needs to meet, for how long, and when. It checks the calendar and prepares an invitation with the attendees, time, and details.</p>
-        <p>Review the suggestion, edit anything you need, and approve it to send from your own connected account.</p>
+    <!-- How it works: the product overview, one numbered row per part. Each
+         illustration reuses the hero's pieces (bare context, one suggestion
+         card, the calendar column) so the page reads as one product. -->
+    <section class="section wrap" id="how" aria-labelledby="how-title">
+      <div class="section-head">
+        <h2 id="how-title">Scheduling a meeting should take less work than the meeting itself.</h2>
+        <p class="section-lede">ZipSched helps coordinate availability, send invites, and handle changes, while keeping you in control.</p>
       </div>
-      <figure class="visual" aria-label="Asking ZipSched for a meeting">
-        <p class="visually-hidden">Illustration of a text conversation. Someone asks ZipSched to find 30 minutes with Alex and Sam next week to discuss the client briefing. ZipSched replies that Tuesday at 10:00 is open and shows a draft invitation for Client briefing prep with Alex Rivera and Sam Chen, ready to edit or send. Names and times are fictional.</p>
-        <div class="ui-panel ui-chat" aria-hidden="true">
-          <div class="ui-chat-body">
-            <p class="ui-bubble ui-bubble-out">Find 30 minutes with Alex and Sam next week to discuss the client briefing.</p>
-            <p class="ui-bubble">Tuesday at 10:00 is open. Here’s a draft:</p>
-            <div class="ui-card act-kind-hold">
-              <div class="ui-card-main">
-                <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3M8 8.5v3M6.5 10h3"/></g></svg>Create event</p>
-                <p class="ui-title">Client briefing prep</p>
-                <p class="ui-when mono">Tue · 10:00–10:30 AM ET</p>
-                <p class="ui-people">Alex Rivera, Sam Chen</p>
-              </div>
-              <div class="ui-foot"><span class="ui-btn">Edit</span><span class="ui-btn ui-btn-primary">Send invitation</span></div>
-            </div>
-          </div>
-        </div>
-      </figure>
-    </section>
 
-    <!-- Availability with context -->
-    <section class="feature feature-flip wrap" aria-labelledby="context-title">
-      <div class="feature-copy">
-        <h2 id="context-title">Availability with context</h2>
-        <p>A calendar entry doesn’t always mean its owner is unavailable. You might keep a colleague’s travel on the calendar for reference, even though you’re free to meet.</p>
-        <p>ZipSched tells travel, tentative holds and focus time apart from the meetings you need to attend, and uses that context when it suggests times.</p>
-      </div>
-      <figure class="visual" aria-label="A calendar read with context">
-        <p class="visually-hidden">Illustration of one day’s calendar. A colleague’s flight to Denver is on it from 9:00 AM to noon. A partner meeting takes 9:00 to 9:45 AM. ZipSched suggests Client briefing prep at 10:00 AM, because the flight doesn’t rule that time out and the partner meeting rules out 9:00. Names and times are fictional.</p>
-        <div class="ui-panel" aria-hidden="true">
-          <p class="ui-head"><span>Your calendar · Tue</span><span class="ui-sub mono">ET</span></p>
-          <div class="ui-cal" style="--hours:3;--hour:58px;--cols:2">
-            <div class="ui-cal-hours mono"><span>9 AM</span><span>10</span><span>11</span></div>
-            <div class="ui-cal-body">
-              <span class="ui-block ui-block-soft" style="--col:0;--at:0;--len:3"><b>Jordan flying to Denver</b><i class="ui-chip">Travel</i></span>
-              <span class="ui-block" style="--col:1;--at:0;--len:0.75">Partner meeting</span>
-              <span class="ui-block ui-block-solid" style="--col:1;--at:1;--len:0.5">Client briefing prep</span>
-              <span class="ui-suggested" style="--col:1;--at:1.5">Suggested at 10:00</span>
-            </div>
+      <ol class="features">
+        <li class="feature">
+          <div class="feature-copy">
+            <p class="feature-index mono">01</p>
+            <h3>Ask for a meeting. Review it. Send.</h3>
+            <p>Text or email ZipSched who needs to meet, for how long, and when. It checks the calendar and prepares an invitation with the attendees, time, and details.</p>
+            <p>Review the suggestion, edit anything you need, and approve it to send from your own connected account.</p>
           </div>
-          <p class="ui-note">Jordan’s flight doesn’t rule out 10:00. The partner meeting rules out 9:00.</p>
-        </div>
-      </figure>
-    </section>
-
-    <!-- Help with scheduling emails -->
-    <section class="band" aria-labelledby="emails-title">
-      <div class="wrap">
-        <div class="band-head">
-          <h2 id="emails-title">Help with scheduling emails</h2>
-          <p>ZipSched prepares replies to scheduling requests, suggests times, and drafts calendar actions from the thread. Review and edit each one with the thread beside it, and draw availability right on the calendar.</p>
-        </div>
-        <figure class="ui-trio" aria-label="Reviewing a scheduling email">
-          <p class="visually-hidden">Illustration of three panels. On the left, an email thread where Alex Rivera asks for a few times this week to go over the briefing. In the middle, a draft reply offering Tuesday at 10:00 am, Wednesday at 9:30 am and Thursday at 2:00 pm, ready to edit or send. On the right, a three-day calendar where those three times are drawn around existing meetings. Names and times are fictional.</p>
-          <div class="ui-panel ui-thread" aria-hidden="true">
-            <p class="ui-head"><span class="ui-head-icon"><svg viewBox="0 0 16 16" width="15" height="15"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1.75" y="3" width="12.5" height="10" rx="1.75"/><path d="M2.25 4.5L8 9l5.75-4.5"/></g></svg>Re: Client briefing</span><span class="ui-sub">3 messages</span></p>
-            <div class="ui-msg">
-              <p class="ui-msg-top"><span class="ui-avatar">AR</span><span class="ui-msg-who"><b>Alex Rivera</b><small>To you · Cc Sam</small></span><span class="ui-sub mono">Mon 9:14</span></p>
-              <p class="ui-msg-copy">Hi Morgan,</p>
-              <p class="ui-msg-copy"><mark>Could you send a few times this week to go over the briefing?</mark></p>
-              <p class="ui-msg-copy">Thanks,<br>Alex</p>
-            </div>
-            <p class="ui-msg-row"><span class="ui-avatar ui-avatar-you">You</span><span class="ui-msg-who"><b>You</b><small>Thanks, Sam. I’ll review it this week.</small></span></p>
-            <p class="ui-msg-row"><span class="ui-avatar">SC</span><span class="ui-msg-who"><b>Sam Chen</b><small>Attaching the draft client briefing.</small></span></p>
-          </div>
-          <div class="ui-panel ui-reply act-kind-times" aria-hidden="true">
-            <div class="ui-card-main">
-              <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M14 2L7 9M14 2l-4.5 12-2.5-5-5-2.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Send times</p>
-              <p class="ui-title">Times for Alex</p>
-              <p class="ui-sub">Replies in thread · To Alex, Cc Sam</p>
-              <div class="ui-letter">
-                <p>Hi Alex,</p>
-                <p>Here are a few times that work for me:</p>
-                <ul>
-                  <li>Tue at 10:00 am</li>
-                  <li>Wed at 9:30 am</li>
-                  <li>Thu at 2:00 pm</li>
+          <figure class="vignette vignette-pair" aria-label="Asking ZipSched for a meeting">
+            <p class="visually-hidden">Illustration. A text to ZipSched asks for 30 minutes with Alex and Sam next week to discuss the client briefing. Beside it, ZipSched’s suggestion: a new hold called Client briefing prep, Tuesday 10:00 to 10:30 AM, with Alex Rivera and Sam Chen, waiting to be declined, edited or approved. Names and times are fictional.</p>
+            <div class="vignette-art" aria-hidden="true">
+              <div class="vignette-pane thread-panel">
+                <p class="thread-subject"><span class="thread-subject-icon"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 3.25h10A1.25 1.25 0 0 1 14.25 4.5v5.75A1.25 1.25 0 0 1 13 11.5H7.25L4.5 13.75V11.5H3a1.25 1.25 0 0 1-1.25-1.25V4.5A1.25 1.25 0 0 1 3 3.25z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span><span class="thread-subject-text">Text to ZipSched</span></p>
+                <ul class="thread-list">
+                  <li>
+                    <p class="thread-sender"><strong>You</strong><span class="thread-time">9:41 AM</span></p>
+                    <p class="thread-message-copy">Find <mark>30 minutes</mark> with <mark>Alex and Sam</mark> <mark>next week</mark> to discuss the client briefing.</p>
+                  </li>
                 </ul>
-                <p>Let me know which you prefer.</p>
-                <p>Best,<br>Morgan</p>
+              </div>
+              <div class="act act-static act-kind-hold">
+                <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3M8 8.5v3M6.5 10h3"/></g></svg>New hold</p>
+                <p class="act-title">Client briefing prep</p>
+                <p class="act-when mono">Tue · 10:00–10:30 AM</p>
+                <p class="invitees"><span class="invitee">Alex Rivera</span><span class="invitee">Sam Chen</span></p>
+                <p class="act-btns"><span class="act-btn act-no"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="act-btn act-edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="act-btn act-yes"><svg viewBox="0 0 16 16" width="18" height="18"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
               </div>
             </div>
-            <div class="ui-foot"><span class="ui-btn">Edit</span><span class="ui-btn ui-btn-primary">Send reply</span></div>
-          </div>
-          <div class="ui-panel ui-draw" aria-hidden="true">
-            <p class="ui-head"><span>This week</span><span class="ui-sub mono">ET</span></p>
-            <div class="ui-days mono"><span>Tue</span><span>Wed</span><span>Thu</span></div>
-            <div class="ui-cal" style="--hours:6;--hour:44px;--cols:3">
-              <div class="ui-cal-hours mono"><span>9</span><span>10</span><span>11</span><span>12</span><span>1</span><span>2</span></div>
-              <div class="ui-cal-body">
-                <span class="ui-block" style="--col:0;--at:0;--len:0.75">Team sync</span>
-                <span class="ui-block ui-block-pick" style="--col:0;--at:1;--len:0.75">10:00</span>
-                <span class="ui-block" style="--col:0;--at:3;--len:0.75">Client call</span>
-                <span class="ui-block" style="--col:0;--at:4;--len:1">Budget review</span>
-                <span class="ui-block ui-block-pick" style="--col:1;--at:0.5;--len:0.75">9:30</span>
-                <span class="ui-block" style="--col:1;--at:1.5;--len:1">Policy review</span>
-                <span class="ui-block" style="--col:1;--at:3;--len:1">Lunch</span>
-                <span class="ui-block" style="--col:1;--at:4.25;--len:1.25">Partner call</span>
-                <span class="ui-block" style="--col:2;--at:0;--len:1.5">Offsite prep</span>
-                <span class="ui-block" style="--col:2;--at:2;--len:0.75">Calls</span>
-                <span class="ui-block" style="--col:2;--at:3;--len:1">Lunch</span>
-                <span class="ui-block" style="--col:2;--at:4;--len:0.75">Team sync</span>
-                <span class="ui-block ui-block-pick" style="--col:2;--at:5;--len:0.75">2:00</span>
-                <svg class="ui-cursor" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
-              </div>
-            </div>
-            <p class="ui-note">Drag to add or adjust a time.</p>
-          </div>
-        </figure>
-      </div>
-    </section>
+          </figure>
+        </li>
 
-    <!-- Adjusting the time -->
-    <section class="feature wrap" aria-labelledby="adjust-title">
-      <div class="feature-copy">
-        <h2 id="adjust-title">Adjusting the time without starting over</h2>
-        <p>When someone cancels or needs to reschedule, ZipSched prepares a new time for your approval.</p>
-        <p>You can also see other times that work, and choose to configure automatic rescheduling.</p>
-      </div>
-      <figure class="visual" aria-label="Choosing a new time">
-        <p class="visually-hidden">Illustration of a change-time panel for Client briefing prep. Other times that work are Tuesday at 10:00, Wednesday at 9:30 and Thursday at 11:00, with Thursday selected. Beside them, the updated invitation for Thursday, 11:00 to 11:30 AM, is ready to send. Names and times are fictional.</p>
-        <div class="ui-panel" aria-hidden="true">
-          <p class="ui-head"><span>Change time</span><span class="ui-sub">Client briefing prep · 30 min</span></p>
-          <div class="ui-change">
-            <div class="ui-change-times">
-              <p class="ui-sub">Other times that work · ET</p>
-              <div class="ui-days mono"><span>Tue</span><span>Wed</span><span>Thu</span></div>
-              <div class="ui-cal" style="--hours:3;--hour:44px;--cols:3">
-                <div class="ui-cal-hours mono"><span>9 AM</span><span>10</span><span>11</span></div>
-                <div class="ui-cal-body">
-                  <span class="ui-block ui-block-slot" style="--col:0;--at:1;--len:0.7">10:00</span>
-                  <span class="ui-block ui-block-slot" style="--col:1;--at:0.5;--len:0.7">9:30</span>
-                  <span class="ui-block ui-block-solid ui-block-center" style="--col:2;--at:2;--len:0.7">11:00</span>
+        <li class="feature">
+          <div class="feature-copy">
+            <p class="feature-index mono">02</p>
+            <h3>Availability with context</h3>
+            <p>A calendar entry doesn’t always mean its owner is unavailable. You might keep a colleague’s travel on the calendar for reference, even though you’re free to meet.</p>
+            <p>ZipSched tells travel, tentative holds and focus time apart from the meetings you need to attend, and uses that context when it suggests times.</p>
+          </div>
+          <figure class="vignette vignette-solo" aria-label="A calendar read with context">
+            <p class="visually-hidden">Illustration of Tuesday’s calendar. A colleague’s flight to Denver is on it from 9:00 AM to noon, marked as travel. A partner meeting takes 9:00 to 9:45 AM. ZipSched places Client briefing prep at 10:00 AM, because the flight doesn’t rule that time out and the partner meeting rules out 9:00. Names and times are fictional.</p>
+            <div class="vignette-art" aria-hidden="true">
+              <div class="vignette-pane calendar-panel is-single-day">
+                <div class="calendar-days"><span class="calendar-day is-active">Tue<span>10</span></span></div>
+                <div class="calendar-grid">
+                  <div class="calendar-hour"><span>9 AM</span></div><div class="calendar-hour"><span>10 AM</span></div><div class="calendar-hour"><span>11 AM</span></div><div class="calendar-hour"><span>12 PM</span></div>
+                  <div class="calendar-event vg-left vg-travel" style="--calendar-day:0;top:0;height:132px"><strong>Jordan flying to Denver</strong><span>9:00–12:00</span><i class="vg-tag">Travel · doesn’t block</i></div>
+                  <div class="calendar-event vg-right" style="--calendar-day:0;top:0;height:33px"><strong>Partner meeting</strong><span>9:00</span></div>
+                  <div class="calendar-event calendar-proposal vg-right" style="--calendar-day:0;top:44px;height:22px"><strong>Client briefing prep</strong></div>
                 </div>
               </div>
             </div>
-            <div class="ui-change-invite">
-              <p class="ui-status">Updated invitation</p>
-              <p class="ui-title">Client briefing prep</p>
-              <p class="ui-when mono">Thu · 11:00–11:30 AM ET</p>
-              <p class="ui-avatars"><span class="ui-avatar">AR</span><span class="ui-avatar">SC</span><span class="ui-avatar ui-avatar-you">You</span></p>
-              <span class="ui-btn ui-btn-primary ui-btn-wide">Send invitation</span>
-            </div>
+          </figure>
+        </li>
+
+        <li class="feature">
+          <div class="feature-copy">
+            <p class="feature-index mono">03</p>
+            <h3>Help with scheduling emails</h3>
+            <p>ZipSched prepares replies to scheduling requests, suggests times, and drafts calendar actions from the thread.</p>
+            <p>Review and edit each one with the thread beside it, and draw availability right on the calendar.</p>
           </div>
-        </div>
-      </figure>
+          <figure class="vignette vignette-trio" aria-label="Reviewing a scheduling email">
+            <p class="visually-hidden">Illustration. On the left, an email from Alex Rivera asking for a few times this week to go over the briefing. In the middle, ZipSched’s suggestion: a reply offering Tuesday at 10:00 AM, Wednesday at 9:30 AM and Thursday at 2:00 PM, waiting to be declined, edited or approved. On the right, a three-day calendar where those three times sit between existing meetings. Names and times are fictional.</p>
+            <div class="vignette-art" aria-hidden="true">
+              <div class="vignette-pane thread-panel">
+                <p class="thread-subject"><span class="thread-subject-icon"><svg viewBox="0 0 16 16" width="16" height="16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.75"/><path d="M2.5 4.5L8 9l5.5-4.5"/></g></svg></span><span class="thread-subject-text">Re: Client briefing</span></p>
+                <ul class="thread-list">
+                  <li>
+                    <p class="thread-sender"><strong>Alex Rivera</strong><span class="thread-time">9:14 AM</span></p>
+                    <p class="thread-email">alex.rivera@example.com</p>
+                    <p class="thread-message-copy">Could you <mark>send a few times this week</mark> to go over the briefing?</p>
+                  </li>
+                </ul>
+              </div>
+              <div class="act act-static act-kind-times">
+                <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.75"/><path d="M8 5v3.25l2 1.25"/></g></svg>Send times</p>
+                <p class="act-title">Re: Client briefing</p>
+                <p class="act-email-copy">Hi Alex, here are a few times that work for me:</p>
+                <ul class="act-times mono"><li>Tue · 10:00 AM</li><li>Wed · 9:30 AM</li><li>Thu · 2:00 PM</li></ul>
+                <p class="act-btns"><span class="act-btn act-no"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="act-btn act-edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="act-btn act-yes"><svg viewBox="0 0 16 16" width="18" height="18"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
+              </div>
+              <div class="vignette-pane calendar-panel is-three-day">
+                <div class="calendar-days"><span class="calendar-day">Tue<span>10</span></span><span class="calendar-day">Wed<span>11</span></span><span class="calendar-day">Thu<span>12</span></span></div>
+                <div class="calendar-grid">
+                  <div class="calendar-hour"><span>9 AM</span></div><div class="calendar-hour"><span>10 AM</span></div><div class="calendar-hour"><span>11 AM</span></div><div class="calendar-hour"><span>12 PM</span></div><div class="calendar-hour"><span>1 PM</span></div><div class="calendar-hour"><span>2 PM</span></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:0;height:33px"><strong>Team sync</strong></div>
+                  <div class="calendar-event calendar-proposal vg-pick" style="--calendar-day:0;top:44px;height:22px"><strong>10:00</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:132px;height:33px"><strong>Client call</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:176px;height:44px"><strong>Budget review</strong></div>
+                  <div class="calendar-event calendar-proposal vg-pick" style="--calendar-day:1;top:22px;height:22px"><strong>9:30</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:1;top:55px;height:44px"><strong>Policy review</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:1;top:132px;height:44px"><strong>Lunch</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:1;top:198px;height:44px"><strong>Partner call</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:2;top:0;height:66px"><strong>Offsite prep</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:2;top:88px;height:33px"><strong>Calls</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:2;top:132px;height:44px"><strong>Lunch</strong></div>
+                  <div class="calendar-event calendar-proposal vg-pick" style="--calendar-day:2;top:220px;height:22px"><strong>2:00</strong></div>
+                  <svg class="vg-cursor" viewBox="0 0 20 24" width="20" height="24"><path d="M2 2l15 10.5-6.5 1.2 3.8 7.4-2.9 1.4-3.7-7.4L2 20z" fill="#0f1b2d" stroke="#fffdf8" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </li>
+
+        <li class="feature">
+          <div class="feature-copy">
+            <p class="feature-index mono">04</p>
+            <h3>Adjusting the time without starting over</h3>
+            <p>When someone cancels or needs to reschedule, ZipSched prepares a new time for your approval.</p>
+            <p>You can also see other times that work, and choose to configure automatic rescheduling.</p>
+          </div>
+          <figure class="vignette vignette-pair" aria-label="Choosing a new time">
+            <p class="visually-hidden">Illustration. A three-day calendar shows Client briefing prep moving from Tuesday at 10:00 AM to Thursday at 11:00 AM, with Wednesday at 9:30 AM as another time that works. Beside it, ZipSched’s suggestion to move the meeting to Thursday, 11:00 to 11:30 AM, with Alex Rivera and Sam Chen, waiting to be declined, edited or approved. Names and times are fictional.</p>
+            <div class="vignette-art" aria-hidden="true">
+              <div class="vignette-pane calendar-panel is-three-day">
+                <div class="calendar-days"><span class="calendar-day">Tue<span>10</span></span><span class="calendar-day">Wed<span>11</span></span><span class="calendar-day is-active">Thu<span>12</span></span></div>
+                <div class="calendar-grid">
+                  <div class="calendar-hour"><span>9 AM</span></div><div class="calendar-hour"><span>10 AM</span></div><div class="calendar-hour"><span>11 AM</span></div><div class="calendar-hour"><span>12 PM</span></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:0;top:0;height:33px"><strong>Team sync</strong></div>
+                  <div class="calendar-event vg-was" style="--calendar-day:0;top:44px;height:22px"><strong>10:00</strong></div>
+                  <div class="calendar-event vg-option" style="--calendar-day:1;top:22px;height:22px"><strong>9:30</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:1;top:55px;height:44px"><strong>Policy review</strong></div>
+                  <div class="calendar-event calendar-event-muted" style="--calendar-day:2;top:0;height:66px"><strong>Offsite prep</strong></div>
+                  <div class="calendar-event calendar-proposal vg-pick" style="--calendar-day:2;top:88px;height:22px"><strong>11:00</strong></div>
+                </div>
+              </div>
+              <div class="act act-static act-kind-move">
+                <p class="action-tag"><svg viewBox="0 0 16 16" width="13" height="13"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 8A5.5 5.5 0 1 1 11.6 3.8"/><path d="M13.5 2.25v3h-3"/><path d="M8 5.25V8l2 1.25"/></g></svg>New time</p>
+                <p class="act-title">Client briefing prep</p>
+                <p class="act-when mono">Thu · 11:00–11:30 AM</p>
+                <p class="act-was mono">Tue · 10:00–10:30 AM</p>
+                <p class="invitees"><span class="invitee">Alex Rivera</span><span class="invitee">Sam Chen</span></p>
+                <p class="act-btns"><span class="act-btn act-no"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="act-btn act-edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="act-btn act-yes"><svg viewBox="0 0 16 16" width="18" height="18"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
+              </div>
+            </div>
+          </figure>
+        </li>
+      </ol>
     </section>
 
     <!-- Founder -->

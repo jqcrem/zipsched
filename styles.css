@@ -328,7 +328,8 @@ html:not(.js) .demo { display: none; }
 }
 .stage-thread { right: calc(50% + 155px); width: 250px; }
 .stage-calendar { left: calc(50% + 200px); width: 260px; height: 340px; }
-.stage-side::before {
+.stage-side::before,
+.vignette-pane::before {
   content: "";
   position: absolute;
   z-index: -1;
@@ -383,7 +384,8 @@ html:not(.js) .demo { display: none; }
   color: var(--muted);
 }
 .mail-ask mark,
-.act-ask mark {
+.act-ask mark,
+.vignette mark {
   padding: 1px 3px;
   margin-inline: -1px;
   border-radius: 3px;
@@ -844,17 +846,16 @@ html:not(.js) .demo { display: none; }
 .demo[data-state="interactive"] .icon-replay,
 .demo[data-state="ended"] .icon-replay { display: block; }
 
-/* Below the hero: a centred intro, then one static product illustration per
-   section. Whitespace separates the sections, so the hero stays the only
-   motion and the only busy thing on the page. */
-.intro {
-  padding-bottom: clamp(24px, 4vw, 48px);
-  text-align: center;
-}
-.intro h2 { max-width: 19em; margin-inline: auto; }
-.intro p {
-  max-width: 36em;
-  margin: 18px auto 0;
+/* How it works: one section in the page's own grammar (left-aligned head,
+   thin rules, mono numerals) with a numbered row per part of the product.
+   Every illustration is built from the hero's pieces: bare context lit by
+   the same soft glow, at most one elevated suggestion card, and the hero's
+   calendar column. Illustrations are aria-hidden beside a text description,
+   and ignore the pointer so a touch on one still scrolls the page. */
+.hero + .section { border-top: 0; padding-top: 0; }
+.section-head { max-width: 720px; margin-bottom: clamp(36px, 5vw, 56px); }
+.section-lede {
+  margin-top: 18px;
   font-size: 1.125rem;
   color: var(--muted);
   text-wrap: pretty;
@@ -862,259 +863,111 @@ html:not(.js) .demo { display: none; }
 
 .feature {
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-  gap: clamp(40px, 7vw, 104px);
+  grid-template-columns: minmax(0, 4.5fr) minmax(0, 7.5fr);
+  gap: clamp(32px, 4vw, 56px);
   align-items: center;
-  padding-block: clamp(56px, 8vw, 104px);
+  padding-block: clamp(40px, 6vw, 72px);
+  border-top: 1px solid var(--rule);
 }
-.feature-flip { grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr); }
-.feature-flip .feature-copy { order: 2; }
-.feature-copy h2 { font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem); }
-.feature-copy p {
-  max-width: 32em;
-  margin-top: 16px;
-  font-size: 1.0625rem;
+.feature:last-child { padding-bottom: 0; }
+.feature-index { font-size: 0.75rem; line-height: 1; color: var(--cobalt); }
+.feature-copy h3 {
+  margin-top: 14px;
+  font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.feature-copy h3 ~ p {
+  max-width: 30em;
+  margin-top: 12px;
   color: var(--muted);
   text-wrap: pretty;
 }
-.visual { min-width: 0; }
+.feature-copy h3 + p { margin-top: 14px; }
 
-.band {
-  padding-block: var(--section-space);
-  background: var(--ink);
-  color: var(--on-ink);
-}
-.band-head { max-width: 680px; margin: 0 auto clamp(36px, 5vw, 56px); text-align: center; }
-.band-head p { margin-top: 16px; font-size: 1.0625rem; color: var(--on-ink-muted); text-wrap: pretty; }
-
-/* Product illustrations. Every one is aria-hidden beside a text description,
-   and its buttons are drawn spans, not controls. */
-.ui-panel {
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-lg);
-  background: var(--paper);
-  box-shadow: var(--shadow-stage);
-  color: var(--ink);
-  font-size: 0.875rem;
-  line-height: 1.45;
-}
-.ui-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
-  font-weight: 600;
-}
-.ui-head-icon { display: inline-flex; align-items: center; gap: 8px; }
-.ui-head-icon svg { flex: 0 0 auto; color: var(--muted); }
-.ui-sub { font-size: 0.75rem; font-weight: 400; color: var(--muted); }
-.ui-note { padding: 2px 16px 14px; font-size: 0.75rem; color: var(--muted); }
-.ui-title { margin-top: 10px; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
-.ui-when { margin-top: 3px; font-size: 0.75rem; color: var(--muted); }
-.ui-people { margin-top: 6px; font-size: 0.8125rem; color: var(--muted); }
-.ui-card-main { padding: 14px 16px; }
-.ui-foot {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 0 16px 14px;
-}
-.ui-btn {
-  display: inline-flex;
+.vignette { min-width: 0; }
+.vignette-art {
+  position: relative;
+  display: grid;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
-  padding: 0 13px;
-  border: 1px solid var(--rule-strong);
-  border-radius: 7px;
-  background: var(--paper);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  gap: 28px;
+  padding-block: 28px;
+  pointer-events: none;
+  user-select: none;
+}
+.vignette-pair .vignette-art { grid-template-columns: minmax(0, 230px) minmax(0, 290px); }
+.vignette-trio .vignette-art {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.vignette-solo .vignette-art { grid-template-columns: minmax(0, 380px); }
+.vignette-pane { position: relative; z-index: 1; min-width: 0; color: #111827; }
+.vignette .thread-message-copy { display: block; font-size: 0.8125rem; }
+.vignette .calendar-hour { height: 44px; }
+.vignette .calendar-event strong {
+  display: block;
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.ui-btn-primary { border-color: var(--cobalt); background: var(--cobalt); color: #fff; }
-.ui-btn-wide { width: 100%; margin-top: 16px; }
+.vignette .calendar-proposal { padding: 3px 5px; cursor: default; }
 
-/* Text conversation */
-.ui-chat { background: var(--sand); }
-.ui-chat-body { display: grid; gap: 10px; padding: 20px; }
-.ui-bubble {
-  max-width: 78%;
-  justify-self: start;
-  padding: 9px 13px;
-  border-radius: 14px 14px 14px 4px;
-  background: var(--paper);
-}
-.ui-bubble-out {
-  justify-self: end;
-  border-radius: 14px 14px 4px;
-  background: var(--cobalt);
-  color: #fff;
-}
-.ui-card {
-  max-width: 88%;
-  justify-self: start;
-  width: 100%;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  background: var(--paper);
-}
-
-/* Calendars: hour lines only, with each time centred on its line */
-.ui-days {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-left: 44px;
-  padding: 0 16px 8px 0;
-  font-size: 0.6875rem;
-  color: var(--muted);
-}
-.ui-days span { padding-left: 4px; }
-.ui-cal {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  padding: 8px 16px 12px 0;
-}
-.ui-cal-hours { display: grid; grid-auto-rows: var(--hour); }
-.ui-cal-hours span {
-  align-self: start;
-  padding-right: 8px;
-  text-align: right;
-  font-size: 0.6875rem;
-  line-height: 1;
-  color: var(--muted);
-  transform: translateY(-50%);
-}
-.ui-cal-body {
+/* The suggestion card, still: the hero's card at its natural height */
+.act.act-static {
   position: relative;
-  height: calc(var(--hours) * var(--hour));
-  background: repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px var(--hour));
+  z-index: 2;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  box-shadow: 0 1px 2px rgb(15 27 45 / 0.06), 0 18px 40px -20px rgb(15 27 45 / 0.35);
 }
-.ui-block,
-.ui-suggested {
-  position: absolute;
-  left: calc(var(--col) * 100% / var(--cols) + 3px);
-  width: calc(100% / var(--cols) - 6px);
-  top: calc(var(--at) * var(--hour) + 2px);
+.act-static .act-btns { margin-top: 22px; }
+.act-static .act-email-copy { height: auto; padding: 0; margin-top: 8px; }
+.act-static .act-times { gap: 4px; margin-top: 8px; overflow: visible; }
+.act-was { margin-top: 2px; font-size: 0.75rem; color: #94a3b8; text-decoration: line-through; }
+.act-kind-move .action-tag { background: var(--cobalt-wash); color: var(--cobalt-deep); }
+
+/* Calendar marks the hero doesn't need: two entries side by side, a travel
+   entry that doesn't block, and times offered, kept or left behind. */
+.vg-left,
+.vg-right { width: calc((100% - var(--calendar-gutter)) / 2 - 4px); }
+.vg-left { left: calc(var(--calendar-gutter) + 2px); }
+.vg-right { left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / 2 + 2px); }
+.vg-travel {
+  border: 1px dashed #b8c2d0;
+  background: rgb(255 255 255 / 0.7);
+  color: #475569;
 }
-.ui-block {
-  height: calc(var(--len) * var(--hour) - 3px);
-  padding: 3px 7px;
-  overflow: hidden;
-  border-radius: 5px;
-  background: #f1efec;
-  font-size: 0.71875rem;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ui-block-soft {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 9px 11px;
-  border: 1px dashed var(--rule-strong);
-  background: var(--paper);
-}
-.ui-block-soft b { font-weight: 600; white-space: normal; }
-.ui-chip {
-  padding: 2px 8px;
-  border: 1px solid var(--rule-strong);
+.vignette .vg-travel strong { white-space: normal; }
+.vg-tag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 7px;
+  border: 1px solid #cbd5e1;
   border-radius: 999px;
-  font-size: 0.6875rem;
-  font-style: normal;
-  color: var(--muted);
-}
-.ui-block-solid { background: var(--cobalt); color: #fff; font-weight: 600; }
-.ui-block-center { text-align: center; }
-.ui-block-pick {
-  border: 1px dashed var(--cobalt);
-  background: var(--cobalt-wash);
-  color: var(--cobalt-deep);
-  font-family: var(--mono);
-  font-weight: 600;
-  text-align: center;
-}
-.ui-block-slot {
-  border: 1px solid var(--rule-strong);
   background: var(--paper);
-  font-family: var(--mono);
-  font-weight: 600;
-  text-align: center;
+  color: #64748b;
+  font: 500 0.5625rem/1.3 var(--mono);
+  font-style: normal;
 }
-.ui-suggested { padding-left: 7px; font-size: 0.71875rem; font-weight: 600; color: var(--cobalt-deep); }
-.ui-cursor {
-  position: absolute;
-  left: 60%;
-  top: 40px;
-  filter: drop-shadow(0 2px 3px rgb(15 27 45 / 0.25));
-}
-
-/* Email review: thread, reply, calendar */
-.ui-trio {
+.vg-pick,
+.vg-was,
+.vg-option {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr) minmax(0, 1.16fr);
-  gap: 16px;
-  align-items: stretch;
-}
-.ui-trio .ui-panel { box-shadow: 0 32px 64px -40px rgb(0 0 0 / 0.6); }
-.ui-reply { display: flex; flex-direction: column; justify-content: space-between; }
-.ui-reply .action-tag { color: var(--amber-ink); }
-.ui-avatar {
-  display: inline-grid;
-  flex: 0 0 auto;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--sand);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--muted);
+  padding: 0;
+  font: 600 0.625rem/1 var(--mono);
 }
-.ui-avatar-you { background: var(--cobalt); color: #fff; }
-.ui-thread { padding-bottom: 8px; }
-.ui-msg { padding: 2px 16px 14px; }
-.ui-msg-top { display: flex; align-items: center; gap: 9px; }
-.ui-msg-top .ui-sub { margin-left: auto; white-space: nowrap; }
-.ui-msg-who { display: grid; min-width: 0; font-size: 0.8125rem; line-height: 1.3; }
-.ui-msg-who b { font-weight: 600; }
-.ui-msg-who small {
-  overflow: hidden;
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.vg-was { border: 1px dashed #cbd5e1; background: transparent; color: #94a3b8; text-decoration: line-through; }
+.vg-option { border: 1px dashed rgb(31 79 209 / 0.45); background: var(--paper); color: var(--cobalt-deep); }
+.vg-cursor {
+  position: absolute;
+  z-index: 3;
+  top: 34px;
+  left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / 2 + 16px);
 }
-.ui-msg-copy { margin-top: 9px; font-size: 0.8125rem; }
-.ui-msg-copy mark { padding: 1px 3px; border-radius: 3px; background: var(--cobalt-wash); color: var(--ink); }
-.ui-msg-row { display: flex; align-items: center; gap: 9px; padding: 10px 16px; }
-.ui-letter {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--ivory);
-  font-size: 0.8125rem;
-}
-.ui-letter p + p,
-.ui-letter ul + p { margin-top: 8px; }
-.ui-letter ul { margin-top: 6px; padding-left: 18px; list-style: disc; }
-
-/* Change time */
-.ui-change {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-}
-.ui-change-times > .ui-sub { padding: 0 16px 10px; }
-.ui-change-invite { padding: 4px 16px 18px; }
-.ui-status { font-size: 0.75rem; color: var(--muted); }
-.ui-status + .ui-title { margin-top: 8px; }
-.ui-avatars { display: flex; gap: 4px; margin-top: 12px; }
 
 /* Sections */
 .section {
@@ -1199,11 +1052,7 @@ html:not(.js) .demo { display: none; }
 
 @media (max-width: 980px) {
   :root { --gutter: 24px; }
-  .feature,
-  .feature-flip { grid-template-columns: minmax(0, 1fr); }
-  .feature-flip .feature-copy { order: 0; }
-  .visual { width: 100%; max-width: 600px; margin-inline: auto; }
-  .ui-trio { grid-template-columns: minmax(0, 1fr); max-width: 600px; margin-inline: auto; }
+  .feature { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 900px) {
@@ -1235,6 +1084,8 @@ html:not(.js) .demo { display: none; }
 
 @media (max-width: 720px) {
   .nav-links { display: none; }
+  .vignette-pair .vignette-art,
+  .vignette-trio .vignette-art { grid-template-columns: minmax(0, 320px); gap: 24px; }
 }
 
 @media (max-width: 600px) {
@@ -1261,11 +1112,6 @@ html:not(.js) .demo { display: none; }
   .act-btns { padding-top: 9px; }
   .act-btn { width: 38px; height: 38px; border-radius: 10px; }
   .stage-calendar { top: 438px; height: 246px; }
-  .ui-change { grid-template-columns: minmax(0, 1fr); }
-  .ui-change-invite { padding-top: 0; }
-  .ui-chat-body { padding: 14px; }
-  .ui-bubble { max-width: 88%; }
-  .ui-card { max-width: 100%; }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
 }
