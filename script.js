@@ -183,7 +183,8 @@ else if (demo) {
     const height = compact ? 204 : 264;
     return { height, pixelsPerMinute: height / (viewEnd - viewStart) };
   };
-  const blockStyle = (
+  // Where a block sits in the grid, in px from its top
+  const blockBox = (
     range,
     compact,
     minimumHeight = 18,
@@ -195,8 +196,14 @@ else if (demo) {
     const visibleEnd = Math.min(viewEnd, range.end);
     const top = Math.max(0, (visibleStart - viewStart) * pixelsPerMinute);
     const rawHeight = Math.max(minimumHeight, (visibleEnd - visibleStart) * pixelsPerMinute);
-    return `--calendar-day:${range.day};top:${Math.min(height - minimumHeight, top)}px;height:${Math.min(height - top, rawHeight)}px`;
+    return { top: Math.min(height - minimumHeight, top), height: Math.min(height - top, rawHeight) };
   };
+  const blockStyle = (range, compact, minimumHeight, viewStart, viewEnd) => {
+    const box = blockBox(range, compact, minimumHeight, viewStart, viewEnd);
+    return `--calendar-day:${range.day};top:${box.top}px;height:${box.height}px`;
+  };
+  // A busy block's title fills its top 16px: 2px of padding and a 12px line
+  const BUSY_TITLE_PX = 16;
   const holdCalendarView = (value) => {
     const range = parseCalendarRange(value);
     const windowMinutes = 6 * 60;
@@ -318,6 +325,10 @@ else if (demo) {
       const layout = layoutRange(range);
       return layout ? blockStyle(layout, compactCalendar, minimumHeight, calendarView.start, calendarView.end) : "";
     };
+    const blockBoxFor = (range, minimumHeight = 18) => {
+      const layout = layoutRange(range);
+      return layout ? { day: layout.day, ...blockBox(layout, compactCalendar, minimumHeight, calendarView.start, calendarView.end) } : null;
+    };
     // A send-times option sits in one of three narrow day columns, so its
     // block names only its start; the card lists the full range.
     const proposalLabel = (range) => (m.kind === "times"
@@ -345,13 +356,28 @@ else if (demo) {
         : "";
       return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyleFor(range)}">${title}<span>${escapeHTML(proposalLabel(range))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
     }).join("");
+    // A short blue block is drawn taller than its time, so it can cover the
+    // top of the busy block after it. That busy block then drops its title
+    // rather than show the bottom half of a word beneath the blue one.
+    const proposalBoxes = proposedValues
+      .map(parseCalendarRange)
+      .filter(Boolean)
+      .map((range) => blockBoxFor(range))
+      .filter(Boolean);
     const busyMarkup = BUSY_EVENTS.filter((event) => (
       visibleDayIndexes.includes(event.day)
       && event.end > calendarView.start
       && event.start < calendarView.end
     )).map((event) => {
       const start = clockParts(event.start);
-      return `<div class="calendar-event calendar-event-muted" style="${blockStyleFor(event, 10)}"><strong>${escapeHTML(event.title)}</strong><span>${start.clock}</span></div>`;
+      const box = blockBoxFor(event, 10);
+      const titleCovered = box && proposalBoxes.some((proposal) => (
+        proposal.day === box.day
+        && proposal.top < box.top + BUSY_TITLE_PX
+        && proposal.top + proposal.height > box.top
+      ));
+      const title = titleCovered ? "" : `<strong>${escapeHTML(event.title)}</strong>`;
+      return `<div class="calendar-event calendar-event-muted" style="${blockStyleFor(event, 10)}">${title}<span>${start.clock}</span></div>`;
     }).join("");
     const editable = demo.dataset.state === "interactive"
       && index === interactiveIndex
