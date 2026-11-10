@@ -1091,6 +1091,14 @@ html:not(.js) .demo { display: none; }
   .calendar-day { min-height: 34px; }
   .calendar-grid { margin-top: 4px; }
   .calendar-hour { height: 34px; }
+  /* From here down the demo's cards are 232px tall: a Send times card sets
+     its reply in two lines and lists its times tightly, and an Add invitee
+     card shows only the person it adds, so nothing runs past the buttons. */
+  .stage .act-kind-times .act-title { margin-top: 7px; font-size: 0.875rem; }
+  .stage .act-kind-times .act-email-copy { height: 42px; margin-top: 5px; line-height: 1.35; }
+  .stage .act-kind-times .act-times { gap: 0; margin-top: 1px; line-height: 1.4; }
+  .stage .act-kind-times .act-btns { padding-top: 6px; }
+  .stage .act-kind-invitee .invitees .invitee:not(.invitee-new) { display: none; }
 }
 
 @media (max-width: 720px) {
@@ -1114,20 +1122,9 @@ html:not(.js) .demo { display: none; }
   .mail-ask { font-size: 0.875rem; }
   .act { padding: 15px 15px 13px; }
   .act-title { margin-top: 12px; font-size: 1rem; }
-  .act-kind-times .act-title { margin-top: 7px; font-size: 0.875rem; }
-  .act-kind-times .act-email-copy { height: 42px; margin-top: 5px; font-size: 0.75rem; line-height: 1.35; }
-  .act-kind-times .act-times { gap: 0; margin-top: 1px; font-size: 0.75rem; line-height: 1.4; }
-  .act-kind-times .act-btns { padding-top: 6px; }
-  .act-kind-invitee .invitees .invitee:not(.invitee-new) { display: none; }
-  .act-times { gap: 2px; margin-top: 8px; font-size: 0.75rem; }
+  .act-times { gap: 2px; margin-top: 8px; }
   .act-btns { padding-top: 9px; }
   .act-btn { width: 38px; height: 38px; border-radius: 10px; }
-  /* The overview's still "Send times" card is not boxed into the stage, so
-     it keeps the type the rules above shrink for the moving one. */
-  .act-static.act-kind-times .act-title { margin-top: 12px; font-size: 1rem; }
-  .act.act-static.act-kind-times .act-email-copy { margin-top: 8px; font-size: 0.75rem; line-height: 1.5; }
-  .act-static.act-kind-times .act-times { gap: 4px; margin-top: 8px; font-size: 0.75rem; line-height: 1.6; }
-  .act-static.act-kind-times .act-btns { padding-top: 9px; }
   .stage-calendar { top: 438px; height: 246px; }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
