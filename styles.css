@@ -589,8 +589,11 @@ html:not(.js) .demo { display: none; }
 /* Source context stays intentionally bare, without card chrome. The center
    suggestion remains the only elevated surface. */
 .context-panel { position: relative; z-index: 1; height: 100%; overflow: hidden; color: #111827; }
+/* The subject never shrinks: as a flex item with hidden overflow it would
+   otherwise give up its height first when a thread runs long. */
 .thread-subject {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 6px;
   overflow: hidden;
@@ -1086,6 +1089,10 @@ html:not(.js) .demo { display: none; }
   .thread-list { gap: 8px; margin-top: 8px; }
   .thread-message-copy { margin-top: 2px; }
   .thread-message-copy { -webkit-line-clamp: 2; }
+  /* A two-message thread and its Reply to line need about 184px; the
+     164px pane holds them once each message drops its address line (the
+     Reply to line still names the address the reply goes to). */
+  .stage .thread-email { display: none; }
   .calendar-panel { display: block; }
   .calendar-days { align-content: start; }
   .calendar-day { min-height: 34px; }
