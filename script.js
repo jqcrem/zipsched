@@ -178,8 +178,9 @@ else if (demo) {
     const range = parseCalendarRange(value);
     return range ? formatCalendarRange({ ...range, end: Math.min(CALENDAR_END_MINUTES, range.end + minutes) }) : value;
   };
+  // Six rows at the .calendar-hour heights in styles.css (34px compact, 44px)
   const calendarMetrics = (compact, viewStart = CALENDAR_START_MINUTES, viewEnd = CALENDAR_END_MINUTES) => {
-    const height = compact ? 168 : 216;
+    const height = compact ? 204 : 264;
     return { height, pixelsPerMinute: height / (viewEnd - viewStart) };
   };
   const blockStyle = (
@@ -207,41 +208,42 @@ else if (demo) {
     const { clock, meridiem } = clockParts(minutes);
     return `${clock.replace(":00", "")} ${meridiem}`;
   };
+  // Busy titles stay short enough for a three-day column at 12px.
   const BUSY_EVENTS = [
     { day: 0, start: 8 * 60, end: 9 * 60, title: "Briefing" },
-    { day: 0, start: 9 * 60, end: 10 * 60 + 30, title: "Board prep" },
-    { day: 0, start: 10 * 60 + 30, end: 11 * 60 + 30, title: "Client call" },
+    { day: 0, start: 9 * 60, end: 10 * 60 + 30, title: "Prep" },
+    { day: 0, start: 10 * 60 + 30, end: 11 * 60 + 30, title: "Client" },
     { day: 0, start: 12 * 60, end: 13 * 60, title: "Lunch" },
     { day: 0, start: 15 * 60 + 30, end: 16 * 60 + 30, title: "Finance" },
-    { day: 0, start: 16 * 60 + 30, end: 18 * 60, title: "Counsel review" },
-    { day: 1, start: 8 * 60, end: 9 * 60, title: "Breakfast" },
+    { day: 0, start: 16 * 60 + 30, end: 18 * 60, title: "Counsel" },
+    { day: 1, start: 8 * 60, end: 9 * 60, title: "Coffee" },
     { day: 1, start: 9 * 60, end: 10 * 60, title: "Pipeline" },
-    { day: 1, start: 11 * 60 + 30, end: 12 * 60 + 30, title: "Staff 1:1" },
+    { day: 1, start: 11 * 60 + 30, end: 12 * 60 + 30, title: "1:1" },
     { day: 1, start: 12 * 60 + 30, end: 13 * 60 + 30, title: "Lunch" },
-    { day: 1, start: 14 * 60, end: 15 * 60 + 30, title: "Vendor review" },
+    { day: 1, start: 14 * 60, end: 15 * 60 + 30, title: "Vendors" },
     { day: 1, start: 16 * 60 + 45, end: 18 * 60 + 15, title: "Travel" },
     { day: 1, start: 18 * 60 + 15, end: 19 * 60 + 15, title: "Dinner" },
     { day: 2, start: 8 * 60, end: 8 * 60 + 45, title: "Metrics" },
-    { day: 2, start: 8 * 60 + 45, end: 9 * 60 + 30, title: "Leadership" },
-    { day: 2, start: 10 * 60, end: 11 * 60, title: "Candidate" },
+    { day: 2, start: 8 * 60 + 45, end: 9 * 60 + 30, title: "Strategy" },
+    { day: 2, start: 10 * 60, end: 11 * 60, title: "Hiring" },
     { day: 2, start: 12 * 60, end: 13 * 60, title: "Lunch" },
     { day: 2, start: 13 * 60, end: 14 * 60 + 30, title: "Design" },
-    { day: 2, start: 14 * 60 + 30, end: 15 * 60 + 30, title: "Hiring debrief" },
-    { day: 2, start: 16 * 60, end: 17 * 60 + 30, title: "Focus time" },
-    { day: 2, start: 17 * 60 + 30, end: 18 * 60 + 30, title: "Research" },
-    { day: 3, start: 8 * 60, end: 9 * 60, title: "Leadership" },
-    { day: 3, start: 9 * 60, end: 10 * 60 + 30, title: "Ops review" },
+    { day: 2, start: 14 * 60 + 30, end: 15 * 60 + 30, title: "Debrief" },
+    { day: 2, start: 16 * 60, end: 17 * 60 + 30, title: "Focus" },
+    { day: 2, start: 17 * 60 + 30, end: 18 * 60 + 30, title: "Calls" },
+    { day: 3, start: 8 * 60, end: 9 * 60, title: "Strategy" },
+    { day: 3, start: 9 * 60, end: 10 * 60 + 30, title: "Ops" },
     { day: 3, start: 12 * 60, end: 13 * 60, title: "Lunch" },
-    { day: 3, start: 13 * 60, end: 14 * 60, title: "Partner 1:1" },
-    { day: 3, start: 15 * 60, end: 16 * 60, title: "Team sync" },
-    { day: 3, start: 16 * 60, end: 17 * 60, title: "Finance review" },
+    { day: 3, start: 13 * 60, end: 14 * 60, title: "Partner" },
+    { day: 3, start: 15 * 60, end: 16 * 60, title: "Sync" },
+    { day: 3, start: 16 * 60, end: 17 * 60, title: "Finance" },
     { day: 3, start: 17 * 60, end: 18 * 60, title: "Travel" },
     { day: 3, start: 21 * 60 + 30, end: 22 * 60 + 30, title: "APAC call" },
     { day: 4, start: 9 * 60, end: 10 * 60, title: "Standup" },
-    { day: 4, start: 10 * 60, end: 11 * 60, title: "Weekly review" },
+    { day: 4, start: 10 * 60, end: 11 * 60, title: "Review" },
     { day: 4, start: 11 * 60 + 30, end: 12 * 60 + 15, title: "Planning" },
     { day: 4, start: 12 * 60 + 15, end: 13 * 60 + 30, title: "Lunch" },
-    { day: 4, start: 13 * 60 + 30, end: 15 * 60, title: "Focus time" },
+    { day: 4, start: 13 * 60 + 30, end: 15 * 60, title: "Focus" },
     { day: 4, start: 15 * 60, end: 16 * 60 + 30, title: "Debrief" },
     { day: 4, start: 16 * 60 + 30, end: 18 * 60, title: "Wrap-up" },
   ];
@@ -282,7 +284,9 @@ else if (demo) {
       : (displayedHoldTime || "Mon · 9:00 AM");
     const selectedDay = activeDay(firstSelected);
     const selectedDayIndex = Math.max(0, days.indexOf(selectedDay));
-    const singleDay = m.kind === "hold";
+    // A hold and an added invitee both concern one meeting, so they show its
+    // day; five day columns would be too narrow for 12px text.
+    const singleDay = m.kind === "hold" || m.kind === "invitee";
     const calendarView = singleDay
       ? holdCalendarView(displayedHoldTime)
       : { start: CALENDAR_START_MINUTES, end: CALENDAR_END_MINUTES, step: 120 };
@@ -314,6 +318,11 @@ else if (demo) {
       const layout = layoutRange(range);
       return layout ? blockStyle(layout, compactCalendar, minimumHeight, calendarView.start, calendarView.end) : "";
     };
+    // A send-times option sits in one of three narrow day columns, so its
+    // block names only its start; the card lists the full range.
+    const proposalLabel = (range) => (m.kind === "times"
+      ? clockParts(range.start).clock
+      : formatCalendarRange(range).split(" · ")[1]);
     calendar.className = `context-panel calendar-panel${singleDay ? " is-single-day" : m.kind === "times" ? " is-three-day" : ""}`;
     calendar.dataset.dayStart = String(visibleDays[0].dayIndex);
     calendar.dataset.dayCount = String(visibleDays.length);
@@ -334,7 +343,7 @@ else if (demo) {
       const removable = m.kind === "times"
         ? `<button type="button" class="calendar-block-remove" data-block-index="${blockIndex}" aria-label="Remove ${escapeHTML(value)}">${ICONS.no}</button>`
         : "";
-      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyleFor(range)}">${title}<span>${escapeHTML(value.replace(`${days[range.day]} · `, ""))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
+      return `<div class="calendar-event calendar-proposal" data-block-index="${blockIndex}" style="${blockStyleFor(range)}">${title}<span>${escapeHTML(proposalLabel(range))}</span>${removable}<span class="calendar-resize-handle" data-block-index="${blockIndex}" aria-hidden="true"></span></div>`;
     }).join("");
     const busyMarkup = BUSY_EVENTS.filter((event) => (
       visibleDayIndexes.includes(event.day)
@@ -407,7 +416,7 @@ else if (demo) {
             end: start + duration,
           };
           proposal.setAttribute("style", blockStyleFor(moved));
-          proposal.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(moved).split(" · ")[1];
+          proposal.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = proposalLabel(moved);
         };
         const end = (endEvent) => {
           if (endEvent.pointerId !== event.pointerId) return;
@@ -485,7 +494,7 @@ else if (demo) {
         }
         const range = { day: creating.day, start: creating.start, end: creating.end };
         creating.node.setAttribute("style", blockStyleFor(range));
-        creating.node.querySelector("span").textContent = formatCalendarRange(range).split(" · ")[1];
+        creating.node.querySelector("span").textContent = proposalLabel(range);
       });
       const finishCreation = (event) => {
         if (!creating || creating.pointerId !== event.pointerId) return;
@@ -519,7 +528,7 @@ else if (demo) {
           const end = Math.max(original.start + SNAP_MINUTES, Math.min(calendarView.end, point.minutes));
           const range = { ...original, end };
           block.setAttribute("style", blockStyleFor(range));
-          block.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = formatCalendarRange(range).split(" · ")[1];
+          block.querySelector(":scope > span:not(.calendar-resize-handle)").textContent = proposalLabel(range);
         };
         const end = (endEvent) => {
           handle.removeEventListener("pointermove", move);

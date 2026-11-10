@@ -520,7 +520,7 @@ html:not(.js) .demo { display: none; }
   border: 0;
   background: transparent;
   color: var(--muted);
-  font: 600 0.6875rem/1 var(--sans);
+  font: 600 0.75rem/1 var(--sans);
   cursor: pointer;
 }
 .act-edit { border-color: var(--rule-strong); color: var(--muted); }
@@ -618,15 +618,15 @@ html:not(.js) .demo { display: none; }
   padding-top: 10px;
   border-top: 1px solid var(--rule);
   color: #94a3b8;
-  font: 400 0.625rem/1.4 var(--sans);
+  font: 400 0.75rem/1.4 var(--sans);
 }
 .thread-recipient strong { color: #64748b; font-weight: 600; }
 .thread-list li { padding-left: 3px; }
 .thread-list li::marker { color: var(--cobalt); font-size: 0.75rem; }
 .thread-sender { display: flex; align-items: baseline; gap: 6px; font-size: 0.75rem; }
 .thread-sender strong { font-weight: 650; }
-.thread-time { color: var(--faint); font: 400 0.5625rem/1.4 var(--mono); }
-.thread-email { margin-top: 1px; color: var(--faint); font-size: 0.625rem; }
+.thread-time { color: var(--faint); font: 400 0.75rem/1.4 var(--mono); }
+.thread-email { margin-top: 1px; color: var(--faint); font-size: 0.75rem; }
 .thread-message-copy {
   display: -webkit-box;
   margin-top: 5px;
@@ -639,7 +639,7 @@ html:not(.js) .demo { display: none; }
 }
 .calendar-panel {
   --calendar-columns: 5;
-  --calendar-gutter: 38px;
+  --calendar-gutter: 44px;
 }
 .calendar-panel.is-single-day { --calendar-columns: 1; }
 .calendar-panel.is-three-day { --calendar-columns: 3; }
@@ -651,12 +651,12 @@ html:not(.js) .demo { display: none; }
 .calendar-day {
   display: grid;
   place-items: center;
-  min-height: 32px;
+  min-height: 36px;
   color: var(--faint);
-  font: 500 0.5625rem/1.2 var(--mono);
+  font: 500 0.75rem/1.2 var(--mono);
   text-align: center;
 }
-.calendar-day span { display: block; margin-top: 2px; font: 650 0.75rem/1 var(--sans); }
+.calendar-day span { display: block; margin-top: 2px; font: 650 0.875rem/1 var(--sans); }
 .calendar-day.is-active { color: #2563eb; }
 .calendar-day.is-active span { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .calendar-grid { position: relative; margin-top: 8px; padding-left: var(--calendar-gutter); touch-action: none; }
@@ -673,16 +673,16 @@ html:not(.js) .demo { display: none; }
 .calendar-grid.is-directly-editable { cursor: crosshair; }
 .calendar-hour {
   position: relative;
-  height: 36px;
+  height: 44px;
   border-top: 1px solid #dfe4ea;
 }
 .calendar-hour:last-child { border-bottom: 1px solid #dfe4ea; }
 .calendar-hour > span {
   position: absolute;
-  right: calc(100% + 7px);
-  top: -7px;
+  right: calc(100% + 6px);
+  top: -6px;
   white-space: nowrap;
-  font: 400 0.5625rem/1 var(--mono);
+  font: 400 0.75rem/1 var(--mono);
   color: var(--faint);
 }
 .calendar-event {
@@ -690,25 +690,26 @@ html:not(.js) .demo { display: none; }
   left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / var(--calendar-columns) * var(--calendar-day) + 2px);
   width: calc((100% - var(--calendar-gutter)) / var(--calendar-columns) - 4px);
   min-height: 0;
-  padding: 2px 3px;
+  padding: 2px 4px;
   overflow: hidden;
   border-radius: 6px;
   background: #eef2f6;
   color: #334155;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 650;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 .calendar-event span { display: block; margin-top: 1px; font-weight: 400; }
+/* A busy block names itself only, and only where a 12px line fits; the
+   grid already says when it is. */
 .calendar-event-muted {
   z-index: 1;
   min-height: 11px;
+  container-type: size;
   border-left: 2px solid #cbd5e1;
   border-radius: 3px;
   background: #e9edf2;
   color: #475569;
-  font-size: 0.5rem;
-  line-height: 1.05;
 }
 .calendar-event-muted strong,
 .calendar-event-muted span {
@@ -717,11 +718,16 @@ html:not(.js) .demo { display: none; }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.calendar-event-muted span { font-size: 0.4375rem; }
+.calendar-event-muted span { display: none; }
+@container (max-height: 10px) {
+  .calendar-event-muted strong { visibility: hidden; }
+}
+/* A blue block shows its time under its title only when both lines fit */
 .calendar-proposal {
   z-index: 2;
   min-height: 18px;
-  padding: 3px 14px 5px 5px;
+  container-type: size;
+  padding: 3px 14px 3px 5px;
   border: 1px solid #1d4ed8;
   background: #2563eb;
   color: #fff;
@@ -737,7 +743,10 @@ html:not(.js) .demo { display: none; }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.calendar-proposal > span:not(.calendar-resize-handle) { margin-top: 0; font-size: 0.5rem; }
+.calendar-proposal > span:not(.calendar-resize-handle) { margin-top: 0; }
+@container (max-height: 25px) {
+  .calendar-proposal > strong ~ span:not(.calendar-resize-handle) { display: none; }
+}
 .calendar-block-remove {
   position: absolute;
   z-index: 2;
@@ -1087,9 +1096,9 @@ html:not(.js) .demo { display: none; }
   .thread-message-copy { -webkit-line-clamp: 2; }
   .calendar-panel { display: block; }
   .calendar-days { align-content: start; }
-  .calendar-day { min-height: 28px; }
+  .calendar-day { min-height: 34px; }
   .calendar-grid { margin-top: 4px; }
-  .calendar-hour { height: 28px; }
+  .calendar-hour { height: 34px; }
 }
 
 @media (max-width: 720px) {
@@ -1114,11 +1123,11 @@ html:not(.js) .demo { display: none; }
   .act { padding: 15px 15px 13px; }
   .act-title { margin-top: 12px; font-size: 1rem; }
   .act-kind-times .act-title { margin-top: 7px; font-size: 0.875rem; }
-  .act-kind-times .act-email-copy { height: 42px; margin-top: 5px; font-size: 0.65625rem; line-height: 1.35; }
-  .act-kind-times .act-times { gap: 0; margin-top: 1px; font-size: 0.65625rem; line-height: 1.4; }
+  .act-kind-times .act-email-copy { height: 42px; margin-top: 5px; font-size: 0.75rem; line-height: 1.35; }
+  .act-kind-times .act-times { gap: 0; margin-top: 1px; font-size: 0.75rem; line-height: 1.4; }
   .act-kind-times .act-btns { padding-top: 6px; }
   .act-kind-invitee .invitees .invitee:not(.invitee-new) { display: none; }
-  .act-times { gap: 2px; margin-top: 8px; font-size: 0.71875rem; }
+  .act-times { gap: 2px; margin-top: 8px; font-size: 0.75rem; }
   .act-btns { padding-top: 9px; }
   .act-btn { width: 38px; height: 38px; border-radius: 10px; }
   /* The overview's still "Send times" card is not boxed into the stage, so
