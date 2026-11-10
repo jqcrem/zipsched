@@ -924,7 +924,7 @@ html:not(.js) .demo { display: none; }
   box-shadow: 0 1px 2px rgb(15 27 45 / 0.06), 0 18px 40px -20px rgb(15 27 45 / 0.35);
 }
 .act-static .act-btns { margin-top: 22px; }
-.act-static .act-email-copy { height: auto; padding: 0; margin-top: 8px; }
+.act.act-static .act-email-copy { height: auto; padding: 0; margin-top: 8px; }
 .act-static .act-times { gap: 4px; margin-top: 8px; overflow: visible; }
 .act-was { margin-top: 2px; font-size: 0.75rem; color: #94a3b8; text-decoration: line-through; }
 .act-kind-move .action-tag { background: var(--cobalt-wash); color: var(--cobalt-deep); }
