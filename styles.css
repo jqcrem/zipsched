@@ -926,6 +926,47 @@ html:not(.js) .demo { display: none; }
 .vignette .calendar-event-muted { padding: 3px 4px; }
 .vignette .calendar-event-muted strong { white-space: normal; }
 
+/* Row 01's request is a text conversation: your message on the right in
+   blue, ZipSched's reply on the left in grey under its name. The blue is
+   the calendar's proposal blue, 5.2:1 under white text. */
+.text-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+.text-stamp {
+  align-self: center;
+  margin-bottom: 6px;
+  color: var(--faint);
+  font-size: 0.75rem;
+}
+.text-bubble {
+  max-width: 86%;
+  padding: 8px 12px;
+  border-radius: 18px;
+  text-wrap: pretty;
+}
+.text-sent {
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+}
+.text-received {
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+  background: #e9e9eb;
+  color: #111827;
+}
+.text-from {
+  align-self: flex-start;
+  margin: 10px 0 0 12px;
+  color: var(--faint);
+  font-size: 0.75rem;
+}
+
 /* The suggestion card, still: the hero's card at its natural height */
 .act.act-static {
   position: relative;
