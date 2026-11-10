@@ -856,7 +856,7 @@ html:not(.js) .demo { display: none; }
    the same soft glow, at most one elevated suggestion card, and the hero's
    calendar column. Illustrations are aria-hidden beside a text description,
    and ignore the pointer so a touch on one still scrolls the page. */
-.hero + .section { border-top: 0; padding-top: 0; }
+.hero + .section { padding-top: 0; }
 .section-head { max-width: 720px; margin-bottom: clamp(36px, 5vw, 56px); }
 .section-lede {
   margin-top: 18px;
@@ -871,7 +871,6 @@ html:not(.js) .demo { display: none; }
   gap: clamp(32px, 4vw, 56px);
   align-items: center;
   padding-block: clamp(40px, 6vw, 72px);
-  border-top: 1px solid var(--rule);
 }
 .feature:last-child { padding-bottom: 0; }
 .feature-index { font-size: 0.75rem; line-height: 1; color: var(--cobalt); }
@@ -986,11 +985,9 @@ html:not(.js) .demo { display: none; }
   left: calc(var(--calendar-gutter) + (100% - var(--calendar-gutter)) / 2 + 16px);
 }
 
-/* Sections */
-.section {
-  padding-block: var(--section-space);
-  border-top: 1px solid var(--rule);
-}
+/* Sections: whitespace alone separates them, one --section-space apart */
+.section { padding-block: var(--section-space); }
+.section + .section { padding-top: 0; }
 
 /* Founder */
 .founder {
@@ -1025,7 +1022,6 @@ html:not(.js) .demo { display: none; }
 
 /* Footer */
 .site-footer {
-  border-top: 1px solid var(--rule);
   font-size: 0.875rem;
   color: var(--muted);
 }
