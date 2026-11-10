@@ -850,20 +850,13 @@ html:not(.js) .demo { display: none; }
 .demo[data-state="interactive"] .icon-replay,
 .demo[data-state="ended"] .icon-replay { display: block; }
 
-/* How it works: one section in the page's own grammar (left-aligned head,
-   whitespace between rows) with a row per part of the product.
-   Every illustration is built from the hero's pieces: bare context lit by
-   the same soft glow, at most one elevated suggestion card, and the hero's
-   calendar column. Illustrations are aria-hidden beside a text description,
-   and ignore the pointer so a touch on one still scrolls the page. */
+/* How it works: a row per part of the product, straight after the hero,
+   under a heading only screen readers announce. Every illustration is built
+   from the hero's pieces: bare context lit by the same soft glow, at most
+   one elevated suggestion card, and the hero's calendar column.
+   Illustrations are aria-hidden beside a text description, and ignore the
+   pointer so a touch on one still scrolls the page. */
 .hero + .section { padding-top: 0; }
-.section-head { max-width: 720px; margin-bottom: clamp(36px, 5vw, 56px); }
-.section-lede {
-  margin-top: 18px;
-  font-size: 1.125rem;
-  color: var(--muted);
-  text-wrap: pretty;
-}
 
 .feature {
   display: grid;
