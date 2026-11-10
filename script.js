@@ -174,7 +174,7 @@ else if (demo) {
       : `${from.clock} ${from.meridiem}`;
     return `${days[day]} · ${startLabel}–${to.clock} ${to.meridiem}`;
   };
-  const extendCalendarRange = (value, minutes = 30) => {
+  const extendCalendarRange = (value, minutes = 15) => {
     const range = parseCalendarRange(value);
     return range ? formatCalendarRange({ ...range, end: Math.min(CALENDAR_END_MINUTES, range.end + minutes) }) : value;
   };
