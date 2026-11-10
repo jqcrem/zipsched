@@ -1134,6 +1134,12 @@ html:not(.js) .demo { display: none; }
   .act-times { gap: 2px; margin-top: 8px; font-size: 0.71875rem; }
   .act-btns { padding-top: 9px; }
   .act-btn { width: 38px; height: 38px; border-radius: 10px; }
+  /* The overview's still "Send times" card is not boxed into the stage, so
+     it keeps the type the rules above shrink for the moving one. */
+  .act-static.act-kind-times .act-title { margin-top: 12px; font-size: 1rem; }
+  .act.act-static.act-kind-times .act-email-copy { margin-top: 8px; font-size: 0.75rem; line-height: 1.5; }
+  .act-static.act-kind-times .act-times { gap: 4px; margin-top: 8px; font-size: 0.75rem; line-height: 1.6; }
+  .act-static.act-kind-times .act-btns { padding-top: 9px; }
   .stage-calendar { top: 438px; height: 246px; }
   .founder { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .founder-photo { width: 96px; height: 96px; }
