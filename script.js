@@ -831,21 +831,21 @@ else if (demo) {
     summary.style.transform = "";
 
     // 1. The emails land.
-    let t = 500;
+    let t = 250;
     mails.forEach((mail, i) => {
       const slow = i < SLOW;
       const p = pile[i];
       at(mail, [
         { transform: tf(p.x - 24 * k, p.y - 70 * k, p.r - 9, 1.06), opacity: 0 },
         { transform: tf(p.x, p.y, p.r), opacity: 1 },
-      ], t, slow ? 650 : 280, DROP, "both");
+      ], t, slow ? 420 : 200, DROP, "both");
       at(mail.querySelector("mark"), [{ backgroundSize: "0% 100%" }, { backgroundSize: "100% 100%" }],
-        t + (slow ? 450 : 120), slow ? 600 : 200, "ease-out", "both");
-      if (i < n - 1) t += i < SLOW - 1 ? 1500 : i === SLOW - 1 ? 1800 : 130;
+        t + (slow ? 200 : 80), slow ? 320 : 140, "ease-out", "both");
+      if (i < n - 1) t += i < SLOW - 1 ? 280 : i === SLOW - 1 ? 240 : 35;
     });
 
     // 2. The pile gathers to the left.
-    t += 280 + 650;
+    t += 200 + 120;
     mails.forEach((mail, i) => {
       const from = pile[i];
       const to = gathered[i];
@@ -877,7 +877,7 @@ else if (demo) {
         { transform: tf(d.x, d.y, d.r), opacity: 1 },
       ], t + fly, flip, "cubic-bezier(0.2, 0.7, 0.3, 1)", "both");
       if (i > 0) {
-        t += 28;
+        t += 16;
       } else {
         t += fly + flip + 120;
       }
